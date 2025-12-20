@@ -14,8 +14,11 @@ class ProductResource extends JsonResource
             'type' => $this->type,
             'title' => $this->title,
             'description' => $this->description,
+            'description_html' => $this->description_html,
             'price_etb' => $this->price_etb,
+            'thumbnail_url' => $this->thumbnail_url,
             'access_url' => $this->access_url,
+            'content_path' => $this->access_url, // Alias for backward compatibility
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }

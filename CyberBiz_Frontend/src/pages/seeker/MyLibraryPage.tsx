@@ -5,6 +5,7 @@ import { BookOpen, Play, Download, ShoppingBag } from 'lucide-react';
 import { Header, Footer } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getImageUrl } from '@/lib/imageUtils';
 import { apiService } from '@/services/apiService';
 import type { Product } from '@/types';
 
@@ -54,7 +55,7 @@ export default function MyLibraryPage() {
               {products.map((product, index) => (
                 <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="bg-card rounded-xl border border-border overflow-hidden group hover:border-primary/50 transition-colors">
                   <div className="aspect-video bg-muted relative">
-                    {product.thumbnail_url ? <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" /> : (
+                    {product.thumbnail_url ? <img src={getImageUrl(product.thumbnail_url)} alt={product.title} className="w-full h-full object-cover" /> : (
                       <div className="w-full h-full flex items-center justify-center">
                         {product.type === 'COURSE' ? <Play className="w-12 h-12 text-muted-foreground" /> : <BookOpen className="w-12 h-12 text-muted-foreground" />}
                       </div>

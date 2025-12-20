@@ -80,9 +80,10 @@ class ApiClient {
   }
 
   async put<T>(endpoint: string, body?: unknown): Promise<T> {
+    const isFormData = body instanceof FormData;
     return this.request<T>(endpoint, {
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     });
   }
 

@@ -7,20 +7,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header, Footer } from '@/components/layout';
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { FileUpload } from '@/components/ui/file-upload';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 const productSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(255),
-  description: z.string().min(50, 'Description must be at least 50 characters'),
+  description_html: z.string().min(50, 'Description must be at least 50 characters'),
   type: z.enum(['COURSE', 'EBOOK']),
   price_etb: z.number().min(0, 'Price must be positive'),
-  thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   content_path: z.string().optional(),
 });
 
@@ -32,6 +32,9 @@ export default function AdminEditProductPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
+  const [thumbnailChanged, setThumbnailChanged] = useState(false);
 
   const {
     register,
@@ -44,6 +47,7 @@ export default function AdminEditProductPage() {
   });
 
   const type = watch('type');
+  const descriptionHtml = watch('description_html');
 
   useEffect(() => {
     if (id) {
@@ -57,11 +61,11 @@ export default function AdminEditProductPage() {
       const productData = response.data;
       setProduct(productData);
       setValue('title', productData.title);
-      setValue('description', productData.description);
+      setValue('description_html', productData.description_html || productData.description || '');
       setValue('type', productData.type);
       setValue('price_etb', productData.price_etb);
-      setValue('thumbnail_url', productData.thumbnail_url || '');
       setValue('content_path', productData.content_path || '');
+      setThumbnailUrl(productData.thumbnail_url || '');
     } catch (error) {
       toast.error('Product not found');
       navigate('/admin/products');
@@ -75,14 +79,41 @@ export default function AdminEditProductPage() {
     
     setIsSaving(true);
     try {
-      await apiService.updateAdminProduct(id, {
+      const updateData: {
+        title: string;
+        description_html: string;
+        type: 'COURSE' | 'EBOOK';
+        price_etb: number;
+        thumbnail?: File;
+        thumbnail_url?: string;
+        content_path?: string;
+      } = {
         title: data.title,
-        description: data.description,
+        description_html: data.description_html,
         type: data.type,
         price_etb: data.price_etb,
-        thumbnail_url: data.thumbnail_url || undefined,
-        content_path: data.content_path || undefined,
-      });
+      };
+
+      // Only include thumbnail if it has changed
+      if (thumbnailChanged) {
+        if (thumbnailFile) {
+          // New file uploaded
+          updateData.thumbnail = thumbnailFile;
+        } else if (thumbnailUrl === '') {
+          // Thumbnail was removed
+          updateData.thumbnail_url = '';
+        } else if (thumbnailUrl) {
+          // URL provided (either new or updated)
+          updateData.thumbnail_url = thumbnailUrl;
+        }
+      }
+      // If thumbnailChanged is false, don't include thumbnail data (keeps existing)
+
+      if (data.content_path !== undefined) {
+        updateData.content_path = data.content_path;
+      }
+
+      await apiService.updateAdminProduct(id, updateData);
       toast.success('Product updated successfully!');
       navigate('/admin/products');
     } catch (error) {
@@ -123,9 +154,13 @@ export default function AdminEditProductPage() {
                   {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea id="description" placeholder="Describe the product..." rows={8} {...register('description')} />
-                  {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
+                  <Label htmlFor="description_html">Description *</Label>
+                  <RichTextEditor
+                    value={descriptionHtml || ''}
+                    onChange={(value) => setValue('description_html', value)}
+                    type="product"
+                    error={errors.description_html?.message}
+                  />
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -151,11 +186,22 @@ export default function AdminEditProductPage() {
                     {errors.price_etb && <p className="text-sm text-destructive">{errors.price_etb.message}</p>}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="thumbnail_url">Thumbnail URL (Optional)</Label>
-                  <Input id="thumbnail_url" type="url" placeholder="https://example.com/image.jpg" {...register('thumbnail_url')} />
-                  {errors.thumbnail_url && <p className="text-sm text-destructive">{errors.thumbnail_url.message}</p>}
-                </div>
+                <FileUpload
+                  value={thumbnailUrl}
+                  onChange={(file, url) => {
+                    setThumbnailFile(file);
+                    setThumbnailUrl(url || '');
+                    setThumbnailChanged(true);
+                  }}
+                  onUrlChange={(url) => {
+                    setThumbnailUrl(url);
+                    setThumbnailChanged(true);
+                  }}
+                  label="Thumbnail Image (Optional)"
+                  showUrlInput={true}
+                  accept="image/*"
+                  maxSize={5}
+                />
                 <div className="space-y-2">
                   <Label htmlFor="content_path">Content Path (Optional)</Label>
                   <Input id="content_path" placeholder="/path/to/content" {...register('content_path')} />

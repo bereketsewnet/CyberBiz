@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/products', [AdminProductController::class, 'store']);
         Route::get('/products/{id}', [AdminProductController::class, 'show']);
         Route::put('/products/{id}', [AdminProductController::class, 'update']);
+        Route::post('/products/{id}/update', [AdminProductController::class, 'update']); // POST endpoint for FormData updates
         Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
 
         // Jobs Management (using existing JobPostingController but admin-only list)

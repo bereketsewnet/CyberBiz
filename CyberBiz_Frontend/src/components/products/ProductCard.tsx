@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, FileText, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getImageUrl } from '@/lib/imageUtils';
 import type { Product } from '@/types';
 
 interface ProductCardProps {
@@ -31,7 +32,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="aspect-video relative overflow-hidden">
         {product.thumbnail_url ? (
           <img
-            src={product.thumbnail_url}
+            src={getImageUrl(product.thumbnail_url)}
             alt={product.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

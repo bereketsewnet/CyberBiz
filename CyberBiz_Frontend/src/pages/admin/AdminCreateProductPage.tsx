@@ -8,18 +8,18 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header, Footer } from '@/components/layout';
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { FileUpload } from '@/components/ui/file-upload';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
 const productSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(255),
-  description: z.string().min(50, 'Description must be at least 50 characters'),
+  description_html: z.string().min(50, 'Description must be at least 50 characters'),
   type: z.enum(['COURSE', 'EBOOK']),
   price_etb: z.number().min(0, 'Price must be positive'),
-  thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   content_path: z.string().optional(),
 });
 
@@ -28,23 +28,27 @@ type ProductFormData = z.infer<typeof productSchema>;
 export default function AdminCreateProductPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: { type: 'COURSE' },
+    defaultValues: { type: 'COURSE', description_html: '' },
   });
 
   const type = watch('type');
+  const descriptionHtml = watch('description_html');
 
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
     try {
       await apiService.createAdminProduct({
         title: data.title,
-        description: data.description,
+        description_html: data.description_html,
         type: data.type,
         price_etb: data.price_etb,
-        thumbnail_url: data.thumbnail_url || undefined,
+        thumbnail: thumbnailFile || undefined,
+        thumbnail_url: thumbnailUrl || undefined,
         content_path: data.content_path || undefined,
       });
       toast.success('Product created successfully!');
@@ -75,9 +79,13 @@ export default function AdminCreateProductPage() {
                   {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea id="description" placeholder="Describe the product..." rows={8} {...register('description')} />
-                  {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
+                  <Label htmlFor="description_html">Description *</Label>
+                  <RichTextEditor
+                    value={descriptionHtml || ''}
+                    onChange={(value) => setValue('description_html', value)}
+                    type="product"
+                    error={errors.description_html?.message}
+                  />
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -103,11 +111,18 @@ export default function AdminCreateProductPage() {
                     {errors.price_etb && <p className="text-sm text-destructive">{errors.price_etb.message}</p>}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="thumbnail_url">Thumbnail URL (Optional)</Label>
-                  <Input id="thumbnail_url" type="url" placeholder="https://example.com/image.jpg" {...register('thumbnail_url')} />
-                  {errors.thumbnail_url && <p className="text-sm text-destructive">{errors.thumbnail_url.message}</p>}
-                </div>
+                <FileUpload
+                  value={thumbnailUrl}
+                  onChange={(file, url) => {
+                    setThumbnailFile(file);
+                    setThumbnailUrl(url || '');
+                  }}
+                  onUrlChange={(url) => setThumbnailUrl(url)}
+                  label="Thumbnail Image (Optional)"
+                  showUrlInput={true}
+                  accept="image/*"
+                  maxSize={5}
+                />
                 <div className="space-y-2">
                   <Label htmlFor="content_path">Content Path (Optional)</Label>
                   <Input id="content_path" placeholder="/path/to/content" {...register('content_path')} />

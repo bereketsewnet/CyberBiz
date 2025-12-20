@@ -15,7 +15,9 @@ class Product extends Model
         'type',
         'title',
         'description',
+        'description_html',
         'price_etb',
+        'thumbnail_url',
         'access_url',
     ];
 

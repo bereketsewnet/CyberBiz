@@ -258,17 +258,63 @@ export const apiService = {
 
   async createAdminProduct(data: {
     title: string;
-    description: string;
+    description?: string;
+    description_html?: string;
     type: 'COURSE' | 'EBOOK';
     price_etb: number;
     thumbnail_url?: string;
+    thumbnail?: File;
     content_path?: string;
   }): Promise<{ message: string; data: Product }> {
-    return api.post<{ message: string; data: Product }>('/admin/products', data);
+    const formData = new FormData();
+    formData.append('title', data.title);
+    if (data.description_html) {
+      formData.append('description_html', data.description_html);
+    }
+    if (data.description) {
+      formData.append('description', data.description);
+    }
+    formData.append('type', data.type);
+    formData.append('price_etb', data.price_etb.toString());
+    if (data.thumbnail) {
+      formData.append('thumbnail', data.thumbnail);
+    } else if (data.thumbnail_url) {
+      formData.append('thumbnail_url', data.thumbnail_url);
+    }
+    if (data.content_path) {
+      formData.append('content_path', data.content_path);
+    }
+    return api.post<{ message: string; data: Product }>('/admin/products', formData);
   },
 
-  async updateAdminProduct(id: string, data: Partial<Product>): Promise<{ message: string; data: Product }> {
-    return api.put<{ message: string; data: Product }>(`/admin/products/${id}`, data);
+  async updateAdminProduct(id: string, data: {
+    title?: string;
+    description?: string;
+    description_html?: string;
+    type?: 'COURSE' | 'EBOOK';
+    price_etb?: number;
+    thumbnail_url?: string;
+    thumbnail?: File;
+    content_path?: string;
+  }): Promise<{ message: string; data: Product }> {
+    const formData = new FormData();
+    // Always include required fields if they exist in data
+    if (data.title !== undefined) formData.append('title', data.title);
+    if (data.description_html !== undefined) formData.append('description_html', data.description_html);
+    if (data.description !== undefined) formData.append('description', data.description);
+    if (data.type !== undefined) formData.append('type', data.type);
+    if (data.price_etb !== undefined) formData.append('price_etb', data.price_etb.toString());
+    if (data.thumbnail) {
+      formData.append('thumbnail', data.thumbnail);
+    } else if (data.thumbnail_url !== undefined) {
+      formData.append('thumbnail_url', data.thumbnail_url || '');
+    }
+    if (data.content_path !== undefined) {
+      formData.append('content_path', data.content_path || '');
+    }
+    
+    // Use POST endpoint for FormData updates (Laravel doesn't parse FormData correctly with PUT)
+    return api.post<{ message: string; data: Product }>(`/admin/products/${id}/update`, formData);
   },
 
   async deleteAdminProduct(id: string): Promise<{ message: string }> {

@@ -9,9 +9,10 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   error?: string;
+  type?: 'job' | 'product';
 }
 
-const defaultTemplate = `
+const jobDefaultTemplate = `
 <h2>Job Description</h2>
 <p>We are looking for a talented professional to join our team...</p>
 
@@ -30,15 +31,36 @@ const defaultTemplate = `
 </ul>
 `.trim();
 
-export function RichTextEditor({ value, onChange, placeholder, className, error }: RichTextEditorProps) {
+const productDefaultTemplate = `
+<h2>Overview</h2>
+<p>This course/book provides comprehensive training on the subject...</p>
+
+<h3>What You'll Learn:</h3>
+<ul>
+  <li>Key concept 1</li>
+  <li>Key concept 2</li>
+  <li>Key concept 3</li>
+</ul>
+
+<h3>Requirements:</h3>
+<ul>
+  <li>Basic understanding required</li>
+  <li>Access to necessary tools/software</li>
+</ul>
+`.trim();
+
+export function RichTextEditor({ value, onChange, placeholder, className, error, type = 'job' }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuill>(null);
+  const defaultTemplate = type === 'product' ? productDefaultTemplate : jobDefaultTemplate;
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    // Set default template if value is empty
-    if (!value || value.trim() === '') {
+    // Set default template only once when component mounts if value is empty
+    if (!initializedRef.current && (!value || value.trim() === '')) {
+      initializedRef.current = true;
       onChange(defaultTemplate);
     }
-  }, []);
+  }, [value, defaultTemplate, onChange]);
 
   const modules = {
     toolbar: [
@@ -70,7 +92,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, error 
           theme="snow"
           value={value || defaultTemplate}
           onChange={onChange}
-          placeholder={placeholder || 'Enter job description...'}
+          placeholder={placeholder || (type === 'product' ? 'Enter product description...' : 'Enter job description...')}
           modules={modules}
           formats={formats}
           className="[&_.ql-editor]:min-h-[300px] [&_.ql-container]:rounded-b-md [&_.ql-toolbar]:rounded-t-md [&_.ql-toolbar]:bg-muted/50"

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header, Footer } from '@/components/layout';
+import { getImageUrl } from '@/lib/imageUtils';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
@@ -129,7 +130,7 @@ export default function AdminProductsPage() {
                   >
                     <div className="aspect-video bg-muted relative">
                       {product.thumbnail_url ? (
-                        <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(product.thumbnail_url)} alt={product.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           {product.type === 'COURSE' ? <BookOpen className="w-12 h-12 text-muted-foreground" /> : <FileText className="w-12 h-12 text-muted-foreground" />}

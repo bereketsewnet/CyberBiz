@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Header, Footer } from '@/components/layout';
+import { getImageUrl } from '@/lib/imageUtils';
 import { useAuthStore } from '@/store/authStore';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
@@ -141,7 +142,7 @@ export default function ProductDetailPage() {
               <div className="aspect-video bg-muted rounded-xl overflow-hidden">
                 {product.thumbnail_url ? (
                   <img
-                    src={product.thumbnail_url}
+                    src={getImageUrl(product.thumbnail_url)}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />

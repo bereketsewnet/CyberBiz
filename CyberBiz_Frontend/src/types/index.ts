@@ -55,6 +55,7 @@ export interface Product {
   id: string;
   title: string;
   description: string;
+  description_html?: string;
   type: ProductType;
   price_etb: number;
   thumbnail_url?: string;
