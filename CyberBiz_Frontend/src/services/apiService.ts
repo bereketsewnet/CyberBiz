@@ -1,0 +1,282 @@
+import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
+import type {
+  User,
+  JobPosting,
+  Product,
+  Application,
+  Transaction,
+  AdSlot,
+  PaginatedResponse,
+  AuthResponse,
+} from '@/types';
+
+export const apiService = {
+  // ========== AUTH ==========
+  async login(email: string, password: string): Promise<AuthResponse> {
+    return api.post<AuthResponse>('/auth/login', { email, password });
+  },
+
+  async signup(data: {
+    full_name: string;
+    email: string;
+    phone: string;
+    password: string;
+    password_confirmation: string;
+    role?: 'SEEKER' | 'EMPLOYER' | 'LEARNER';
+  }): Promise<AuthResponse> {
+    return api.post<AuthResponse>('/auth/signup', data);
+  },
+
+  async getUser(): Promise<{ user: User }> {
+    return api.get<{ user: User }>('/auth/user');
+  },
+
+  async logout(): Promise<{ message: string }> {
+    return api.post<{ message: string }>('/auth/logout');
+  },
+
+  // ========== JOBS ==========
+  async getJobs(params?: { q?: string; page?: number; status?: string; my_jobs?: boolean }): Promise<PaginatedResponse<JobPosting>> {
+    return api.get<PaginatedResponse<JobPosting>>('/jobs', params);
+  },
+
+  async getJob(id: string): Promise<{ data: JobPosting }> {
+    return api.get<{ data: JobPosting }>(`/jobs/${id}`);
+  },
+
+  async createJob(data: {
+    title: string;
+    job_type?: string;
+    location?: string;
+    experience?: string;
+    skills?: string[];
+    description?: string;
+    description_html?: string;
+    status?: string;
+    expires_at?: string;
+    company_description?: string;
+    website_url?: string;
+  }): Promise<{ message: string; data: JobPosting }> {
+    return api.post<{ message: string; data: JobPosting }>('/jobs', data);
+  },
+
+  async updateJob(id: string, data: Partial<JobPosting>): Promise<{ message: string; data: JobPosting }> {
+    return api.put<{ message: string; data: JobPosting }>(`/jobs/${id}`, data);
+  },
+
+  async deleteJob(id: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/jobs/${id}`);
+  },
+
+  // ========== APPLICATIONS ==========
+  async applyForJob(jobId: string, cv: File, coverLetter?: string): Promise<{ message: string; data: Application }> {
+    const formData = new FormData();
+    formData.append('cv', cv);
+    if (coverLetter) {
+      formData.append('cover_letter', coverLetter);
+    }
+    return api.post<{ message: string; data: Application }>(`/jobs/${jobId}/apply`, formData);
+  },
+
+  async getJobApplications(jobId: string, page?: number): Promise<PaginatedResponse<Application>> {
+    return api.get<PaginatedResponse<Application>>(`/jobs/${jobId}/applications`, { page });
+  },
+
+  async getMyApplications(page?: number): Promise<PaginatedResponse<Application>> {
+    return api.get<PaginatedResponse<Application>>('/user/applications', { page });
+  },
+
+  async downloadCV(applicationId: string): Promise<void> {
+    const token = useAuthStore.getState().token;
+    const response = await fetch(`${api.baseUrl}/files/cv/${applicationId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Failed to download CV');
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cv-${applicationId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  // ========== PRODUCTS ==========
+  async getProducts(params?: { type?: 'COURSE' | 'EBOOK'; page?: number }): Promise<PaginatedResponse<Product>> {
+    return api.get<PaginatedResponse<Product>>('/products', params);
+  },
+
+  async getProduct(id: string): Promise<{ data: Product }> {
+    return api.get<{ data: Product }>(`/products/${id}`);
+  },
+
+  async getUserLibrary(page?: number): Promise<PaginatedResponse<Product>> {
+    return api.get<PaginatedResponse<Product>>('/user/library', { page });
+  },
+
+  // ========== PAYMENTS ==========
+  async initiatePayment(productId: string, amount: number): Promise<{ message: string; data: Transaction; instructions: string }> {
+    return api.post<{ message: string; data: Transaction; instructions: string }>('/payments/manual-initiate', {
+      product_id: productId,
+      amount,
+    });
+  },
+
+  async uploadPaymentProof(transactionId: string, proof: File): Promise<{ message: string; data: Transaction }> {
+    const formData = new FormData();
+    formData.append('proof', proof);
+    return api.post<{ message: string; data: Transaction }>(`/payments/${transactionId}/upload-proof`, formData);
+  },
+
+  // ========== ADMIN - PAYMENTS ==========
+  async getPendingPayments(page?: number): Promise<PaginatedResponse<Transaction>> {
+    return api.get<PaginatedResponse<Transaction>>('/admin/payments/pending', { page });
+  },
+
+  async approvePayment(transactionId: string): Promise<{ message: string; data: Transaction }> {
+    return api.post<{ message: string; data: Transaction }>(`/admin/payments/${transactionId}/approve`);
+  },
+
+  async rejectPayment(transactionId: string, reason?: string): Promise<{ message: string; data: Transaction }> {
+    return api.post<{ message: string; data: Transaction }>(`/admin/payments/${transactionId}/reject`, { reason });
+  },
+
+  async downloadPaymentProof(transactionId: string): Promise<void> {
+    const token = useAuthStore.getState().token;
+    const response = await fetch(`${api.baseUrl}/admin/files/proof/${transactionId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    if (!response.ok) throw new Error('Failed to download proof');
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `proof-${transactionId}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  // ========== AD SLOTS ==========
+  async getAds(position?: string): Promise<{ data: AdSlot[] }> {
+    return api.get<{ data: AdSlot[] }>('/ads', { position });
+  },
+
+  // ========== ADMIN - AD SLOTS ==========
+  async getAdminAds(params?: { position?: string; is_active?: boolean; page?: number }): Promise<PaginatedResponse<AdSlot>> {
+    return api.get<PaginatedResponse<AdSlot>>('/admin/ads', params as Record<string, string | number | boolean | undefined>);
+  },
+
+  async getAd(id: number): Promise<{ data: AdSlot }> {
+    return api.get<{ data: AdSlot }>(`/admin/ads/${id}`);
+  },
+
+  async createAd(data: {
+    position: string;
+    image_url: string;
+    target_url: string;
+    is_active?: boolean;
+  }): Promise<{ message: string; data: AdSlot }> {
+    return api.post<{ message: string; data: AdSlot }>('/admin/ads', data);
+  },
+
+  async updateAd(id: number, data: Partial<AdSlot>): Promise<{ message: string; data: AdSlot }> {
+    return api.put<{ message: string; data: AdSlot }>(`/admin/ads/${id}`, data);
+  },
+
+  async deleteAd(id: number): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/admin/ads/${id}`);
+  },
+
+  // ========== STATS ==========
+  async getStats(): Promise<{ data: { active_jobs: number; companies: number; job_seekers: number; success_rate: number } }> {
+    return api.get<{ data: { active_jobs: number; companies: number; job_seekers: number; success_rate: number } }>('/stats');
+  },
+
+  // ========== ADMIN - STATS ==========
+  async getAdminStats(): Promise<{
+    data: {
+      total_users: number;
+      total_users_change: string;
+      active_jobs: number;
+      active_jobs_change: string;
+      revenue_etb: number;
+      revenue_change: string;
+      conversion_rate: number;
+      conversion_rate_change: string;
+      pending_payments: number;
+      active_ads: number;
+      recent_activities: Array<{
+        type: string;
+        action: string;
+        user: string;
+        time: string;
+        created_at: string;
+      }>;
+    };
+  }> {
+    return api.get('/admin/stats');
+  },
+
+  // ========== ADMIN - USERS ==========
+  async getAdminUsers(params?: { role?: string; q?: string; page?: number }): Promise<PaginatedResponse<User>> {
+    return api.get<PaginatedResponse<User>>('/admin/users', params);
+  },
+
+  async getAdminUser(id: string): Promise<{ data: User }> {
+    return api.get<{ data: User }>(`/admin/users/${id}`);
+  },
+
+  async updateAdminUser(id: string, data: Partial<User>): Promise<{ message: string; data: User }> {
+    return api.put<{ message: string; data: User }>(`/admin/users/${id}`, data);
+  },
+
+  async deleteAdminUser(id: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/admin/users/${id}`);
+  },
+
+  // ========== ADMIN - PRODUCTS ==========
+  async getAdminProducts(params?: { type?: 'COURSE' | 'EBOOK'; q?: string; page?: number }): Promise<PaginatedResponse<Product>> {
+    return api.get<PaginatedResponse<Product>>('/admin/products', params);
+  },
+
+  async getAdminProduct(id: string): Promise<{ data: Product }> {
+    return api.get<{ data: Product }>(`/admin/products/${id}`);
+  },
+
+  async createAdminProduct(data: {
+    title: string;
+    description: string;
+    type: 'COURSE' | 'EBOOK';
+    price_etb: number;
+    thumbnail_url?: string;
+    content_path?: string;
+  }): Promise<{ message: string; data: Product }> {
+    return api.post<{ message: string; data: Product }>('/admin/products', data);
+  },
+
+  async updateAdminProduct(id: string, data: Partial<Product>): Promise<{ message: string; data: Product }> {
+    return api.put<{ message: string; data: Product }>(`/admin/products/${id}`, data);
+  },
+
+  async deleteAdminProduct(id: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/admin/products/${id}`);
+  },
+
+  // ========== ADMIN - JOBS ==========
+  async getAdminJobs(params?: { q?: string; status?: string; page?: number }): Promise<PaginatedResponse<JobPosting>> {
+    return api.get<PaginatedResponse<JobPosting>>('/admin/jobs', params);
+  },
+};

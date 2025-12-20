@@ -1,0 +1,1008 @@
+{
+	"info": {
+		"_postman_id": "cyberbiz-africa-api",
+		"name": "CyberBiz Africa API",
+		"description": "Complete API collection for CyberBiz Africa platform - Job Board + LMS + CMS\n\n**Base URL**: {{base_url}}\n\n**Authentication**: Bearer Token (Sanctum)\n\n**Test Credentials**:\n- Admin: admin@cyberbiz.africa / password123\n- Employer: employer1@cyberbiz.africa / password123\n- Seeker: seeker1@cyberbiz.africa / password123",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"+251911000000\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"SEEKER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/signup",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "signup"]
+						},
+						"description": "Register a new user account.\n\n**Roles**: SEEKER, EMPLOYER, LEARNER\n\n**Response**: Returns user object and authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"seeker1@cyberbiz.africa\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Authenticate user and receive access token.\n\n**Response**: Returns user object and Bearer token for subsequent requests."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/user",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "user"]
+						},
+						"description": "Get authenticated user's profile information.\n\n**Requires**: Authentication token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout"]
+						},
+						"description": "Revoke current authentication token.\n\n**Requires**: Authentication token"
+					},
+					"response": []
+				},
+				{
+					"name": "Google OAuth Redirect",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/redirect",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "google", "redirect"]
+						},
+						"description": "Redirects user to Google OAuth consent screen.\n\n**Note**: This endpoint should be accessed via browser, not API client."
+					},
+					"response": []
+				},
+				{
+					"name": "Google OAuth Callback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/callback?code=GOOGLE_AUTH_CODE",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "google", "callback"],
+							"query": [
+								{
+									"key": "code",
+									"value": "GOOGLE_AUTH_CODE",
+									"description": "Authorization code from Google"
+								}
+							]
+						},
+						"description": "Callback endpoint for Google OAuth. Handled automatically by Google redirect.\n\n**Response**: Returns user object, token, and `requires_phone` flag if phone number is missing."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user registration, login, and OAuth"
+		},
+		{
+			"name": "Job Postings",
+			"item": [
+				{
+					"name": "List Jobs (Public)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jobs?q=developer&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs"],
+							"query": [
+								{
+									"key": "q",
+									"value": "developer",
+									"description": "Search query (optional)"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (optional)"
+								},
+								{
+									"key": "status",
+									"value": "PUBLISHED",
+									"description": "Filter by status (PUBLISHED, DRAFT, ARCHIVED) - Admin/Employer only",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get list of published job postings with pagination.\n\n**Public endpoint** - No authentication required\n\n**Query Parameters**:\n- `q`: Search term (searches in title and description)\n- `page`: Page number for pagination\n- `status`: Filter by status (only for authenticated Admin/Employer)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}"]
+						},
+						"description": "Get detailed information about a specific job posting.\n\n**Public endpoint** - Published jobs are accessible to everyone\n\n**Response**: Includes job details and JSON-LD schema for SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Job JSON-LD",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/ld+json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}/jsonld",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}", "jsonld"]
+						},
+						"description": "Get JSON-LD structured data for a job posting (Schema.org format).\n\n**Use case**: For SEO and Google Jobs integration\n\n**Public endpoint**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Job Posting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Senior Software Engineer\",\n    \"description_html\": \"<h2>Job Description</h2><p>We are looking for an experienced software engineer...</p>\",\n    \"status\": \"DRAFT\",\n    \"expires_at\": \"2025-12-31 23:59:59\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/jobs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs"]
+						},
+						"description": "Create a new job posting.\n\n**Requires**: Employer or Admin role\n\n**Status options**: DRAFT, PUBLISHED, ARCHIVED\n\n**Note**: JSON-LD schema is automatically generated for SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Job Posting",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Job Title\",\n    \"description_html\": \"<p>Updated description</p>\",\n    \"status\": \"PUBLISHED\",\n    \"expires_at\": \"2025-12-31 23:59:59\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}"]
+						},
+						"description": "Update an existing job posting.\n\n**Requires**: Job owner (Employer) or Admin role\n\n**Note**: JSON-LD is regenerated if title or description changes"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Job Posting",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}"]
+						},
+						"description": "Delete a job posting (soft delete).\n\n**Requires**: Job owner (Employer) or Admin role"
+					},
+					"response": []
+				}
+			],
+			"description": "Job posting management endpoints"
+		},
+		{
+			"name": "Applications",
+			"item": [
+				{
+					"name": "Apply for Job",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cv",
+									"type": "file",
+									"src": [],
+									"description": "CV file (PDF or DOCX, max 5MB)"
+								},
+								{
+									"key": "cover_letter",
+									"type": "text",
+									"value": "I am very interested in this position...",
+									"description": "Cover letter (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}/apply",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}", "apply"]
+						},
+						"description": "Submit an application for a job posting.\n\n**Requires**: Seeker role\n\n**File Requirements**:\n- Format: PDF or DOCX\n- Max size: 5MB\n\n**Note**: CV is stored securely in private storage"
+					},
+					"response": []
+				},
+				{
+					"name": "List Applications for Job",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/jobs/{{job_id}}/applications?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "jobs", "{{job_id}}", "applications"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Get list of applications for a specific job.\n\n**Requires**: Job owner (Employer) or Admin role\n\n**Response**: Returns paginated list with seeker information and cover letters"
+					},
+					"response": []
+				}
+			],
+			"description": "Job application endpoints"
+		},
+		{
+			"name": "Files",
+			"item": [
+				{
+					"name": "Download CV",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/files/cv/{{application_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "files", "cv", "{{application_id}}"]
+						},
+						"description": "Download a CV file from an application.\n\n**Authorization**:\n- Seeker can download their own CV\n- Employer can download CVs for their job postings\n- Admin can download any CV\n\n**Response**: File download with proper Content-Type"
+					},
+					"response": []
+				},
+				{
+					"name": "Download Payment Proof (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/files/proof/{{transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "files", "proof", "{{transaction_id}}"]
+						},
+						"description": "Download payment proof screenshot/image.\n\n**Requires**: Admin role only\n\n**Response**: File download (image or PDF)"
+					},
+					"response": []
+				}
+			],
+			"description": "File download endpoints for CVs and payment proofs"
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Initiate Manual Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"product_id\": \"{{product_id}}\",\n    \"amount\": 500.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments/manual-initiate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "payments", "manual-initiate"]
+						},
+						"description": "Create a manual payment transaction.\n\n**Requires**: Authentication\n\n**Process**:\n1. Create transaction with status PENDING\n2. User uploads payment proof\n3. Admin approves/rejects\n4. Access granted on approval\n\n**Note**: Amount must match product price"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Payment Proof",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "proof",
+									"type": "file",
+									"src": [],
+									"description": "Payment proof (JPG, PNG, or PDF, max 5MB)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/payments/{{transaction_id}}/upload-proof",
+							"host": ["{{base_url}}"],
+							"path": ["api", "payments", "{{transaction_id}}", "upload-proof"]
+						},
+						"description": "Upload payment proof (screenshot or receipt).\n\n**Requires**: Transaction owner\n\n**File Requirements**:\n- Format: JPG, JPEG, PNG, or PDF\n- Max size: 5MB\n\n**Status Change**: PENDING → PENDING_APPROVAL"
+					},
+					"response": []
+				}
+			],
+			"description": "Manual payment flow endpoints"
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "List Pending Payments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/payments/pending?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "payments", "pending"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Get list of payments pending admin approval.\n\n**Requires**: Admin role\n\n**Response**: Paginated list of transactions with status PENDING_APPROVAL"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/payments/{{transaction_id}}/approve",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "payments", "{{transaction_id}}", "approve"]
+						},
+						"description": "Approve a payment transaction.\n\n**Requires**: Admin role\n\n**Actions**:\n1. Updates transaction status to APPROVED\n2. Grants user access to purchased product (creates user_library entry)\n3. Sends receipt email (TODO)\n\n**Note**: Only works on transactions with status PENDING_APPROVAL"
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"Payment proof is unclear or invalid\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/payments/{{transaction_id}}/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "payments", "{{transaction_id}}", "reject"]
+						},
+						"description": "Reject a payment transaction.\n\n**Requires**: Admin role\n\n**Actions**:\n1. Updates transaction status to REJECTED\n2. Stores rejection reason in transaction meta\n3. Sends rejection email (TODO)\n\n**Note**: Only works on transactions with status PENDING_APPROVAL"
+					},
+					"response": []
+				}
+			],
+			"description": "Admin-only endpoints for payment management"
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/products?type=EBOOK&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"],
+							"query": [
+								{
+									"key": "type",
+									"value": "EBOOK",
+									"description": "Filter by type (COURSE, EBOOK) - optional"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								}
+							]
+						},
+						"description": "Get list of available products (courses and e-books).\n\n**Public endpoint** - No authentication required\n\n**Query Parameters**:\n- `type`: Filter by product type (COURSE, EBOOK) - optional\n- `page`: Page number for pagination\n\n**Response**: Paginated list of products with details"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/products/{{product_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "{{product_id}}"]
+						},
+						"description": "Get detailed information about a specific product.\n\n**Public endpoint** - No authentication required\n\n**Response**: Product details including type, title, description, price (ETB), and access URL"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Library",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user/library?page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "user", "library"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Get list of products purchased by the authenticated user.\n\n**Requires**: Authentication\n\n**Response**: Paginated list of products with access URLs that the user has purchased and been granted access to"
+					},
+					"response": []
+				}
+			],
+			"description": "Product management endpoints for courses and e-books"
+		},
+		{
+			"name": "Ad Slots",
+			"item": [
+				{
+					"name": "List Active Ad Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/ads?position=HOME_HEADER",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ads"],
+							"query": [
+								{
+									"key": "position",
+									"value": "HOME_HEADER",
+									"description": "Filter by position (HOME_HEADER, SIDEBAR, JOB_DETAIL) - optional"
+								}
+							]
+						},
+						"description": "Get list of active advertisement slots.\n\n**Public endpoint** - No authentication required\n\n**Query Parameters**:\n- `position`: Filter by ad position (HOME_HEADER, SIDEBAR, JOB_DETAIL) - optional\n\n**Note**: Impressions are automatically incremented when ads are fetched"
+					},
+					"response": []
+				}
+			],
+			"description": "Public ad slot endpoints"
+		},
+		{
+			"name": "Admin - Ad Slots",
+			"item": [
+				{
+					"name": "List All Ad Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/ads?position=HOME_HEADER&is_active=true&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "ads"],
+							"query": [
+								{
+									"key": "position",
+									"value": "HOME_HEADER",
+									"description": "Filter by position - optional"
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"description": "Filter by active status - optional"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								}
+							]
+						},
+						"description": "Get list of all ad slots (including inactive).\n\n**Requires**: Admin role\n\n**Query Parameters**:\n- `position`: Filter by position - optional\n- `is_active`: Filter by active status (true/false) - optional\n- `page`: Page number for pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ad Slot Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/ads/{{ad_slot_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "ads", "{{ad_slot_id}}"]
+						},
+						"description": "Get detailed information about a specific ad slot.\n\n**Requires**: Admin role"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Ad Slot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"position\": \"HOME_HEADER\",\n    \"image_url\": \"https://example.com/banner.jpg\",\n    \"target_url\": \"https://example.com\",\n    \"is_active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/ads",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "ads"]
+						},
+						"description": "Create a new advertisement slot.\n\n**Requires**: Admin role\n\n**Required Fields**:\n- `position`: HOME_HEADER, SIDEBAR, or JOB_DETAIL\n- `image_url`: URL to the banner image\n- `target_url`: URL to redirect when clicked\n\n**Optional Fields**:\n- `is_active`: Boolean (defaults to true)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Ad Slot",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"position\": \"SIDEBAR\",\n    \"image_url\": \"https://example.com/new-banner.jpg\",\n    \"target_url\": \"https://example.com/new\",\n    \"is_active\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/ads/{{ad_slot_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "ads", "{{ad_slot_id}}"]
+						},
+						"description": "Update an existing ad slot.\n\n**Requires**: Admin role\n\n**Note**: All fields are optional - only include fields you want to update"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Ad Slot",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/ads/{{ad_slot_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "ads", "{{ad_slot_id}}"]
+						},
+						"description": "Delete an ad slot.\n\n**Requires**: Admin role"
+					},
+					"response": []
+				}
+			],
+			"description": "Admin-only endpoints for ad slot management"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string",
+			"description": "Bearer token from login/signup response"
+		},
+		{
+			"key": "job_id",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a job posting"
+		},
+		{
+			"key": "product_id",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a product"
+		},
+		{
+			"key": "application_id",
+			"value": "",
+			"type": "string",
+			"description": "UUID of an application"
+		},
+		{
+			"key": "transaction_id",
+			"value": "",
+			"type": "string",
+			"description": "UUID of a transaction"
+		},
+		{
+			"key": "ad_slot_id",
+			"value": "",
+			"type": "string",
+			"description": "ID of an ad slot"
+		}
+	]
+}
+
