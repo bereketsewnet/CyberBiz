@@ -11,12 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Header, Footer } from '@/components/layout';
+import { FileUpload } from '@/components/ui/file-upload';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
 const adSchema = z.object({
-  position: z.enum(['HOME_HEADER', 'SIDEBAR', 'JOB_DETAIL']),
-  image_url: z.string().url('Must be a valid URL'),
+  position: z.enum(['HOME_HEADER', 'SIDEBAR', 'JOB_DETAIL']).optional(),
   target_url: z.string().url('Must be a valid URL'),
   is_active: z.boolean(),
 });
@@ -26,21 +26,34 @@ type AdFormData = z.infer<typeof adSchema>;
 export default function AdminCreateAdPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>('');
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<AdFormData>({
     resolver: zodResolver(adSchema),
-    defaultValues: { is_active: true },
+    defaultValues: { position: undefined, is_active: true },
   });
 
   const position = watch('position');
   const isActive = watch('is_active');
 
   const onSubmit = async (data: AdFormData) => {
+    if (!data.position) {
+      toast.error('Please select a position');
+      return;
+    }
+    
+    if (!imageFile && !imageUrl) {
+      toast.error('Please provide an image (upload file or enter URL)');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await apiService.createAd({
         position: data.position,
-        image_url: data.image_url,
+        image: imageFile || undefined,
+        image_url: imageUrl || undefined,
         target_url: data.target_url,
         is_active: data.is_active,
       });
@@ -68,7 +81,7 @@ export default function AdminCreateAdPage() {
               <div className="bg-card rounded-xl border border-border p-6 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="position">Position *</Label>
-                  <Select value={position} onValueChange={(value) => setValue('position', value as AdFormData['position'])}>
+                  <Select value={position || ''} onValueChange={(value) => setValue('position', value as AdFormData['position'])}>
                     <SelectTrigger><SelectValue placeholder="Select position" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="HOME_HEADER">Home Header</SelectItem>
@@ -79,9 +92,22 @@ export default function AdminCreateAdPage() {
                   {errors.position && <p className="text-sm text-destructive">{errors.position.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="image_url">Image URL *</Label>
-                  <Input id="image_url" type="url" placeholder="https://example.com/ad-image.jpg" {...register('image_url')} />
-                  {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
+                  <Label>Ad Image *</Label>
+                  <FileUpload
+                    value={imageUrl}
+                    onChange={(file, url) => {
+                      setImageFile(file);
+                      setImageUrl(url || '');
+                    }}
+                    onUrlChange={(url) => setImageUrl(url)}
+                    label="Ad Image"
+                    showUrlInput={true}
+                    accept="image/*"
+                    maxSize={5}
+                  />
+                  {!imageFile && !imageUrl && (
+                    <p className="text-sm text-destructive">Please upload an image or provide an image URL</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="target_url">Target URL *</Label>

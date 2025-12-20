@@ -52,7 +52,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $product = Product::findOrFail($id);
+        $product = Product::with('resources')->findOrFail($id);
 
         return response()->json([
             'data' => new ProductResource($product),
@@ -74,7 +74,13 @@ class ProductController extends Controller
             'thumbnail_url' => 'nullable|string|max:500',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'content_path' => 'nullable|string|max:500',
+            'is_downloadable' => 'nullable|boolean',
         ]);
+
+        // Handle is_downloadable from FormData (comes as string '1' or '0')
+        if (isset($validated['is_downloadable']) && is_string($validated['is_downloadable'])) {
+            $validated['is_downloadable'] = $validated['is_downloadable'] === '1' || $validated['is_downloadable'] === 'true';
+        }
 
         // Handle thumbnail upload
         $thumbnailUrl = $validated['thumbnail_url'] ?? null;
@@ -108,6 +114,7 @@ class ProductController extends Controller
             'price_etb' => $validated['price_etb'],
             'thumbnail_url' => $thumbnailUrl,
             'access_url' => $validated['content_path'] ?? null,
+            'is_downloadable' => $validated['is_downloadable'] ?? false,
         ]);
 
         return response()->json([
@@ -134,7 +141,13 @@ class ProductController extends Controller
             'thumbnail_url' => 'nullable|string|max:500',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'content_path' => 'nullable|string|max:500',
+            'is_downloadable' => 'sometimes|boolean',
         ]);
+
+        // Handle is_downloadable from FormData (comes as string '1' or '0')
+        if (isset($validated['is_downloadable']) && is_string($validated['is_downloadable'])) {
+            $validated['is_downloadable'] = $validated['is_downloadable'] === '1' || $validated['is_downloadable'] === 'true';
+        }
 
         // Build update data from validated fields
         $updateData = [];
@@ -185,6 +198,11 @@ class ProductController extends Controller
         // Map content_path to access_url
         if (isset($validated['content_path'])) {
             $updateData['access_url'] = $validated['content_path'];
+        }
+
+        // Handle is_downloadable
+        if (isset($validated['is_downloadable'])) {
+            $updateData['is_downloadable'] = $validated['is_downloadable'];
         }
 
         // Update the product

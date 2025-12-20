@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Header, Footer } from '@/components/layout';
+import { ProductResources } from '@/components/products/ProductResources';
 import { getImageUrl } from '@/lib/imageUtils';
 import { useAuthStore } from '@/store/authStore';
 import { apiService } from '@/services/apiService';
@@ -29,6 +30,7 @@ export default function ProductDetailPage() {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transaction, setTransaction] = useState<any>(null);
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -36,6 +38,18 @@ export default function ProductDetailPage() {
       try {
         const response = await apiService.getProduct(id);
         setProduct(response.data);
+        
+        // Check if user has access (is in library)
+        if (isAuthenticated && user) {
+          try {
+            const libraryResponse = await apiService.getUserLibrary();
+            const hasProductAccess = libraryResponse.data.some((p) => p.id === id);
+            setHasAccess(hasProductAccess);
+          } catch (error) {
+            // If user doesn't have library access, they don't have access
+            setHasAccess(false);
+          }
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
         toast.error('Product not found');
@@ -45,7 +59,7 @@ export default function ProductDetailPage() {
       }
     };
     fetchProduct();
-  }, [id, navigate]);
+  }, [id, navigate, isAuthenticated, user]);
 
   const handlePurchaseClick = () => {
     if (!isAuthenticated) {
@@ -170,23 +184,46 @@ export default function ProductDetailPage() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Description</h3>
-                    <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                    {product.description_html ? (
+                      <div
+                        className="text-muted-foreground leading-relaxed prose prose-slate max-w-none"
+                        dangerouslySetInnerHTML={{ __html: product.description_html }}
+                      />
+                    ) : (
+                      <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                    )}
                   </div>
                 </div>
 
-                <Button
-                  size="lg"
-                  className="w-full bg-gold-gradient hover:opacity-90 shadow-gold"
-                  onClick={handlePurchaseClick}
-                  disabled={isProcessing}
-                >
-                  <ShoppingCart className="w-5 h-5 mr-2" />
-                  {isProcessing ? 'Processing...' : 'Purchase Now'}
-                </Button>
+                {hasAccess ? (
+                  <div className="bg-success/10 border border-success/20 rounded-lg p-4 text-center">
+                    <CheckCircle className="w-5 h-5 text-success mx-auto mb-2" />
+                    <p className="text-sm font-medium text-success">You have access to this product</p>
+                  </div>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="w-full bg-gold-gradient hover:opacity-90 shadow-gold"
+                    onClick={handlePurchaseClick}
+                    disabled={isProcessing}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    {isProcessing ? 'Processing...' : 'Purchase Now'}
+                  </Button>
+                )}
               </div>
             </motion.div>
           </div>
         </section>
+
+        {/* Resources Section - Only show if user has access */}
+        {hasAccess && id && (
+          <section className="py-10 border-t border-border">
+            <div className="container mx-auto px-4 lg:px-8">
+              <ProductResources productId={id} isDownloadable={product.is_downloadable || false} />
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />

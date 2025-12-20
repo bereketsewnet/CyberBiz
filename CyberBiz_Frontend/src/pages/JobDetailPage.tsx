@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { JobPosting } from '@/types';
+import { AdDisplay } from '@/components/ads/AdDisplay';
 import {
   Dialog,
   DialogContent,
@@ -288,6 +289,9 @@ export default function JobDetailPage() {
                     </Button>
                   )}
                 </div>
+
+                {/* Job Detail Ad */}
+                <AdDisplay position="JOB_DETAIL" />
               </motion.div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import type {
   User,
   JobPosting,
   Product,
+  ProductResource,
   Application,
   Transaction,
   AdSlot,
@@ -185,15 +186,66 @@ export const apiService = {
 
   async createAd(data: {
     position: string;
-    image_url: string;
+    image?: File;
+    image_url?: string;
     target_url: string;
     is_active?: boolean;
   }): Promise<{ message: string; data: AdSlot }> {
-    return api.post<{ message: string; data: AdSlot }>('/admin/ads', data);
+    // Check if we have a file to upload
+    if (data.image) {
+      const formData = new FormData();
+      formData.append('position', data.position);
+      formData.append('target_url', data.target_url);
+      if (data.image) {
+        formData.append('image', data.image);
+      }
+      if (data.is_active !== undefined) {
+        formData.append('is_active', data.is_active ? '1' : '0');
+      }
+      return api.post<{ message: string; data: AdSlot }>('/admin/ads', formData);
+    } else {
+      // Use JSON if no file
+      return api.post<{ message: string; data: AdSlot }>('/admin/ads', {
+        position: data.position,
+        image_url: data.image_url,
+        target_url: data.target_url,
+        is_active: data.is_active,
+      });
+    }
   },
 
-  async updateAd(id: number, data: Partial<AdSlot>): Promise<{ message: string; data: AdSlot }> {
-    return api.put<{ message: string; data: AdSlot }>(`/admin/ads/${id}`, data);
+  async updateAd(id: number, data: {
+    position?: string;
+    image?: File;
+    image_url?: string;
+    target_url?: string;
+    is_active?: boolean;
+  }): Promise<{ message: string; data: AdSlot }> {
+    // Check if we have a file to upload
+    if (data.image) {
+      const formData = new FormData();
+      if (data.position) formData.append('position', data.position);
+      if (data.target_url) formData.append('target_url', data.target_url);
+      if (data.image) {
+        formData.append('image', data.image);
+      }
+      if (data.image_url !== undefined) {
+        formData.append('image_url', data.image_url);
+      }
+      if (data.is_active !== undefined) {
+        formData.append('is_active', data.is_active ? '1' : '0');
+      }
+      // Use POST endpoint for FormData updates (Laravel doesn't parse FormData correctly with PUT)
+      return api.post<{ message: string; data: AdSlot }>(`/admin/ads/${id}/update`, formData);
+    } else {
+      // Use JSON if no file
+      const updateData: any = {};
+      if (data.position) updateData.position = data.position;
+      if (data.image_url !== undefined) updateData.image_url = data.image_url;
+      if (data.target_url) updateData.target_url = data.target_url;
+      if (data.is_active !== undefined) updateData.is_active = data.is_active;
+      return api.put<{ message: string; data: AdSlot }>(`/admin/ads/${id}`, updateData);
+    }
   },
 
   async deleteAd(id: number): Promise<{ message: string }> {
@@ -265,6 +317,7 @@ export const apiService = {
     thumbnail_url?: string;
     thumbnail?: File;
     content_path?: string;
+    is_downloadable?: boolean;
   }): Promise<{ message: string; data: Product }> {
     const formData = new FormData();
     formData.append('title', data.title);
@@ -284,6 +337,9 @@ export const apiService = {
     if (data.content_path) {
       formData.append('content_path', data.content_path);
     }
+    if (data.is_downloadable !== undefined) {
+      formData.append('is_downloadable', data.is_downloadable ? '1' : '0');
+    }
     return api.post<{ message: string; data: Product }>('/admin/products', formData);
   },
 
@@ -296,6 +352,7 @@ export const apiService = {
     thumbnail_url?: string;
     thumbnail?: File;
     content_path?: string;
+    is_downloadable?: boolean;
   }): Promise<{ message: string; data: Product }> {
     const formData = new FormData();
     // Always include required fields if they exist in data
@@ -312,6 +369,9 @@ export const apiService = {
     if (data.content_path !== undefined) {
       formData.append('content_path', data.content_path || '');
     }
+    if (data.is_downloadable !== undefined) {
+      formData.append('is_downloadable', data.is_downloadable ? '1' : '0');
+    }
     
     // Use POST endpoint for FormData updates (Laravel doesn't parse FormData correctly with PUT)
     return api.post<{ message: string; data: Product }>(`/admin/products/${id}/update`, formData);
@@ -324,5 +384,52 @@ export const apiService = {
   // ========== ADMIN - JOBS ==========
   async getAdminJobs(params?: { q?: string; status?: string; page?: number }): Promise<PaginatedResponse<JobPosting>> {
     return api.get<PaginatedResponse<JobPosting>>('/admin/jobs', params);
+  },
+
+  // ========== ADMIN - PRODUCT RESOURCES ==========
+  async getProductResources(productId: string): Promise<{ data: ProductResource[] }> {
+    return api.get<{ data: ProductResource[] }>(`/admin/products/${productId}/resources`);
+  },
+
+  async createProductResource(productId: string, data: FormData): Promise<{ message: string; data: ProductResource }> {
+    return api.post<{ message: string; data: ProductResource }>(`/admin/products/${productId}/resources`, data);
+  },
+
+  async updateProductResource(productId: string, resourceId: string, data: FormData): Promise<{ message: string; data: ProductResource }> {
+    // Use POST endpoint for FormData updates
+    data.append('_method', 'PUT');
+    return api.post<{ message: string; data: ProductResource }>(`/admin/products/${productId}/resources/${resourceId}/update`, data);
+  },
+
+  async deleteProductResource(productId: string, resourceId: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/admin/products/${productId}/resources/${resourceId}`);
+  },
+
+  async reorderProductResources(productId: string, resourceIds: string[]): Promise<{ message: string; data: ProductResource[] }> {
+    return api.post<{ message: string; data: ProductResource[] }>(`/admin/products/${productId}/resources/reorder`, {
+      resource_ids: resourceIds,
+    });
+  },
+
+  // ========== PRODUCT RESOURCES (PUBLIC - requires access) ==========
+  async getUserProductResources(productId: string): Promise<{ data: ProductResource[] }> {
+    return api.get<{ data: ProductResource[] }>(`/products/${productId}/resources`);
+  },
+
+  async downloadProductResource(productId: string, resourceId: string): Promise<Blob> {
+    const response = await fetch(`${api.baseUrl}/products/${productId}/resources/${resourceId}/download`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${useAuthStore.getState().token}`,
+        'Accept': 'application/octet-stream',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download resource');
+    }
+
+    return response.blob();
   },
 };

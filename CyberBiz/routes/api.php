@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AdSlotController as AdminAdSlotController;
 use App\Http\Controllers\Api\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Api\Admin\ProductResourceController as AdminProductResourceController;
 use App\Http\Controllers\Api\Admin\StatsController as AdminStatsController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AdSlotController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\JobPostingController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductResourceController;
 use App\Http\Controllers\Api\StatsController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +64,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // User Library
     Route::get('/user/library', [ProductController::class, 'library']);
 
+    // Product Resources (Public - requires access)
+    Route::get('/products/{productId}/resources', [ProductResourceController::class, 'index']);
+    Route::get('/products/{productId}/resources/{resourceId}/download', [ProductResourceController::class, 'download']);
+
     // Admin routes - check admin role in controller
     Route::prefix('admin')->group(function () {
         Route::get('/stats', [AdminStatsController::class, 'index']);
@@ -75,6 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/ads', [AdminAdSlotController::class, 'store']);
         Route::get('/ads/{id}', [AdminAdSlotController::class, 'show']);
         Route::put('/ads/{id}', [AdminAdSlotController::class, 'update']);
+        Route::post('/ads/{id}/update', [AdminAdSlotController::class, 'update']); // POST endpoint for FormData updates
         Route::delete('/ads/{id}', [AdminAdSlotController::class, 'destroy']);
 
         // Users Management
@@ -90,6 +97,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/products/{id}', [AdminProductController::class, 'update']);
         Route::post('/products/{id}/update', [AdminProductController::class, 'update']); // POST endpoint for FormData updates
         Route::delete('/products/{id}', [AdminProductController::class, 'destroy']);
+
+        // Product Resources Management
+        Route::get('/products/{productId}/resources', [AdminProductResourceController::class, 'index']);
+        Route::post('/products/{productId}/resources', [AdminProductResourceController::class, 'store']);
+        Route::put('/products/{productId}/resources/{resourceId}', [AdminProductResourceController::class, 'update']);
+        Route::post('/products/{productId}/resources/{resourceId}/update', [AdminProductResourceController::class, 'update']); // POST endpoint for FormData updates
+        Route::post('/products/{productId}/resources/reorder', [AdminProductResourceController::class, 'reorder']);
+        Route::delete('/products/{productId}/resources/{resourceId}', [AdminProductResourceController::class, 'destroy']);
 
         // Jobs Management (using existing JobPostingController but admin-only list)
         Route::get('/jobs', [\App\Http\Controllers\Api\JobPostingController::class, 'index']);

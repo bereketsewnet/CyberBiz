@@ -7,11 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, FileText } from 'lucide-react';
 import { apiService } from '@/services/apiService';
 import type { Product } from '@/types';
+import { AdDisplay } from '@/components/ads/AdDisplay';
+import { useAdCheck } from '@/components/ads/useAdCheck';
 
 export default function CoursesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'COURSE' | 'EBOOK'>('all');
+  const { hasAds: hasSidebarAds } = useAdCheck('SIDEBAR');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -70,28 +73,40 @@ export default function CoursesPage() {
               </TabsList>
             </Tabs>
 
-            {isLoading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-80 bg-muted rounded-xl animate-pulse" />
-                ))}
+            <div className={`grid ${hasSidebarAds ? 'lg:grid-cols-4' : 'lg:grid-cols-1'} gap-10`}>
+              {/* Main Content */}
+              <div className={hasSidebarAds ? 'lg:col-span-3' : ''}>
+                {isLoading ? (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-80 bg-muted rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : products.length === 0 ? (
+                  <div className="text-center py-20">
+                    <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                      No products found
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Check back later for new content
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {products.map((product, index) => (
+                      <ProductCard key={product.id} product={product} index={index} />
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-20">
-                <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-                  No products found
-                </h3>
-                <p className="text-muted-foreground">
-                  Check back later for new content
-                </p>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
-                ))}
-              </div>
-            )}
+
+              {/* Sidebar with Ads */}
+              {hasSidebarAds && (
+                <div className="lg:col-span-1">
+                  <AdDisplay position="SIDEBAR" />
+                </div>
+              )}
+            </div>
           </div>
         </section>
       </main>

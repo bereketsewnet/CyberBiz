@@ -3,6 +3,7 @@ export type SubscriptionTier = 'FREE' | 'PRO_EMPLOYER';
 export type JobStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 export type TransactionStatus = 'PENDING' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED';
 export type ProductType = 'COURSE' | 'EBOOK';
+export type ProductResourceType = 'VIDEO' | 'DOCUMENT' | 'FILE';
 export type PaymentGateway = 'MANUAL' | 'CHAPA' | 'STRIPE';
 export type AdPosition = 'HOME_HEADER' | 'SIDEBAR' | 'JOBS_BANNER' | 'FOOTER';
 
@@ -60,8 +61,28 @@ export interface Product {
   price_etb: number;
   thumbnail_url?: string;
   content_path?: string;
+  is_downloadable?: boolean;
+  resources?: ProductResource[];
   created_at: string;
   updated_at: string;
+}
+
+export interface ProductResource {
+  id: string;
+  product_id: string;
+  type: ProductResourceType;
+  title?: string;
+  description?: string;
+  file_path?: string;
+  external_url?: string;
+  file_name?: string;
+  file_size?: number;
+  mime_type?: string;
+  order: number;
+  is_active: boolean;
+  download_url?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Transaction {

@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Header, Footer } from '@/components/layout';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { FileUpload } from '@/components/ui/file-upload';
+import { ProductResourcesManager } from '@/components/admin/ProductResourcesManager';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
@@ -22,6 +24,7 @@ const productSchema = z.object({
   type: z.enum(['COURSE', 'EBOOK']),
   price_etb: z.number().min(0, 'Price must be positive'),
   content_path: z.string().optional(),
+  is_downloadable: z.boolean().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -48,6 +51,7 @@ export default function AdminEditProductPage() {
 
   const type = watch('type');
   const descriptionHtml = watch('description_html');
+  const isDownloadable = watch('is_downloadable');
 
   useEffect(() => {
     if (id) {
@@ -65,6 +69,7 @@ export default function AdminEditProductPage() {
       setValue('type', productData.type);
       setValue('price_etb', productData.price_etb);
       setValue('content_path', productData.content_path || '');
+      setValue('is_downloadable', productData.is_downloadable || false);
       setThumbnailUrl(productData.thumbnail_url || '');
     } catch (error) {
       toast.error('Product not found');
@@ -87,6 +92,7 @@ export default function AdminEditProductPage() {
         thumbnail?: File;
         thumbnail_url?: string;
         content_path?: string;
+        is_downloadable?: boolean;
       } = {
         title: data.title,
         description_html: data.description_html,
@@ -203,10 +209,41 @@ export default function AdminEditProductPage() {
                   maxSize={5}
                 />
                 <div className="space-y-2">
-                  <Label htmlFor="content_path">Content Path (Optional)</Label>
-                  <Input id="content_path" placeholder="/path/to/content" {...register('content_path')} />
+                  <Label htmlFor="content_path">
+                    External Content URL (Optional)
+                    <span className="text-xs text-muted-foreground font-normal ml-2">
+                      Legacy field - Leave blank if using Resources section below
+                    </span>
+                  </Label>
+                  <Input
+                    id="content_path"
+                    placeholder="https://example.com/course-access"
+                    {...register('content_path')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optional: External URL to access course content. For multiple files/videos, use the Resources section below instead.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="is_downloadable">Downloadable</Label>
+                    <p className="text-sm text-muted-foreground">Allow users to download course resources</p>
+                  </div>
+                  <Switch
+                    id="is_downloadable"
+                    checked={isDownloadable || false}
+                    onCheckedChange={(checked) => setValue('is_downloadable', checked)}
+                  />
                 </div>
               </div>
+
+              {/* Resources Management Section - Only show if product exists */}
+              {id && product && (
+                <div className="bg-card rounded-xl border border-border p-6">
+                  <ProductResourcesManager productId={id} />
+                </div>
+              )}
+
               <div className="flex items-center justify-end gap-4">
                 <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
                 <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isSaving}>

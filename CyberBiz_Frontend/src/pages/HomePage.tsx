@@ -9,6 +9,7 @@ import { JobCard } from '@/components/jobs/JobCard';
 import { ProductCard } from '@/components/products/ProductCard';
 import { apiService } from '@/services/apiService';
 import type { JobPosting, Product } from '@/types';
+import { AdDisplay } from '@/components/ads/AdDisplay';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -199,6 +200,13 @@ export default function HomePage() {
                 <div className="text-muted-foreground">Success Rate</div>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* Home Header Ad */}
+        <section className="py-10">
+          <div className="container mx-auto px-4 lg:px-8">
+            <AdDisplay position="HOME_HEADER" />
           </div>
         </section>
 

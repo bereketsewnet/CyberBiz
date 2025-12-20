@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Header, Footer } from '@/components/layout';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 import { FileUpload } from '@/components/ui/file-upload';
+import { ProductResourcesManager } from '@/components/admin/ProductResourcesManager';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
@@ -21,6 +23,7 @@ const productSchema = z.object({
   type: z.enum(['COURSE', 'EBOOK']),
   price_etb: z.number().min(0, 'Price must be positive'),
   content_path: z.string().optional(),
+  is_downloadable: z.boolean().optional().default(false),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -30,19 +33,21 @@ export default function AdminCreateProductPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: { type: 'COURSE', description_html: '' },
+    defaultValues: { type: 'COURSE', description_html: '', is_downloadable: false },
   });
 
   const type = watch('type');
   const descriptionHtml = watch('description_html');
+  const isDownloadable = watch('is_downloadable');
 
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
     try {
-      await apiService.createAdminProduct({
+      const response = await apiService.createAdminProduct({
         title: data.title,
         description_html: data.description_html,
         type: data.type,
@@ -50,9 +55,15 @@ export default function AdminCreateProductPage() {
         thumbnail: thumbnailFile || undefined,
         thumbnail_url: thumbnailUrl || undefined,
         content_path: data.content_path || undefined,
+        is_downloadable: data.is_downloadable || false,
       });
-      toast.success('Product created successfully!');
-      navigate('/admin/products');
+      toast.success('Product created successfully! You can now add resources below.');
+      // Store the created product ID to show the resources section
+      setCreatedProductId(response.data.id);
+      // Scroll to resources section
+      setTimeout(() => {
+        document.getElementById('resources-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create product');
     } finally {
@@ -124,15 +135,59 @@ export default function AdminCreateProductPage() {
                   maxSize={5}
                 />
                 <div className="space-y-2">
-                  <Label htmlFor="content_path">Content Path (Optional)</Label>
-                  <Input id="content_path" placeholder="/path/to/content" {...register('content_path')} />
+                  <Label htmlFor="content_path">
+                    External Content URL (Optional)
+                    <span className="text-xs text-muted-foreground font-normal ml-2">
+                      Legacy field - Leave blank if using Resources section below
+                    </span>
+                  </Label>
+                  <Input
+                    id="content_path"
+                    placeholder="https://example.com/course-access"
+                    {...register('content_path')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Optional: External URL to access course content. For multiple files/videos, use the Resources section instead.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="is_downloadable">Downloadable</Label>
+                    <p className="text-sm text-muted-foreground">Allow users to download course resources</p>
+                  </div>
+                  <Switch
+                    id="is_downloadable"
+                    checked={isDownloadable}
+                    onCheckedChange={(checked) => setValue('is_downloadable', checked)}
+                  />
                 </div>
               </div>
+
+              {/* Resources Management Section - Show after product is created */}
+              {createdProductId && (
+                <div id="resources-section" className="bg-card rounded-xl border border-border p-6">
+                  <ProductResourcesManager productId={createdProductId} />
+                </div>
+              )}
+
               <div className="flex items-center justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
-                <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isLoading}>
-                  {isLoading ? 'Creating...' : 'Create Product'}
-                </Button>
+                {createdProductId ? (
+                  <>
+                    <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>
+                      Back to Products
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => navigate(`/admin/products/${createdProductId}/edit`)}>
+                      Continue Editing
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
+                    <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isLoading}>
+                      {isLoading ? 'Creating...' : 'Create Product'}
+                    </Button>
+                  </>
+                )}
               </div>
             </form>
           </motion.div>

@@ -19,12 +19,14 @@ class Product extends Model
         'price_etb',
         'thumbnail_url',
         'access_url',
+        'is_downloadable',
     ];
 
     protected function casts(): array
     {
         return [
             'price_etb' => 'decimal:2',
+            'is_downloadable' => 'boolean',
         ];
     }
 
@@ -37,5 +39,10 @@ class Product extends Model
     public function libraryEntries()
     {
         return $this->hasMany(UserLibrary::class);
+    }
+
+    public function resources()
+    {
+        return $this->hasMany(ProductResource::class)->ordered();
     }
 }
