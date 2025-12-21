@@ -68,6 +68,13 @@ export default function ProductDetailPage() {
       return;
     }
 
+    // Only LEARNER or SEEKER (JOB_SEEKER) can purchase products
+    if (user?.role !== 'LEARNER' && user?.role !== 'SEEKER') {
+      toast.error('Only learners and job seekers can purchase products. Please register with a learner or job seeker account.');
+      navigate('/signup?role=LEARNER');
+      return;
+    }
+
     setShowPurchaseModal(true);
     initiatePayment();
   };

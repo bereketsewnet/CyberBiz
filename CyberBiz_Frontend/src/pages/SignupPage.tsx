@@ -73,9 +73,9 @@ export default function SignupPage() {
   };
 
   const roleOptions = [
-    { value: 'SEEKER', label: 'Job Seeker', description: 'Looking for opportunities' },
+    { value: 'SEEKER', label: 'Job Seeker', description: 'Looking for opportunities and can purchase courses' },
     { value: 'EMPLOYER', label: 'Employer', description: 'Hiring talent' },
-    { value: 'LEARNER', label: 'Learner', description: 'Taking courses' },
+    { value: 'LEARNER', label: 'Learner', description: 'Taking courses and purchasing e-books' },
   ];
 
   return (

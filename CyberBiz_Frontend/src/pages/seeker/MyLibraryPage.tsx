@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Play, Download, ShoppingBag } from 'lucide-react';
 import { Header, Footer } from '@/components/layout';
@@ -10,6 +10,7 @@ import { apiService } from '@/services/apiService';
 import type { Product } from '@/types';
 
 export default function MyLibraryPage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,6 +27,11 @@ export default function MyLibraryPage() {
     };
     fetchLibrary();
   }, []);
+
+  // Navigate to product detail page where users can access/download resources
+  const handleProductClick = (product: Product) => {
+    navigate(`/products/${product.id}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -65,8 +71,17 @@ export default function MyLibraryPage() {
                   <div className="p-4">
                     <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{product.title}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{product.description}</p>
-                    <Button className="w-full bg-gold-gradient hover:opacity-90">
-                      {product.type === 'COURSE' ? <><Play className="w-4 h-4 mr-2" />Continue Learning</> : <><Download className="w-4 h-4 mr-2" />Download</>}
+                    <Button 
+                      className="w-full bg-gold-gradient hover:opacity-90"
+                      onClick={() => handleProductClick(product)}
+                    >
+                      {product.type === 'COURSE' ? (
+                        <><Play className="w-4 h-4 mr-2" />Continue Learning</>
+                      ) : product.is_downloadable ? (
+                        <><Download className="w-4 h-4 mr-2" />Download</>
+                      ) : (
+                        <><BookOpen className="w-4 h-4 mr-2" />View Details</>
+                      )}
                     </Button>
                   </div>
                 </motion.div>

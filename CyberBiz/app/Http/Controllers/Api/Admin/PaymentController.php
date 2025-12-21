@@ -9,22 +9,23 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use App\Models\UserLibrary;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            if (!$request->user()->isAdmin()) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-            return $next($request);
-        });
+        // Authorization is checked in each method
     }
 
-    public function pending(): JsonResponse
+    public function pending(Request $request): JsonResponse
     {
+        // Check authorization
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $transactions = Transaction::where('status', 'PENDING_APPROVAL')
             ->with(['user', 'product'])
             ->latest()
@@ -43,6 +44,11 @@ class PaymentController extends Controller
 
     public function approve(ApprovePaymentRequest $request, string $transactionId): JsonResponse
     {
+        // Check authorization
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $transaction = Transaction::findOrFail($transactionId);
 
         if ($transaction->status !== 'PENDING_APPROVAL') {
@@ -75,6 +81,11 @@ class PaymentController extends Controller
 
     public function reject(RejectPaymentRequest $request, string $transactionId): JsonResponse
     {
+        // Check authorization
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $transaction = Transaction::findOrFail($transactionId);
 
         if ($transaction->status !== 'PENDING_APPROVAL') {

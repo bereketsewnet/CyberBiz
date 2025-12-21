@@ -8,11 +8,23 @@ import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Transaction } from '@/types';
+import { useAuthStore } from '@/store/authStore';
+import { api } from '@/lib/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewProofModal, setViewProofModal] = useState<{ open: boolean; transaction: Transaction | null }>({ open: false, transaction: null });
+  const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
+  const { token } = useAuthStore();
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -50,11 +62,32 @@ export default function AdminPaymentsPage() {
     }
   };
 
-  const handleViewProof = async (transactionId: string) => {
+  const handleViewProof = async (transaction: Transaction) => {
     try {
-      await apiService.downloadPaymentProof(transactionId);
+      const response = await fetch(`${api.baseUrl}/admin/files/proof/${transaction.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to load proof');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      setProofImageUrl(url);
+      setViewProofModal({ open: true, transaction });
     } catch (error) {
-      toast.error('Failed to download proof');
+      toast.error('Failed to load proof');
+    }
+  };
+
+  const closeProofModal = () => {
+    setViewProofModal({ open: false, transaction: null });
+    if (proofImageUrl) {
+      window.URL.revokeObjectURL(proofImageUrl);
+      setProofImageUrl(null);
     }
   };
 
@@ -118,7 +151,7 @@ export default function AdminPaymentsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewProof(payment.id)}><Eye className="w-4 h-4 mr-2" />View Proof</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleViewProof(payment)}><Eye className="w-4 h-4 mr-2" />View Proof</Button>
                       <Button size="sm" className="bg-success hover:bg-success/90" onClick={() => handleApprove(payment.id)}><Check className="w-4 h-4 mr-2" />Approve</Button>
                       <Button variant="destructive" size="sm" onClick={() => handleReject(payment.id)}><X className="w-4 h-4 mr-2" />Reject</Button>
                     </div>
@@ -130,6 +163,49 @@ export default function AdminPaymentsPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Payment Proof View Modal */}
+      <Dialog open={viewProofModal.open} onOpenChange={(open) => !open && closeProofModal()}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Payment Proof</DialogTitle>
+            {viewProofModal.transaction && (
+              <DialogDescription className="space-y-2">
+                <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-muted rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Customer</p>
+                    <p className="font-semibold">{viewProofModal.transaction.user?.full_name || 'Unknown User'}</p>
+                    <p className="text-sm text-muted-foreground">{viewProofModal.transaction.user?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Product</p>
+                    <p className="font-semibold">{viewProofModal.transaction.product?.title || 'Unknown Product'}</p>
+                    <p className="text-sm text-muted-foreground">{viewProofModal.transaction.product?.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Amount</p>
+                    <p className="font-semibold">{formatPrice(viewProofModal.transaction.amount)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Purchase Date</p>
+                    <p className="font-semibold">{new Date(viewProofModal.transaction.created_at).toLocaleString()}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">Transaction ID: {viewProofModal.transaction.id}</p>
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          {proofImageUrl && (
+            <div className="max-h-[80vh] overflow-auto">
+              <img
+                src={proofImageUrl}
+                alt="Payment proof"
+                className="w-full h-auto rounded-lg border border-border"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

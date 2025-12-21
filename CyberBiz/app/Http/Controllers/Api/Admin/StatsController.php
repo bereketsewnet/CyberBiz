@@ -7,7 +7,6 @@ use App\Models\AdSlot;
 use App\Models\JobPosting;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,9 +47,6 @@ class StatsController extends Controller
         // Active ads
         $activeAds = AdSlot::where('is_active', true)->count();
 
-        // Recent activity (last 10 activities)
-        $recentActivities = $this->getRecentActivity();
-
         // Calculate changes (simplified - can be improved with actual comparison)
         $stats = [
             'total_users' => $totalUsers,
@@ -63,83 +59,11 @@ class StatsController extends Controller
             'conversion_rate_change' => '+1.2%', // Placeholder
             'pending_payments' => $pendingPayments,
             'active_ads' => $activeAds,
-            'recent_activities' => $recentActivities,
         ];
 
         return response()->json([
             'data' => $stats,
         ]);
-    }
-
-    private function getRecentActivity(): array
-    {
-        $activities = [];
-
-        // Get recent users (last 5)
-        $recentUsers = User::latest()->limit(5)->get();
-        foreach ($recentUsers as $user) {
-            $activities[] = [
-                'type' => 'user_registered',
-                'action' => 'New user registered',
-                'user' => $user->full_name,
-                'time' => $user->created_at->diffForHumans(),
-                'created_at' => $user->created_at->toIso8601String(),
-            ];
-        }
-
-        // Get recent pending payments
-        $recentPayments = Transaction::where('status', 'PENDING_APPROVAL')
-            ->with('user', 'product')
-            ->latest()
-            ->limit(5)
-            ->get();
-        foreach ($recentPayments as $payment) {
-            $activities[] = [
-                'type' => 'payment_pending',
-                'action' => 'Payment pending approval',
-                'user' => $payment->user->full_name ?? 'Unknown',
-                'time' => $payment->created_at->diffForHumans(),
-                'created_at' => $payment->created_at->toIso8601String(),
-            ];
-        }
-
-        // Get recent jobs
-        $recentJobs = JobPosting::with('employer')
-            ->latest()
-            ->limit(5)
-            ->get();
-        foreach ($recentJobs as $job) {
-            $activities[] = [
-                'type' => 'job_posted',
-                'action' => 'New job posted',
-                'user' => $job->employer->full_name ?? 'Unknown',
-                'time' => $job->created_at->diffForHumans(),
-                'created_at' => $job->created_at->toIso8601String(),
-            ];
-        }
-
-        // Get recent approved transactions (purchases)
-        $recentPurchases = Transaction::where('status', 'APPROVED')
-            ->with('user', 'product')
-            ->latest()
-            ->limit(5)
-            ->get();
-        foreach ($recentPurchases as $purchase) {
-            $activities[] = [
-                'type' => 'course_purchased',
-                'action' => 'Course purchased',
-                'user' => $purchase->user->full_name ?? 'Unknown',
-                'time' => $purchase->updated_at->diffForHumans(),
-                'created_at' => $purchase->updated_at->toIso8601String(),
-            ];
-        }
-
-        // Sort by created_at desc and limit to 10 most recent
-        usort($activities, function ($a, $b) {
-            return strcmp($b['created_at'], $a['created_at']);
-        });
-
-        return array_slice($activities, 0, 10);
     }
 }
 

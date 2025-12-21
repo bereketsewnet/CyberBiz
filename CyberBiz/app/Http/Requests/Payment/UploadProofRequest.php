@@ -2,14 +2,16 @@
 
 namespace App\Http\Requests\Payment;
 
+use App\Models\Transaction;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadProofRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $transaction = $this->route('transaction');
-        return $transaction && $transaction->user_id === $this->user()->id;
+        // Authorization is handled in the controller to allow proper logging and error handling
+        // Just check that user is authenticated
+        return $this->user() !== null;
     }
 
     public function rules(): array

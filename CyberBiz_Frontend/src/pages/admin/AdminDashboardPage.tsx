@@ -29,7 +29,6 @@ export default function AdminDashboardPage() {
     conversion_rate_change: '+0%',
     pending_payments: 0,
     active_ads: 0,
-    recent_activities: [] as Array<{ type: string; action: string; user: string; time: string; created_at: string }>,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -179,42 +178,6 @@ export default function AdminDashboardPage() {
                 </h3>
               </Link>
             ))}
-          </motion.div>
-
-          {/* Recent Activity */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-8 bg-card rounded-xl border border-border p-6"
-          >
-            <h2 className="font-display text-xl font-semibold text-foreground mb-4">
-              Recent Activity
-            </h2>
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-16 bg-muted rounded animate-pulse" />
-                ))}
-              </div>
-            ) : stats.recent_activities.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">No recent activity</p>
-            ) : (
-              <div className="space-y-4">
-                {stats.recent_activities.map((activity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between py-3 border-b border-border last:border-0"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">{activity.action}</p>
-                      <p className="text-sm text-muted-foreground">{activity.user}</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{activity.time}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </motion.div>
         </div>
       </main>

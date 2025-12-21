@@ -9,6 +9,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
@@ -41,12 +42,42 @@ class PaymentController extends Controller
 
     public function uploadProof(UploadProofRequest $request, string $transactionId): JsonResponse
     {
-        $transaction = Transaction::findOrFail($transactionId);
-
-        // Verify ownership
-        if ($transaction->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
+
+        // Log the attempt
+        error_log("UPLOAD_PROOF: Transaction ID: {$transactionId}, User ID: {$user->id}");
+
+        // Find transaction first
+        $transaction = Transaction::find($transactionId);
+        
+        if (!$transaction) {
+            error_log("UPLOAD_PROOF: Transaction not found: {$transactionId}");
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        error_log("UPLOAD_PROOF: Transaction found. Transaction user_id: {$transaction->user_id}, Current user_id: {$user->id}");
+
+        // Compare UUIDs - convert both to strings for comparison
+        $transactionUserId = (string)$transaction->user_id;
+        $currentUserId = (string)$user->id;
+        
+        error_log("UPLOAD_PROOF: Comparing '{$transactionUserId}' === '{$currentUserId}': " . ($transactionUserId === $currentUserId ? 'MATCH' : 'NO MATCH'));
+        
+        if ($transactionUserId !== $currentUserId) {
+            error_log("UPLOAD_PROOF: User ID mismatch. Transaction belongs to: {$transactionUserId}, Current user: {$currentUserId}");
+            Log::warning('Upload proof - user ID mismatch', [
+                'transaction_id' => $transactionId,
+                'transaction_user_id' => $transactionUserId,
+                'current_user_id' => $currentUserId,
+            ]);
+            return response()->json(['message' => 'Unauthorized - You do not own this transaction'], 403);
+        }
+
+        error_log("UPLOAD_PROOF: User IDs match, proceeding with upload");
 
         // Check if already uploaded
         if ($transaction->status === 'PENDING_APPROVAL' || $transaction->status === 'APPROVED') {
