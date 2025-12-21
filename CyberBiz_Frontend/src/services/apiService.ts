@@ -88,6 +88,23 @@ export const apiService = {
     return api.get<PaginatedResponse<Application>>('/user/applications', { page });
   },
 
+  // ========== JOB FAVORITES ==========
+  async toggleJobFavorite(jobId: string): Promise<{ message: string; is_favorite: boolean }> {
+    return api.post<{ message: string; is_favorite: boolean }>(`/jobs/${jobId}/favorite`);
+  },
+
+  async checkJobFavorite(jobId: string): Promise<{ is_favorite: boolean }> {
+    return api.get<{ is_favorite: boolean }>(`/jobs/${jobId}/favorite`);
+  },
+
+  async getMyFavorites(page?: number): Promise<{ data: { id: string; job: JobPosting; created_at: string }[] }> {
+    const response = await api.get<{ data: { id: string; job: JobPosting; created_at: string }[]; meta?: any }>('/user/favorites', { page });
+    // Handle both paginated and non-paginated responses
+    return {
+      data: Array.isArray(response.data) ? response.data : (response as any).data || [],
+    };
+  },
+
   async downloadCV(applicationId: string): Promise<void> {
     const token = useAuthStore.getState().token;
     const response = await fetch(`${api.baseUrl}/files/cv/${applicationId}`, {

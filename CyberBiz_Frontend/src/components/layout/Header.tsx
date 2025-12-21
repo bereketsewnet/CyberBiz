@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, User, LogOut, Briefcase, BookOpen, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Briefcase, BookOpen, LayoutDashboard, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -105,7 +105,7 @@ export function Header() {
                       My Jobs
                     </DropdownMenuItem>
                   )}
-                  {(user.role === 'SEEKER' || user.role === 'LEARNER') && (
+                  {user.role === 'SEEKER' && (
                     <>
                       <DropdownMenuItem onClick={() => navigate('/my-applications')}>
                         <Briefcase className="w-4 h-4 mr-2" />
@@ -117,6 +117,16 @@ export function Header() {
                       </DropdownMenuItem>
                     </>
                   )}
+                  {user.role === 'LEARNER' && (
+                    <DropdownMenuItem onClick={() => navigate('/my-library')}>
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      My Library
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => navigate('/my-favorites')}>
+                    <Bookmark className="w-4 h-4 mr-2" />
+                    Saved Jobs
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Briefcase, BookOpen, Users, ArrowRight } from 'lucide-react';
+import { Briefcase, BookOpen, Users, ArrowRight, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header, Footer } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';
@@ -27,6 +27,7 @@ export default function DashboardPage() {
           actions: [
             { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
             { label: 'My Applications', href: '/my-applications', icon: Users },
+            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
             { label: 'My Library', href: '/my-library', icon: BookOpen },
           ],
         };
@@ -37,6 +38,7 @@ export default function DashboardPage() {
           actions: [
             { label: 'My Jobs', href: '/my-jobs', icon: Briefcase },
             { label: 'Post New Job', href: '/my-jobs/create', icon: Users },
+            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
             { label: 'Browse Courses', href: '/courses', icon: BookOpen },
           ],
         };
@@ -46,8 +48,9 @@ export default function DashboardPage() {
           description: 'Access your courses and track progress',
           actions: [
             { label: 'My Library', href: '/my-library', icon: BookOpen },
-            { label: 'Browse Courses', href: '/courses', icon: Briefcase },
-            { label: 'Browse Jobs', href: '/jobs', icon: Users },
+            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
+            { label: 'Browse Courses', href: '/courses', icon: BookOpen },
+            { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
           ],
         };
       default:

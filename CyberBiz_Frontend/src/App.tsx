@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 // Seeker Pages
 import MyApplicationsPage from "./pages/seeker/MyApplicationsPage";
 import MyLibraryPage from "./pages/seeker/MyLibraryPage";
+import MyFavoritesPage from "./pages/MyFavoritesPage";
 
 // Employer Pages
 import MyJobsPage from "./pages/employer/MyJobsPage";
@@ -68,6 +69,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-favorites"
+            element={
+              <ProtectedRoute>
+                <MyFavoritesPage />
               </ProtectedRoute>
             }
           />

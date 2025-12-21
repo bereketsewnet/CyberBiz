@@ -94,4 +94,9 @@ class User extends Authenticatable
     {
         return $this->role === 'SEEKER';
     }
+
+    public function isLearner(): bool
+    {
+        return $this->role === 'LEARNER';
+    }
 }

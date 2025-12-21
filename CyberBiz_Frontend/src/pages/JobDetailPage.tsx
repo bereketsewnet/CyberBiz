@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Building2, MapPin, Clock, Users, Share2, Bookmark, ExternalLink, Upload } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Clock, Users, Bookmark, ExternalLink, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,13 +30,19 @@ export default function JobDetailPage() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
       if (!id) return;
       try {
-        const response = await apiService.getJob(id);
-        setJob(response.data);
+        const [jobResponse, favoriteResponse] = await Promise.all([
+          apiService.getJob(id),
+          isAuthenticated ? apiService.checkJobFavorite(id).catch(() => ({ is_favorite: false })) : Promise.resolve({ is_favorite: false }),
+        ]);
+        setJob(jobResponse.data);
+        setIsFavorite(favoriteResponse.is_favorite);
       } catch (error) {
         console.error('Error fetching job:', error);
         toast.error('Job not found');
@@ -46,7 +52,7 @@ export default function JobDetailPage() {
       }
     };
     fetchJob();
-  }, [id, navigate]);
+  }, [id, navigate, isAuthenticated]);
 
   const handleApplyClick = () => {
     if (!isAuthenticated) {
@@ -80,6 +86,25 @@ export default function JobDetailPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to submit application');
     } finally {
       setIsApplying(false);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to favorite jobs');
+      navigate('/login', { state: { from: `/jobs/${id}` } });
+      return;
+    }
+
+    setIsTogglingFavorite(true);
+    try {
+      const response = await apiService.toggleJobFavorite(id!);
+      setIsFavorite(response.is_favorite);
+      toast.success(response.message);
+    } catch (error) {
+      toast.error('Failed to update favorite');
+    } finally {
+      setIsTogglingFavorite(false);
     }
   };
 
@@ -158,11 +183,14 @@ export default function JobDetailPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="icon">
-                  <Bookmark className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Share2 className="w-4 h-4" />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleToggleFavorite}
+                  disabled={isTogglingFavorite}
+                  className={isFavorite ? 'bg-primary/10 border-primary text-primary' : ''}
+                >
+                  <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </Button>
                 <Button
                   size="lg"
