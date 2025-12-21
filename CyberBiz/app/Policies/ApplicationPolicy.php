@@ -18,10 +18,11 @@ class ApplicationPolicy
         }
         
         if ($user->isEmployer() && $jobId) {
-            // Check if user owns the job
-            return \App\Models\JobPosting::where('id', $jobId)
-                ->where('employer_id', $user->id)
-                ->exists();
+            // Check if user owns the job - compare UUIDs as strings
+            $job = \App\Models\JobPosting::find($jobId);
+            if ($job) {
+                return (string)$job->employer_id === (string)$user->id;
+            }
         }
         
         return false;

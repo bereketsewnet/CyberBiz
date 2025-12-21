@@ -100,7 +100,7 @@ export default function MyApplicationsPage() {
                     <div className="flex items-center gap-3">
                       <Badge variant="secondary">Submitted</Badge>
                       <Button variant="outline" size="sm" asChild>
-                        <Link to={`/jobs/${app.job_id}`}>
+                        <Link to={`/jobs/${app.job_id || app.job?.id}`}>
                           View Job <ExternalLink className="w-4 h-4 ml-1" />
                         </Link>
                       </Button>

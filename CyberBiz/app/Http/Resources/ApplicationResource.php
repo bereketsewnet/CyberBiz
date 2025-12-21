@@ -11,6 +11,8 @@ class ApplicationResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'job_id' => $this->job_id,
+            'seeker_id' => $this->seeker_id,
             'job' => new JobPostingResource($this->whenLoaded('job')),
             'seeker' => new UserResource($this->whenLoaded('seeker')),
             'cv_original_name' => $this->cv_original_name,

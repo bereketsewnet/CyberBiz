@@ -27,23 +27,52 @@ class JobPostingController extends Controller
             $query->search($request->q);
         }
 
-        // Filter by employer if requested (for employer's own jobs)
-        if ($request->has('employer_id')) {
-            $query->where('employer_id', $request->employer_id);
-        } elseif ($request->user() && $request->user()->isEmployer() && $request->has('my_jobs')) {
-            $query->where('employer_id', $request->user()->id);
+        // Get authenticated user (manually check token since this is a public route)
+        $user = $request->user();
+        if (!$user && $token = $request->bearerToken()) {
+            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+            if ($accessToken && $accessToken->tokenable) {
+                $user = $accessToken->tokenable;
+            }
         }
 
-        // Filter by status (only show published to public)
-        if (!$request->user() || (!$request->user()->isAdmin() && !$request->user()->isEmployer())) {
+        // Filter by employer if requested (for employer's own jobs)
+        $isMyJobs = false;
+        
+        if ($request->has('employer_id')) {
+            $query->where('employer_id', $request->employer_id);
+            $isMyJobs = true;
+        } elseif ($user && $user->isEmployer() && $request->boolean('my_jobs')) {
+            // Filter by the logged-in employer's ID when my_jobs=true
+            $query->where('employer_id', $user->id);
+            $isMyJobs = true;
+        }
+
+        // Filter by status (only show published to public, but employers see all their own jobs)
+        if ($isMyJobs) {
+            // When viewing own jobs, show all statuses (DRAFT, PUBLISHED, ARCHIVED)
+            // Only filter by status if explicitly requested
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+        } elseif (!$user || (!$user->isAdmin() && !$user->isEmployer())) {
+            // Public users only see published jobs
             $query->published();
         } elseif ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        $jobs = $query->with('employer')
-            ->latest()
-            ->paginate(15);
+        // When viewing own jobs, include applications count
+        if ($isMyJobs) {
+            $jobs = $query->with('employer')
+                ->withCount('applications')
+                ->latest()
+                ->paginate(15);
+        } else {
+            $jobs = $query->with('employer')
+                ->latest()
+                ->paginate(15);
+        }
 
         return response()->json([
             'data' => JobPostingResource::collection($jobs),

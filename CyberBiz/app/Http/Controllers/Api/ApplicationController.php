@@ -60,10 +60,24 @@ class ApplicationController extends Controller
     public function index(Request $request, string $jobId): JsonResponse
     {
         $job = JobPosting::findOrFail($jobId);
+        $user = $request->user();
 
-        // Check authorization
-        if (!$request->user()->can('viewAny', Application::class, $jobId)) {
+        // Check authorization - admin can view all, employer can view their own jobs
+        if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if (!$user->isAdmin()) {
+            // For non-admins, check if they own the job (employer) or are a seeker (can view their own applications)
+            if ($user->isEmployer()) {
+                // Compare UUIDs as strings
+                if ((string)$job->employer_id !== (string)$user->id) {
+                    return response()->json(['message' => 'Unauthorized - You can only view applications for your own jobs'], 403);
+                }
+            } else {
+                // Non-employer, non-admin users cannot view applications for jobs
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
         }
 
         $applications = Application::where('job_id', $jobId)
