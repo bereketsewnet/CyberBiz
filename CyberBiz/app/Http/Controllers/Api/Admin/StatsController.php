@@ -7,6 +7,7 @@ use App\Models\AdSlot;
 use App\Models\JobPosting;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\PasswordResetRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,9 @@ class StatsController extends Controller
         // Active ads
         $activeAds = AdSlot::where('is_active', true)->count();
 
+        // Pending password reset requests
+        $pendingPasswordResets = PasswordResetRequest::where('status', 'PENDING')->count();
+
         // Calculate changes (simplified - can be improved with actual comparison)
         $stats = [
             'total_users' => $totalUsers,
@@ -59,6 +63,7 @@ class StatsController extends Controller
             'conversion_rate_change' => '+1.2%', // Placeholder
             'pending_payments' => $pendingPayments,
             'active_ads' => $activeAds,
+            'pending_password_resets' => $pendingPasswordResets,
         ];
 
         return response()->json([

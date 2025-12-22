@@ -15,6 +15,7 @@ import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 // Seeker Pages
@@ -66,6 +67,14 @@ const App = () => (
           <Route path="/signup" element={<SignupPage />} />
 
           {/* Protected Routes - Any authenticated user */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

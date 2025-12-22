@@ -36,6 +36,7 @@ Route::get('/stats', [StatsController::class, 'index']);
 // Auth routes
 Route::post('/auth/signup', [AuthController::class, 'signup']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::get('/auth/google/redirect', [AuthController::class, 'googleRedirect']);
 Route::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
@@ -44,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
 
     // Job Postings
     Route::post('/jobs', [JobPostingController::class, 'store']);
@@ -96,6 +98,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::get('/users/{id}', [AdminUserController::class, 'show']);
         Route::put('/users/{id}', [AdminUserController::class, 'update']);
+        Route::post('/users/{id}/reset-password', [AdminUserController::class, 'resetPassword']);
+        Route::get('/users/password-reset-requests', [AdminUserController::class, 'getPasswordResetRequests']);
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 
         // Products Management

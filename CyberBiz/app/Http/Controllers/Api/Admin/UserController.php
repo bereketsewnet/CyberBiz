@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\PasswordResetRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -100,6 +102,53 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User deleted successfully',
+        ]);
+    }
+
+    public function resetPassword(Request $request, string $id): JsonResponse
+    {
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        // Mark any pending password reset requests for this user as processed
+        PasswordResetRequest::where('user_id', $user->id)
+            ->where('status', 'PENDING')
+            ->update([
+                'status' => 'PROCESSED',
+                'processed_at' => now(),
+                'processed_by' => $request->user()->id,
+            ]);
+
+        return response()->json([
+            'message' => 'Password reset successfully',
+            'data' => new UserResource($user),
+        ]);
+    }
+
+    public function getPasswordResetRequests(Request $request): JsonResponse
+    {
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $requests = PasswordResetRequest::with(['user'])
+            ->where('status', 'PENDING')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $requests,
         ]);
     }
 }

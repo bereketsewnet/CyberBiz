@@ -52,16 +52,32 @@ class ApiClient {
       headers: this.getHeaders(isFormData),
     });
 
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-      window.location.href = '/login';
-      throw new Error('Unauthorized');
+    // Parse JSON response (might fail if response is not JSON)
+    let data;
+    const contentType = response.headers.get('content-type');
+    
+    try {
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = text ? { message: text } : { message: 'An error occurred' };
+      }
+    } catch (e) {
+      data = { message: 'An error occurred' };
     }
 
-    const data = await response.json();
+    if (response.status === 401) {
+      // Only logout if we're not on the login page
+      if (!window.location.pathname.includes('/login')) {
+        useAuthStore.getState().logout();
+        window.location.href = '/login';
+      }
+      throw new Error(data.message || 'Unauthorized');
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || 'An error occurred');
+      throw new Error(data.message || data.error || 'An error occurred');
     }
 
     return data;

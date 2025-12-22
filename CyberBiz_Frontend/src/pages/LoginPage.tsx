@@ -32,8 +32,10 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    shouldFocusError: true,
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -43,8 +45,26 @@ export default function LoginPage() {
       login(response.user, response.token);
       toast.success('Welcome back!');
       navigate(from, { replace: true });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Invalid email or password');
+    } catch (error: any) {
+      // Extract error message from response
+      let errorMessage = 'Invalid email or password';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      // Show error toast
+      toast.error(errorMessage);
+      
+      // Set form error to display below password field
+      setError('password', {
+        type: 'manual',
+        message: errorMessage,
+      });
+      
+      // Don't clear the form - keep email and password fields filled
     } finally {
       setIsLoading(false);
     }
@@ -106,9 +126,25 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const email = (document.getElementById('email') as HTMLInputElement)?.value;
+                    if (!email) {
+                      toast.error('Please enter your email first');
+                      return;
+                    }
+                    try {
+                      const response = await apiService.forgotPassword(email);
+                      toast.info(response.message);
+                    } catch (error: any) {
+                      toast.error(error.message || 'Failed to process forgot password request');
+                    }
+                  }}
+                  className="text-sm text-primary hover:underline"
+                >
                   Forgot password?
-                </Link>
+                </button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -128,7 +164,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
               )}
             </div>
 

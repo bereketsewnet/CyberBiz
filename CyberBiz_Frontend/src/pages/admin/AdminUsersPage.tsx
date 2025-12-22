@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Eye, Edit, Trash2, Mail, Phone, User as UserIcon } from 'lucide-react';
+import { Search, Eye, Edit, Trash2, Mail, Phone, User as UserIcon, Key, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { User } from '@/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -16,6 +24,9 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [resetPasswordModal, setResetPasswordModal] = useState<{ open: boolean; user: User | null }>({ open: false, user: null });
+  const [newPassword, setNewPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -46,6 +57,40 @@ export default function AdminUsersPage() {
       fetchUsers();
     } catch (error: any) {
       toast.error(error.message || 'Failed to delete user');
+    }
+  };
+
+  const generatePassword = () => {
+    const length = 12;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    setNewPassword(password);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetPasswordModal.user || !newPassword) {
+      toast.error('Please enter a password');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      await apiService.resetAdminUserPassword(resetPasswordModal.user.id, newPassword);
+      toast.success('Password reset successfully');
+      setResetPasswordModal({ open: false, user: null });
+      setNewPassword('');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset password');
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -133,6 +178,14 @@ export default function AdminUsersPage() {
                         <Button asChild variant="outline" size="sm">
                           <Link to={`/admin/users/${user.id}`}><Eye className="w-4 h-4 mr-2" />View</Link>
                         </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setResetPasswordModal({ open: true, user })}
+                        >
+                          <Key className="w-4 h-4 mr-2" />
+                          Reset Password
+                        </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDelete(user.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -160,6 +213,62 @@ export default function AdminUsersPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Reset Password Modal */}
+      <Dialog open={resetPasswordModal.open} onOpenChange={(open) => !open && setResetPasswordModal({ open: false, user: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>
+              Reset password for {resetPasswordModal.user?.full_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="newPassword"
+                  type="text"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password or generate one"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={generatePassword}
+                  className="whitespace-nowrap"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Generate
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Password must be at least 8 characters long
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setResetPasswordModal({ open: false, user: null });
+                  setNewPassword('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleResetPassword}
+                disabled={!newPassword || isResetting}
+                className="bg-gold-gradient hover:opacity-90"
+              >
+                {isResetting ? 'Resetting...' : 'Reset Password'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -37,6 +37,20 @@ export const apiService = {
     return api.post<{ message: string }>('/auth/logout');
   },
 
+  async updateProfile(data: {
+    full_name?: string;
+    phone?: string;
+    company_name?: string;
+    website_url?: string;
+    password?: string;
+  }): Promise<{ message: string; user: User }> {
+    return api.put<{ message: string; user: User }>('/auth/profile', data);
+  },
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return api.post<{ message: string }>('/auth/forgot-password', { email });
+  },
+
   // ========== JOBS ==========
   async getJobs(params?: { q?: string; page?: number; status?: string; my_jobs?: boolean; job_type?: string; location?: string; experience?: string }): Promise<PaginatedResponse<JobPosting>> {
     return api.get<PaginatedResponse<JobPosting>>('/jobs', params);
@@ -318,6 +332,10 @@ export const apiService = {
 
   async deleteAdminUser(id: string): Promise<{ message: string }> {
     return api.delete<{ message: string }>(`/admin/users/${id}`);
+  },
+
+  async resetAdminUserPassword(id: string, password: string): Promise<{ message: string; data: User }> {
+    return api.post<{ message: string; data: User }>(`/admin/users/${id}/reset-password`, { password });
   },
 
   // ========== ADMIN - PRODUCTS ==========

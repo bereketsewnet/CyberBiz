@@ -29,6 +29,7 @@ export default function AdminDashboardPage() {
     conversion_rate_change: '+0%',
     pending_payments: 0,
     active_ads: 0,
+    pending_password_resets: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -145,11 +146,36 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {/* Password Reset Requests Alert */}
+          {stats.pending_password_resets > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mb-6 bg-warning/10 border border-warning/20 rounded-xl p-4 flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-lg bg-warning/20 flex items-center justify-center flex-shrink-0">
+                <Key className="w-6 h-6 text-warning" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-foreground mb-1">
+                  Password Reset Requests
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {stats.pending_password_resets} admin{stats.pending_password_resets > 1 ? 's' : ''} requested password reset. 
+                  <Link to="/admin/users" className="text-primary hover:underline ml-1">
+                    View and process
+                  </Link>
+                </p>
+              </div>
+            </motion.div>
+          )}
+
           {/* Quick Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5 }}
             className="grid md:grid-cols-3 lg:grid-cols-3 gap-6"
           >
             {quickLinks.map((link, index) => (
