@@ -15,8 +15,14 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
+        // Search by title only
+        if ($request->has('q') && $request->q) {
+            $searchTerm = $request->q;
+            $query->where('title', 'LIKE', '%' . $searchTerm . '%');
+        }
+
         // Filter by type
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);
         }
 

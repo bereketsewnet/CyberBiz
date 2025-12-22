@@ -167,9 +167,9 @@ export default function AdminDashboardPage() {
                       {stats.pending_payments} pending
                     </span>
                   )}
-                  {index === 1 && stats.active_ads > 0 && (
+                  {index === 1 && stats.active_jobs > 0 && (
                     <span className="px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                      {stats.active_ads} active
+                      {stats.active_jobs} active
                     </span>
                   )}
                 </div>

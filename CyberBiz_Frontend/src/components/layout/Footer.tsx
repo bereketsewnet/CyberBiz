@@ -91,19 +91,19 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <span className="text-secondary-foreground/70">
-                  Bole Road, Addis Ababa, Ethiopia
+                  Addis Ababa, Ethiopia
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
-                <a href="mailto:hello@cyberbiz.africa" className="text-secondary-foreground/70 hover:text-primary transition-colors">
-                  hello@cyberbiz.africa
+                <a href="mailto:info@cyberbizafrica.com" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                  info@cyberbizafrica.com
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary" />
-                <a href="tel:+251911000000" className="text-secondary-foreground/70 hover:text-primary transition-colors">
-                  +251 911 000 000
+                <a href="tel:+251975096287" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                  +251 975 096 287
                 </a>
               </li>
             </ul>

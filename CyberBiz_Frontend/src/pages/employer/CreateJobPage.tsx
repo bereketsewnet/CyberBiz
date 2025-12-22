@@ -43,6 +43,7 @@ export default function CreateJobPage() {
 
   const status = watch('status');
   const jobType = watch('job_type');
+  const experience = watch('experience');
 
   const addSkill = () => {
     if (skillInput.trim() && !skills.includes(skillInput.trim())) {
@@ -126,8 +127,16 @@ export default function CreateJobPage() {
                     <Input id="location" placeholder="e.g. Addis Ababa, Ethiopia" {...register('location')} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="experience">Experience</Label>
-                    <Input id="experience" placeholder="e.g. 3-5 years" {...register('experience')} />
+                    <Label htmlFor="experience">Experience Level</Label>
+                    <Select value={experience || undefined} onValueChange={(value) => setValue('experience', value)}>
+                      <SelectTrigger><SelectValue placeholder="Select experience level" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Entry">Entry Level</SelectItem>
+                        <SelectItem value="Mid">Mid Level</SelectItem>
+                        <SelectItem value="Senior">Senior Level</SelectItem>
+                        <SelectItem value="Executive">Executive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 

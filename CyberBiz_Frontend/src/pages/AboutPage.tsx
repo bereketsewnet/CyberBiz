@@ -1,35 +1,46 @@
 import { motion } from 'framer-motion';
 import { Header, Footer } from '@/components/layout';
-import { Users, Target, Globe, Award } from 'lucide-react';
+import { Users, Target, Globe, Award, Briefcase, BookOpen, FileText } from 'lucide-react';
 
 const values = [
   {
     icon: Users,
-    title: 'Community First',
-    description: 'We believe in building a strong community of African professionals who support each other.',
+    title: 'Accountability',
+    description: 'We take responsibility for our actions and commitments, ensuring transparency in everything we do.',
   },
   {
     icon: Target,
-    title: 'Impact Driven',
-    description: 'Every feature we build is designed to create meaningful impact for job seekers and employers.',
+    title: 'Integrity',
+    description: 'We operate with honesty and ethical principles, building trust with our community.',
   },
   {
     icon: Globe,
-    title: 'Pan-African Vision',
-    description: "We're committed to connecting talent across the African continent and beyond.",
+    title: 'Respect',
+    description: 'We value and honor the dignity of every individual and organization we work with.',
   },
   {
     icon: Award,
     title: 'Excellence',
-    description: 'We strive for excellence in everything we do, from user experience to customer support.',
+    description: 'We strive for excellence in delivering quality services and achieving outstanding results.',
   },
 ];
 
-const team = [
-  { name: 'Abebe Kebede', role: 'CEO & Founder', location: 'Addis Ababa' },
-  { name: 'Amara Okonkwo', role: 'CTO', location: 'Lagos' },
-  { name: 'Sarah Mutua', role: 'Head of Operations', location: 'Nairobi' },
-  { name: 'David Mensah', role: 'Lead Designer', location: 'Accra' },
+const services = [
+  {
+    icon: Briefcase,
+    title: 'Online Job Advertisement and Business Promotion Services',
+    description: 'An online Job Advertisement and business promotion services focusing on jobs and businesses emanating from local and international nonprofit organizations including the Civil Society Sector, Bilateral and Multilateral Aid Organizations and Other Development Partners.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Virtual Coaching and Training Services',
+    description: 'A virtual coaching and training services on program cycle management and leadership tailored to individuals wanting to develop and advance their career in the NGO sector.',
+  },
+  {
+    icon: FileText,
+    title: 'Career Advancement Blogs',
+    description: 'A career advancement blogs and a tailored virtual career coaching services to prepare young people for higher education and to help build capacity of fresh graduates and young aspiring professionals within the nonprofit sector to develop and take their career to the next level.',
+  },
 ];
 
 export default function AboutPage() {
@@ -47,64 +58,45 @@ export default function AboutPage() {
               className="text-center max-w-3xl mx-auto"
             >
               <h1 className="font-display text-4xl lg:text-5xl font-bold text-secondary-foreground mb-6">
-                Empowering Africa's <span className="text-gradient">Digital Future</span>
+                WHO WE ARE
               </h1>
               <p className="text-lg text-secondary-foreground/70">
-                CyberBiz Africa is on a mission to connect talented professionals with opportunities 
-                that shape the continent's digital economy.
+                Cyberbizafrica.com is founded by a veteran professional with over 30 years of executive-level career in management and leadership of high-performing teams and programs within the NGO sector at international levels. Cyberbizafrica consists of a team of professionals with years of tested results-based experience in jobs and business promotion as well as in providing training and coaching services on program management and leadership skills.
               </p>
             </motion.div>
           </div>
         </section>
 
-        {/* Story */}
+        {/* Vision & Mission */}
         <section className="py-20">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-12">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
+                className="bg-card rounded-2xl border border-border p-8"
               >
                 <h2 className="font-display text-3xl font-bold text-foreground mb-6">
-                  Our Story
+                  OUR VISION
                 </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>
-                    Founded in 2023 in Addis Ababa, CyberBiz Africa was born from a simple observation: 
-                    Africa has incredible talent, but limited platforms to showcase it.
+                <p className="text-lg text-muted-foreground">
+                  To be among the top organization for digital jobs and business promotion and for training and coaching in program management and leadership skills.
                   </p>
-                  <p>
-                    We started as a small job board focused on Ethiopia's growing tech scene. Today, 
-                    we've expanded to serve professionals and employers across East Africa, with plans 
-                    to cover the entire continent.
-                  </p>
-                  <p>
-                    Our platform combines job opportunities with skill-building resources, creating a 
-                    comprehensive ecosystem for career growth in Africa's digital economy.
-                  </p>
-                </div>
               </motion.div>
               
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="relative"
+                className="bg-card rounded-2xl border border-border p-8"
               >
-                <div className="aspect-square bg-muted rounded-2xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=600&fit=crop"
-                    alt="Team collaboration"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-gold-gradient rounded-xl flex items-center justify-center shadow-gold">
-                  <div className="text-center">
-                    <p className="font-display text-4xl font-bold text-secondary">2023</p>
-                    <p className="text-secondary/80 text-sm">Founded</p>
-                  </div>
-                </div>
+                <h2 className="font-display text-3xl font-bold text-foreground mb-6">
+                  OUR MISSION
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  To help build the capacity of young and upcoming professionals in their quest for career advancement while connecting them with an available job and business opportunities and providing on the job training and coaching services for aspiring managers and with a focus on the nonprofit sector.
+                </p>
               </motion.div>
             </div>
           </div>
@@ -152,7 +144,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Team */}
+        {/* What We Do */}
         <section className="py-20">
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
@@ -162,33 +154,32 @@ export default function AboutPage() {
               className="text-center mb-12"
             >
               <h2 className="font-display text-3xl font-bold text-foreground mb-4">
-                Meet Our Team
+                WHAT WE DO
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                The passionate people behind CyberBiz Africa
+                We offer unmatched services in the following areas
               </p>
             </motion.div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {team.map((member, index) => (
+            <div className="grid md:grid-cols-3 gap-8">
+              {services.map((service, index) => (
                 <motion.div
-                  key={member.name}
+                  key={service.title}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-card rounded-xl border border-border p-6 text-center"
+                  className="bg-card rounded-xl border border-border p-6"
                 >
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <span className="font-display text-2xl font-bold text-primary">
-                      {member.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <service.icon className="w-7 h-7 text-primary" />
                   </div>
-                  <h3 className="font-display font-semibold text-foreground mb-1">
-                    {member.name}
+                  <h3 className="font-display font-semibold text-foreground mb-3 text-lg">
+                    {index + 1}. {service.title}
                   </h3>
-                  <p className="text-sm text-primary mb-1">{member.role}</p>
-                  <p className="text-xs text-muted-foreground">{member.location}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {service.description}
+                  </p>
                 </motion.div>
               ))}
             </div>

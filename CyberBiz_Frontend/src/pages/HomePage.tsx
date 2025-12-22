@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Briefcase, BookOpen, Users, ArrowRight, Sparkles, TrendingUp, Globe } from 'lucide-react';
+import { Search, Briefcase, BookOpen, Users, ArrowRight, Sparkles, TrendingUp, Globe, FileText, Target, Building2, GraduationCap, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Header, Footer } from '@/components/layout';
@@ -70,7 +70,7 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white mb-6"
               >
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Africa's Premier Job & Learning Platform</span>
+                <span className="text-sm font-medium">Welcome to CyberBiz Africa</span>
               </motion.div>
               
               <motion.h1
@@ -79,8 +79,8 @@ export default function HomePage() {
                 transition={{ delay: 0.1 }}
                 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
               >
-                Build Your Career{' '}
-                <span className="text-primary">Across Africa</span>
+                Your One-Stop Virtual{' '}
+                <span className="text-primary">Solution Gateway</span>
               </motion.h1>
               
               <motion.p
@@ -89,7 +89,7 @@ export default function HomePage() {
                 transition={{ delay: 0.2 }}
                 className="text-lg md:text-xl text-white/80 mb-10 max-w-2xl mx-auto"
               >
-                Discover top opportunities from leading African companies. Upskill with our courses and connect with employers who value your talent.
+                CyberbizAfrica.com is a one-stop virtual solution gateway for job advertisement, career advice, business promotion, and online learning, and personal development.
               </motion.p>
 
               <motion.form
@@ -211,14 +211,14 @@ export default function HomePage() {
         </section>
 
         {/* Featured Jobs */}
-        <section className="py-20">
+        <section className="py-12 sm:py-20">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-10 gap-4">
               <div>
-                <h2 className="font-display text-3xl font-bold text-foreground mb-2">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2">
                   Featured Jobs
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Latest opportunities from top African companies
                 </p>
               </div>
@@ -231,20 +231,20 @@ export default function HomePage() {
             </div>
 
             {isLoading ? (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="h-48 bg-muted rounded-xl animate-pulse" />
                 ))}
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                 {featuredJobs.map((job, index) => (
                   <JobCard key={job.id} job={job} index={index} />
                 ))}
               </div>
             )}
 
-            <div className="mt-8 text-center sm:hidden">
+            <div className="mt-6 sm:mt-8 text-center sm:hidden">
               <Button asChild>
                 <Link to="/jobs">View All Jobs</Link>
               </Button>
@@ -290,6 +290,213 @@ export default function HomePage() {
               <Button asChild>
                 <Link to="/courses">Browse All Courses</Link>
               </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Our Services Section */}
+        <section className="py-20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Our Services
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Comprehensive solutions for job seekers, employers, and professionals
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0 }}
+                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Briefcase className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
+                  Charity Job Board Ethiopia
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  A specialized job board focusing solely on jobs within the nonprofit sectors including jobs within the local and international NGOs, the UN system as well as those from international aid and development agencies.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <FileText className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
+                  Career Blogs
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  A blog with state of the art career advice, knowledge, and skills whether for fresh graduates wanting to enter the job market or for veteran workers seeking to further develop, advance, or change their careers.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <Target className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
+                  CyberBizPromo
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  A virtual digital solution to promote businesses and increase the profitability and marketability of organizations within nonprofit, private, or public sectors.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <GraduationCap className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
+                  Virtual Coach Africa
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  An online coaching site on program lifecycle management as well as leadership skills.
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Our Clients Section */}
+        <section className="py-20 bg-muted/50">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Our Clients
+              </h2>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto"
+            >
+              <p className="text-lg text-muted-foreground text-center leading-relaxed">
+                Include local and international NGOs, international humanitarian and development aid organizations, high school, college as well as university graduates looking for jobs and or wanting to advance their careers, local and international small and medium as well as large businesses operating in Ethiopia, project and or program managers as well as senior executives working in public, private as well as nonprofit sectors.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-20">
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-muted-foreground">
+                Get answers to common questions about our platform
+              </p>
+            </motion.div>
+
+            <div className="max-w-3xl mx-auto space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0 }}
+                className="bg-card rounded-xl border border-border p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-2">
+                      How can I access content of the site?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      You can browse jobs and courses for free. Some premium content may require registration or purchase.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="bg-card rounded-xl border border-border p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-2">
+                      Is the job board free to access?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="bg-card rounded-xl border border-border p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-semibold text-foreground mb-2">
+                      How can I access the cybercoach service?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>

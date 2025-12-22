@@ -38,7 +38,7 @@ export const apiService = {
   },
 
   // ========== JOBS ==========
-  async getJobs(params?: { q?: string; page?: number; status?: string; my_jobs?: boolean }): Promise<PaginatedResponse<JobPosting>> {
+  async getJobs(params?: { q?: string; page?: number; status?: string; my_jobs?: boolean; job_type?: string; location?: string; experience?: string }): Promise<PaginatedResponse<JobPosting>> {
     return api.get<PaginatedResponse<JobPosting>>('/jobs', params);
   },
 
@@ -127,7 +127,7 @@ export const apiService = {
   },
 
   // ========== PRODUCTS ==========
-  async getProducts(params?: { type?: 'COURSE' | 'EBOOK'; page?: number }): Promise<PaginatedResponse<Product>> {
+  async getProducts(params?: { type?: 'COURSE' | 'EBOOK'; page?: number; q?: string }): Promise<PaginatedResponse<Product>> {
     return api.get<PaginatedResponse<Product>>('/products', params);
   },
 

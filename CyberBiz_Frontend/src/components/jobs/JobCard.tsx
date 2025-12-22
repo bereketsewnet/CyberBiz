@@ -30,62 +30,73 @@ export function JobCard({ job, index = 0 }: JobCardProps) {
     return daysUntilExpiry <= 7 && daysUntilExpiry > 0;
   };
 
+  const getJobTypeLabel = (type?: string) => {
+    if (!type) return 'Full-time';
+    return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="group bg-card rounded-xl border border-border p-6 card-hover"
+      className="group bg-card rounded-xl border border-border p-4 sm:p-6 card-hover h-full flex flex-col"
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-primary" />
+      <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           </div>
-          <div>
-            <h3 className="font-display font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-              <Link to={`/jobs/${job.id}`}>{job.title}</Link>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-2">
+              <Link to={`/jobs/${job.id}`} className="hover:underline">{job.title}</Link>
             </h3>
-            <p className="text-muted-foreground text-sm">{getCompanyName()}</p>
+            <p className="text-muted-foreground text-xs sm:text-sm truncate">{getCompanyName()}</p>
           </div>
         </div>
         {isExpiringSoon() && (
-          <Badge variant="destructive" className="shrink-0">
+          <Badge variant="destructive" className="shrink-0 text-xs">
             Closing Soon
           </Badge>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
+        {job.location && (
+          <span className="flex items-center gap-1">
+            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="truncate">{job.location}</span>
+          </span>
+        )}
         <span className="flex items-center gap-1">
-          <MapPin className="w-4 h-4" />
-          Addis Ababa
-        </span>
-        <span className="flex items-center gap-1">
-          <Clock className="w-4 h-4" />
-          Posted {formatDate(job.created_at)}
+          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="whitespace-nowrap">Posted {formatDate(job.created_at)}</span>
         </span>
         {job.applications_count !== undefined && (
           <span className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            {job.applications_count} applicants
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{job.applications_count} applicants</span>
           </span>
         )}
       </div>
 
-      <p className="text-muted-foreground text-sm line-clamp-2 mb-6">
+      <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2 mb-4 sm:mb-6 flex-1">
         {job.description_html ? job.description_html.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'No description available'}
       </p>
 
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          <Badge variant="secondary">Full-time</Badge>
-          <Badge variant="outline">Remote</Badge>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
+        <div className="flex flex-wrap gap-2">
+          {job.job_type && (
+            <Badge variant="secondary" className="text-xs">{getJobTypeLabel(job.job_type)}</Badge>
+          )}
+          {job.location?.toLowerCase().includes('remote') && (
+            <Badge variant="outline" className="text-xs">Remote</Badge>
+          )}
         </div>
-        <Button asChild variant="ghost" size="sm" className="group/btn">
-          <Link to={`/jobs/${job.id}`}>
-            View Details
-            <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
+        <Button asChild variant="ghost" size="sm" className="group/btn w-full sm:w-auto">
+          <Link to={`/jobs/${job.id}`} className="flex items-center justify-center">
+            <span className="text-xs sm:text-sm">View Details</span>
+            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
           </Link>
         </Button>
       </div>

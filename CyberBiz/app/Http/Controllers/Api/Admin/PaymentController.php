@@ -23,8 +23,8 @@ class PaymentController extends Controller
     {
         // Check authorization
         if (!$request->user() || !$request->user()->isAdmin()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
 
         $transactions = Transaction::where('status', 'PENDING_APPROVAL')
             ->with(['user', 'product'])

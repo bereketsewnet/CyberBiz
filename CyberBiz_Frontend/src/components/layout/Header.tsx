@@ -59,6 +59,9 @@ export function Header() {
             <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
               About
             </Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
+              Contact
+            </Link>
           </div>
 
           {/* Desktop Auth */}
@@ -185,6 +188,13 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   About
+                </Link>
+                <Link
+                  to="/contact"
+                  className="block py-2 text-foreground"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
                 </Link>
                 <div className="pt-4 border-t border-border space-y-2">
                   {isAuthenticated ? (

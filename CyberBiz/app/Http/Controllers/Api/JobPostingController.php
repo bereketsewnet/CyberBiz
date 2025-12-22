@@ -62,6 +62,21 @@ class JobPostingController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter by job_type
+        if ($request->has('job_type') && $request->job_type) {
+            $query->where('job_type', $request->job_type);
+        }
+
+        // Filter by location
+        if ($request->has('location') && $request->location) {
+            $query->where('location', 'LIKE', '%' . $request->location . '%');
+        }
+
+        // Filter by experience
+        if ($request->has('experience') && $request->experience) {
+            $query->where('experience', 'LIKE', '%' . $request->experience . '%');
+        }
+
         // When viewing own jobs, include applications count
         if ($isMyJobs) {
             $jobs = $query->with('employer')
