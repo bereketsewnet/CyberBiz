@@ -87,7 +87,7 @@ export default function MyFavoritesPage() {
                   : 'Start bookmarking jobs you\'re interested in'}
               </p>
               {!searchQuery && (
-                <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+                <Button asChild className="bg-primary hover:opacity-90 ">
                   <Link to="/jobs">
                     Browse Jobs
                     <ArrowRight className="w-4 h-4 ml-2" />

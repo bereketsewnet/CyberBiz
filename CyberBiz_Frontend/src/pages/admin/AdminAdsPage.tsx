@@ -63,7 +63,7 @@ export default function AdminAdsPage() {
               <h1 className="font-display text-3xl font-bold text-foreground mb-2">Manage Ads</h1>
               <p className="text-muted-foreground">View, create, edit, and delete ad slots</p>
             </div>
-            <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+            <Button asChild className="bg-primary hover:opacity-90 ">
               <Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create Ad</Link>
             </Button>
           </motion.div>
@@ -92,7 +92,7 @@ export default function AdminAdsPage() {
             <div className="text-center py-20 bg-card rounded-xl border border-border">
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">No ads found</h3>
               <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'No ads have been created yet'}</p>
-              {!searchQuery && <Button asChild className="bg-gold-gradient"><Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create First Ad</Link></Button>}
+              {!searchQuery && <Button asChild className="bg-primary"><Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create First Ad</Link></Button>}
             </div>
           ) : (
             <>

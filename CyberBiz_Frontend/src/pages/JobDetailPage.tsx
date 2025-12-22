@@ -194,7 +194,7 @@ export default function JobDetailPage() {
                 </Button>
                 <Button
                   size="lg"
-                  className="bg-gold-gradient hover:opacity-90 shadow-gold"
+                  className="bg-primary hover:opacity-90 "
                   onClick={handleApplyClick}
                 >
                   Apply Now
@@ -381,7 +381,7 @@ export default function JobDetailPage() {
             <Button
               onClick={handleApply}
               disabled={!cvFile || isApplying}
-              className="bg-gold-gradient"
+              className="bg-primary"
             >
               {isApplying ? 'Submitting...' : 'Submit Application'}
             </Button>

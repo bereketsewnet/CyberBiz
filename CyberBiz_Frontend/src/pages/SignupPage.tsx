@@ -106,12 +106,11 @@ export default function SignupPage() {
           className="w-full max-w-md"
         >
           <Link to="/" className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center shadow-gold">
-              <span className="text-xl font-bold text-secondary">CB</span>
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">
-              CyberBiz<span className="text-primary">.</span>
-            </span>
+            <img 
+              src="/logo.svg" 
+              alt="CyberBiz Africa" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
@@ -246,7 +245,7 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gold-gradient hover:opacity-90 shadow-gold"
+              className="w-full bg-primary hover:opacity-90 "
               size="lg"
               disabled={isLoading}
             >

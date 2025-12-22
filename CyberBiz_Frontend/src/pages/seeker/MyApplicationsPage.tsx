@@ -64,7 +64,7 @@ export default function MyApplicationsPage() {
               <p className="text-muted-foreground mb-6">
                 Start applying to jobs to see your applications here
               </p>
-              <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+              <Button asChild className="bg-primary hover:opacity-90 ">
                 <Link to="/jobs">Browse Jobs</Link>
               </Button>
             </motion.div>

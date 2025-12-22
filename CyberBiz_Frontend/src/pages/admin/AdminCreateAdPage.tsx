@@ -121,7 +121,7 @@ export default function AdminCreateAdPage() {
               </div>
               <div className="flex items-center justify-end gap-4">
                 <Button type="button" variant="outline" onClick={() => navigate('/admin/ads')}>Cancel</Button>
-                <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isLoading}>
+                <Button type="submit" className="bg-primary hover:opacity-90" disabled={isLoading}>
                   {isLoading ? 'Creating...' : 'Create Ad'}
                 </Button>
               </div>

@@ -46,8 +46,12 @@ export default function HomePage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/jobs?q=${encodeURIComponent(searchQuery)}`);
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      navigate(`/jobs?q=${encodeURIComponent(trimmedQuery)}`);
+    } else {
+      // If empty, just navigate to jobs page
+      navigate('/jobs');
     }
   };
 
@@ -77,10 +81,22 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+                className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 relative"
               >
-                Your One-Stop Virtual{' '}
-                <span className="text-primary">Solution Gateway</span>
+                <span className="block">Your One-Stop Virtual</span>
+                <motion.span
+                  className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white border-2 border-white/30 shadow-xl relative z-10"
+                  animate={{
+                    y: [0, -20, 0],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  Solution Gateway
+                </motion.span>
               </motion.h1>
               
               <motion.p
@@ -100,16 +116,22 @@ export default function HomePage() {
                 className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
               >
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
                   <Input
                     type="text"
                     placeholder="Job title, keyword, or company..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSearch(e);
+                      }
+                    }}
                     className="pl-12 h-14 bg-white/95 border-0 text-foreground placeholder:text-muted-foreground shadow-lg"
                   />
                 </div>
-                <Button type="submit" size="lg" className="h-14 px-8 bg-gold-gradient hover:opacity-90 shadow-gold">
+                <Button type="submit" size="lg" className="h-14 px-8 bg-primary hover:opacity-90 ">
                   Search Jobs
                 </Button>
               </motion.form>
@@ -518,11 +540,11 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild size="lg" className="bg-gold-gradient hover:opacity-90 shadow-gold">
+                  <Button asChild size="lg" className="bg-primary hover:opacity-90 text-white">
                     <Link to="/signup?role=EMPLOYER">Post a Job</Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="border-secondary-foreground/20 text-secondary-foreground hover:bg-secondary-foreground/10">
-                    <Link to="/pricing">View Pricing</Link>
+                  <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 border-2 border-white">
+                    <Link to="/signup?role=EMPLOYER">Register as Employer</Link>
                   </Button>
                 </div>
               </div>

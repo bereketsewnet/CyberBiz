@@ -136,7 +136,7 @@ export default function AdminUserDetailPage() {
                 <p className="text-muted-foreground">View and manage user information</p>
               </div>
               {!isEditMode && (
-                <Button onClick={() => setIsEditMode(true)} className="bg-gold-gradient">
+                <Button onClick={() => setIsEditMode(true)} className="bg-primary">
                   Edit User
                 </Button>
               )}
@@ -197,7 +197,7 @@ export default function AdminUserDetailPage() {
                 </div>
                 <div className="flex items-center justify-end gap-4">
                   <Button type="button" variant="outline" onClick={() => setIsEditMode(false)}>Cancel</Button>
-                  <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isSaving}>
+                  <Button type="submit" className="bg-primary hover:opacity-90" disabled={isSaving}>
                     {isSaving ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />

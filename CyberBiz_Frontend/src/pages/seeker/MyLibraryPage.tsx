@@ -52,7 +52,7 @@ export default function MyLibraryPage() {
               <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <h2 className="font-display text-xl font-semibold text-foreground mb-2">Your library is empty</h2>
               <p className="text-muted-foreground mb-6">Purchase courses or ebooks to start building your library</p>
-              <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+              <Button asChild className="bg-primary hover:opacity-90 ">
                 <Link to="/courses"><ShoppingBag className="w-4 h-4 mr-2" />Browse Courses</Link>
               </Button>
             </motion.div>
@@ -72,7 +72,7 @@ export default function MyLibraryPage() {
                     <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{product.title}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{product.description}</p>
                     <Button 
-                      className="w-full bg-gold-gradient hover:opacity-90"
+                      className="w-full bg-primary hover:opacity-90"
                       onClick={() => handleProductClick(product)}
                     >
                       {product.type === 'COURSE' ? (

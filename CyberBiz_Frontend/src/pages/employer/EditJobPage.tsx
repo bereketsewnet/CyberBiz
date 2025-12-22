@@ -346,7 +346,7 @@ export default function EditJobPage() {
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-gold-gradient hover:opacity-90 shadow-gold flex-1"
+                  className="bg-primary hover:opacity-90  flex-1"
                   disabled={isSaving}
                 >
                   {isSaving ? (

@@ -72,7 +72,7 @@ export default function AdminProductsPage() {
               <h1 className="font-display text-3xl font-bold text-foreground mb-2">Manage Products</h1>
               <p className="text-muted-foreground">View, create, edit, and delete courses and ebooks</p>
             </div>
-            <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+            <Button asChild className="bg-primary hover:opacity-90 ">
               <Link to="/admin/products/create"><Plus className="w-4 h-4 mr-2" />Create Product</Link>
             </Button>
           </motion.div>
@@ -115,7 +115,7 @@ export default function AdminProductsPage() {
             <div className="text-center py-20 bg-card rounded-xl border border-border">
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">No products found</h3>
               <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'No products have been created yet'}</p>
-              {!searchQuery && <Button asChild className="bg-gold-gradient"><Link to="/admin/products/create"><Plus className="w-4 h-4 mr-2" />Create First Product</Link></Button>}
+              {!searchQuery && <Button asChild className="bg-primary"><Link to="/admin/products/create"><Plus className="w-4 h-4 mr-2" />Create First Product</Link></Button>}
             </div>
           ) : (
             <>

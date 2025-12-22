@@ -9,12 +9,11 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center">
-                <span className="text-xl font-bold text-secondary">CB</span>
-              </div>
-              <span className="font-display text-xl font-bold text-secondary-foreground">
-                CyberBiz<span className="text-primary">.</span>
-              </span>
+              <img 
+                src="/logo.svg" 
+                alt="CyberBiz Africa" 
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-secondary-foreground/70 mb-6">
               Empowering African talent with opportunities and skills for the digital economy.

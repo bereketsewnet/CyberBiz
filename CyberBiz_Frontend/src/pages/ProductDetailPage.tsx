@@ -235,7 +235,7 @@ export default function ProductDetailPage() {
                 ) : (
                   <Button
                     size="lg"
-                    className="w-full bg-gold-gradient hover:opacity-90 shadow-gold"
+                    className="w-full bg-primary hover:opacity-90 "
                     onClick={handlePurchaseClick}
                     disabled={isProcessing}
                   >
@@ -323,7 +323,7 @@ export default function ProductDetailPage() {
             <Button
               onClick={handleUploadProof}
               disabled={!paymentProof || !transaction || isProcessing}
-              className="bg-gold-gradient"
+              className="bg-primary"
             >
               {isProcessing ? 'Uploading...' : 'Upload Proof'}
             </Button>

@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
               <Button
                 onClick={handleResetPassword}
                 disabled={!newPassword || isResetting}
-                className="bg-gold-gradient hover:opacity-90"
+                className="bg-primary hover:opacity-90"
               >
                 {isResetting ? 'Resetting...' : 'Reset Password'}
               </Button>

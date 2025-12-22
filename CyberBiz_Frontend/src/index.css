@@ -16,18 +16,18 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Amber Gold - Opportunity & Growth */
-    --primary: 38 92% 50%;
+    /* CyberBiz Blue - Brand Color #1A4378 */
+    --primary: 214 60% 28%;
     --primary-foreground: 0 0% 100%;
 
     /* Deep Navy - Trust & Professionalism */
-    --secondary: 222 47% 15%;
+    --secondary: 214 60% 20%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 30 15% 92%;
     --muted-foreground: 222 20% 45%;
 
-    --accent: 24 80% 55%;
+    --accent: 214 60% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -36,25 +36,25 @@
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
+    --warning: 214 60% 28%;
+    --warning-foreground: 0 0% 100%;
 
     --border: 30 15% 88%;
     --input: 30 15% 88%;
-    --ring: 38 92% 50%;
+    --ring: 214 60% 28%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --hero-gradient: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(222 47% 18%) 50%, hsl(38 30% 20%) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(214 60% 20%) 0%, hsl(214 60% 28%) 50%, hsl(214 60% 35%) 100%);
     --card-gradient: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(30 20% 98%) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(24 80% 55%) 100%);
-    --text-gradient: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(24 80% 45%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(214 60% 28%) 0%, hsl(214 60% 35%) 100%);
+    --text-gradient: linear-gradient(135deg, hsl(214 60% 28%) 0%, hsl(214 60% 35%) 100%);
 
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-gold: 0 4px 14px 0 hsl(38 92% 50% / 0.25);
+    --shadow-gold: 0 4px 14px 0 hsl(214 60% 28% / 0.25);
     --shadow-lift: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
     --sidebar-background: 0 0% 98%;
@@ -77,16 +77,16 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 38 92% 50%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 214 60% 28%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
+    --secondary: 214 60% 20%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 24 80% 55%;
+    --accent: 214 60% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
@@ -97,9 +97,9 @@
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 38 92% 50%;
+    --ring: 214 60% 28%;
 
-    --hero-gradient: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(222 47% 12%) 50%, hsl(38 20% 12%) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(214 60% 15%) 0%, hsl(214 60% 25%) 50%, hsl(214 60% 35%) 100%);
     --card-gradient: linear-gradient(180deg, hsl(222 47% 11%) 0%, hsl(222 47% 9%) 100%);
 
     --sidebar-background: 240 5.9% 10%;

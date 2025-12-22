@@ -230,7 +230,7 @@ export default function CreateJobPage() {
               </div>
               <div className="flex items-center justify-end gap-4">
                 <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
-                <Button type="submit" className="bg-gold-gradient hover:opacity-90" disabled={isLoading}>
+                <Button type="submit" className="bg-primary hover:opacity-90" disabled={isLoading}>
                   {isLoading ? 'Creating...' : 'Create Job'}
                 </Button>
               </div>

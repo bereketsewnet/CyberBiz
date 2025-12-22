@@ -148,7 +148,7 @@ export default function CoursesPage() {
                     </button>
                   )}
                 </div>
-                <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-gold-gradient hover:opacity-90 flex-1 sm:flex-none">
+                <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-primary hover:opacity-90 flex-1 sm:flex-none">
                   <Search className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Search</span>
                 </Button>

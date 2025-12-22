@@ -310,7 +310,7 @@ export default function ProfilePage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-gold-gradient hover:opacity-90 shadow-gold"
+                    className="bg-primary hover:opacity-90 "
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {isLoading ? 'Saving...' : 'Save Changes'}

@@ -78,7 +78,7 @@ export default function MyJobsPage() {
               <h1 className="font-display text-3xl font-bold text-foreground mb-2">My Job Postings</h1>
               <p className="text-muted-foreground">Manage your job listings and view applications</p>
             </div>
-            <Button asChild className="bg-gold-gradient hover:opacity-90 shadow-gold">
+            <Button asChild className="bg-primary hover:opacity-90 ">
               <Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link>
             </Button>
           </motion.div>
@@ -96,7 +96,7 @@ export default function MyJobsPage() {
             <div className="text-center py-20 bg-card rounded-xl border border-border">
               <h3 className="font-display text-xl font-semibold text-foreground mb-2">No jobs found</h3>
               <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'Create your first job posting'}</p>
-              {!searchQuery && <Button asChild className="bg-gold-gradient"><Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link></Button>}
+              {!searchQuery && <Button asChild className="bg-primary"><Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link></Button>}
             </div>
           ) : (
             <div className="space-y-4">

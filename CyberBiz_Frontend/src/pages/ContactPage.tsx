@@ -225,7 +225,7 @@ export default function ContactPage() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-gold-gradient hover:opacity-90 shadow-gold"
+                    className="w-full bg-primary hover:opacity-90 "
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

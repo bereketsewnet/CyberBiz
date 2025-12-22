@@ -40,12 +40,11 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gold-gradient rounded-lg flex items-center justify-center shadow-gold">
-              <span className="text-xl font-bold text-secondary">CB</span>
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">
-              CyberBiz<span className="text-primary">.</span>
-            </span>
+            <img 
+              src="/logo.svg" 
+              alt="CyberBiz Africa" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -146,7 +145,7 @@ export function Header() {
                 <Button variant="ghost" onClick={() => navigate('/login')}>
                   Sign In
                 </Button>
-                <Button onClick={() => navigate('/signup')} className="bg-gold-gradient hover:opacity-90 shadow-gold">
+                <Button onClick={() => navigate('/signup')} className="bg-primary hover:opacity-90">
                   Get Started
                 </Button>
               </>
@@ -237,7 +236,7 @@ export function Header() {
                         Sign In
                       </Button>
                       <Button
-                        className="w-full bg-gold-gradient"
+                        className="w-full bg-primary"
                         onClick={() => {
                           navigate('/signup');
                           setMobileMenuOpen(false);

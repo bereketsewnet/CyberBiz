@@ -107,7 +107,7 @@ export default function JobApplicationsPage() {
                       <Button variant="outline" size="sm" onClick={() => handleDownloadCV(app.id)}>
                         <Download className="w-4 h-4 mr-2" />Download CV
                       </Button>
-                      <Button size="sm" className="bg-gold-gradient">Contact</Button>
+                      <Button size="sm" className="bg-primary">Contact</Button>
                     </div>
                   </div>
                 </motion.div>

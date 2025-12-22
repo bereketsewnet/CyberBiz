@@ -63,7 +63,7 @@ export default function AdminAdDetailPage() {
                 <h1 className="font-display text-3xl font-bold text-foreground mb-2">Ad Details</h1>
                 <p className="text-muted-foreground">View ad slot information</p>
               </div>
-              <Button onClick={() => navigate(`/admin/ads/${id}/edit`)} className="bg-gold-gradient">
+              <Button onClick={() => navigate(`/admin/ads/${id}/edit`)} className="bg-primary">
                 <Edit className="w-4 h-4 mr-2" />Edit Ad
               </Button>
             </div>
