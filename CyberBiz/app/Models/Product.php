@@ -20,6 +20,7 @@ class Product extends Model
         'thumbnail_url',
         'access_url',
         'is_downloadable',
+        'is_free',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class Product extends Model
         return [
             'price_etb' => 'decimal:2',
             'is_downloadable' => 'boolean',
+            'is_free' => 'boolean',
         ];
     }
 

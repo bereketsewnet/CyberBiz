@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -56,6 +56,35 @@ export function ResourceForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const prevOpenRef = useRef(open);
+  const fileBlobUrlRef = useRef<string | null>(null);
+
+  // Create a stable blob URL for the file
+  const filePreviewUrl = useMemo(() => {
+    if (file) {
+      // Revoke previous blob URL if it exists
+      if (fileBlobUrlRef.current) {
+        URL.revokeObjectURL(fileBlobUrlRef.current);
+      }
+      // Create new blob URL
+      fileBlobUrlRef.current = URL.createObjectURL(file);
+      return fileBlobUrlRef.current;
+    }
+    // Cleanup when file is removed
+    if (fileBlobUrlRef.current) {
+      URL.revokeObjectURL(fileBlobUrlRef.current);
+      fileBlobUrlRef.current = null;
+    }
+    return '';
+  }, [file]);
+
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (fileBlobUrlRef.current) {
+        URL.revokeObjectURL(fileBlobUrlRef.current);
+      }
+    };
+  }, []);
   
   // Track when open prop changes unexpectedly
   useEffect(() => {
@@ -371,11 +400,18 @@ export function ResourceForm({
             {/* File Upload */}
             {uploadMode === 'file' && (
               <FileUpload
-                value={file ? URL.createObjectURL(file) : ''}
+                value={filePreviewUrl}
                 onChange={(uploadedFile, url) => {
                   setIsInitializing(false); // Clear initializing flag on user interaction
                   if (uploadedFile) {
                     setFile(uploadedFile);
+                  } else if (!uploadedFile && !url) {
+                    // File was removed - cleanup blob URL
+                    if (fileBlobUrlRef.current) {
+                      URL.revokeObjectURL(fileBlobUrlRef.current);
+                      fileBlobUrlRef.current = null;
+                    }
+                    setFile(null);
                   }
                 }}
                 onUrlChange={() => {}}

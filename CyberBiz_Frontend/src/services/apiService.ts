@@ -139,6 +139,10 @@ export const apiService = {
     return api.get<PaginatedResponse<Product>>('/user/library', { page });
   },
 
+  async claimFreeProduct(productId: string): Promise<{ message: string; data: Product }> {
+    return api.post<{ message: string; data: Product }>(`/products/${productId}/claim-free`);
+  },
+
   // ========== PAYMENTS ==========
   async initiatePayment(productId: string, amount: number): Promise<{ message: string; data: Transaction; instructions: string }> {
     return api.post<{ message: string; data: Transaction; instructions: string }>('/payments/manual-initiate', {
@@ -335,6 +339,7 @@ export const apiService = {
     thumbnail?: File;
     content_path?: string;
     is_downloadable?: boolean;
+    is_free?: boolean;
   }): Promise<{ message: string; data: Product }> {
     const formData = new FormData();
     formData.append('title', data.title);
@@ -357,6 +362,9 @@ export const apiService = {
     if (data.is_downloadable !== undefined) {
       formData.append('is_downloadable', data.is_downloadable ? '1' : '0');
     }
+    if (data.is_free !== undefined) {
+      formData.append('is_free', data.is_free ? '1' : '0');
+    }
     return api.post<{ message: string; data: Product }>('/admin/products', formData);
   },
 
@@ -370,6 +378,7 @@ export const apiService = {
     thumbnail?: File;
     content_path?: string;
     is_downloadable?: boolean;
+    is_free?: boolean;
   }): Promise<{ message: string; data: Product }> {
     const formData = new FormData();
     // Always include required fields if they exist in data
@@ -388,6 +397,9 @@ export const apiService = {
     }
     if (data.is_downloadable !== undefined) {
       formData.append('is_downloadable', data.is_downloadable ? '1' : '0');
+    }
+    if (data.is_free !== undefined) {
+      formData.append('is_free', data.is_free ? '1' : '0');
     }
     
     // Use POST endpoint for FormData updates (Laravel doesn't parse FormData correctly with PUT)
@@ -431,6 +443,23 @@ export const apiService = {
   // ========== PRODUCT RESOURCES (PUBLIC - requires access) ==========
   async getUserProductResources(productId: string): Promise<{ data: ProductResource[] }> {
     return api.get<{ data: ProductResource[] }>(`/products/${productId}/resources`);
+  },
+
+  async viewProductResource(productId: string, resourceId: string): Promise<Blob> {
+    const response = await fetch(`${api.baseUrl}/products/${productId}/resources/${resourceId}/view`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${useAuthStore.getState().token}`,
+        'Accept': '*/*',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to load resource');
+    }
+
+    return response.blob();
   },
 
   async downloadProductResource(productId: string, resourceId: string): Promise<Blob> {

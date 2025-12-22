@@ -62,6 +62,7 @@ export interface Product {
   thumbnail_url?: string;
   content_path?: string;
   is_downloadable?: boolean;
+  is_free?: boolean;
   resources?: ProductResource[];
   created_at: string;
   updated_at: string;

@@ -57,9 +57,12 @@ class ProductController extends Controller
             ->latest('access_granted_at')
             ->paginate(15);
 
-        $products = $libraryEntries->map(function ($entry) {
+        // Filter out entries with null products and map to ProductResource
+        $products = $libraryEntries->filter(function ($entry) {
+            return $entry->product !== null;
+        })->map(function ($entry) {
             return new ProductResource($entry->product);
-        });
+        })->values();
 
         return response()->json([
             'data' => $products,
@@ -67,8 +70,50 @@ class ProductController extends Controller
                 'current_page' => $libraryEntries->currentPage(),
                 'last_page' => $libraryEntries->lastPage(),
                 'per_page' => $libraryEntries->perPage(),
-                'total' => $libraryEntries->total(),
+                'total' => $products->count(),
             ],
         ]);
+    }
+
+    public function claimFree(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $product = Product::findOrFail($id);
+
+        // Check if product is free
+        if (!$product->is_free) {
+            return response()->json([
+                'message' => 'This product is not free',
+            ], 422);
+        }
+
+        // Check if user already has access
+        $hasAccess = UserLibrary::where('user_id', $user->id)
+            ->where('product_id', $product->id)
+            ->exists();
+
+        if ($hasAccess) {
+            return response()->json([
+                'message' => 'You already have access to this product',
+                'data' => new ProductResource($product),
+            ]);
+        }
+
+        // Automatically add to library
+        UserLibrary::create([
+            'user_id' => $user->id,
+            'product_id' => $product->id,
+            'access_granted_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Product added to your library successfully',
+            'data' => new ProductResource($product),
+        ], 201);
     }
 }

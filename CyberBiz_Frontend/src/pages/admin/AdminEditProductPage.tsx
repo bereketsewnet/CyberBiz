@@ -19,12 +19,26 @@ import { toast } from 'sonner';
 import type { Product } from '@/types';
 
 const productSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters').max(255),
-  description_html: z.string().min(50, 'Description must be at least 50 characters'),
+  title: z.string().min(1, 'Title is required').max(255),
+  description_html: z.string().min(1, 'Description is required'),
   type: z.enum(['COURSE', 'EBOOK']),
-  price_etb: z.number().min(0, 'Price must be positive'),
+  price_etb: z.number().min(0, 'Price must be positive').nullable().optional(),
   content_path: z.string().optional(),
   is_downloadable: z.boolean().optional(),
+  is_free: z.boolean().optional(),
+}).refine((data) => {
+  // If product is free, always allow (price will be set to 0)
+  if (data.is_free === true) {
+    return true;
+  }
+  // If product is not free, price is required
+  if (!data.is_free && (!data.price_etb || data.price_etb <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Price is required when product is not free',
+  path: ['price_etb'],
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -52,12 +66,20 @@ export default function AdminEditProductPage() {
   const type = watch('type');
   const descriptionHtml = watch('description_html');
   const isDownloadable = watch('is_downloadable');
+  const isFree = watch('is_free');
 
   useEffect(() => {
     if (id) {
       loadProduct();
     }
   }, [id]);
+
+  // Automatically set price to 0 when free toggle is enabled
+  useEffect(() => {
+    if (isFree) {
+      setValue('price_etb', 0);
+    }
+  }, [isFree, setValue]);
 
   const loadProduct = async () => {
     try {
@@ -70,6 +92,7 @@ export default function AdminEditProductPage() {
       setValue('price_etb', productData.price_etb);
       setValue('content_path', productData.content_path || '');
       setValue('is_downloadable', productData.is_downloadable || false);
+      setValue('is_free', productData.is_free || false);
       setThumbnailUrl(productData.thumbnail_url || '');
     } catch (error) {
       toast.error('Product not found');
@@ -93,11 +116,12 @@ export default function AdminEditProductPage() {
         thumbnail_url?: string;
         content_path?: string;
         is_downloadable?: boolean;
+        is_free?: boolean;
       } = {
         title: data.title,
         description_html: data.description_html,
         type: data.type,
-        price_etb: data.price_etb,
+        price_etb: data.is_free === true ? 0 : (data.price_etb || 0),
       };
 
       // Only include thumbnail if it has changed
@@ -117,6 +141,12 @@ export default function AdminEditProductPage() {
 
       if (data.content_path !== undefined) {
         updateData.content_path = data.content_path;
+      }
+      if (data.is_downloadable !== undefined) {
+        updateData.is_downloadable = data.is_downloadable;
+      }
+      if (data.is_free !== undefined) {
+        updateData.is_free = data.is_free;
       }
 
       await apiService.updateAdminProduct(id, updateData);
@@ -179,18 +209,20 @@ export default function AdminEditProductPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="price_etb">Price (ETB) *</Label>
-                    <Input
-                      id="price_etb"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      {...register('price_etb', { valueAsNumber: true })}
-                    />
-                    {errors.price_etb && <p className="text-sm text-destructive">{errors.price_etb.message}</p>}
-                  </div>
+                  {!isFree && (
+                    <div className="space-y-2">
+                      <Label htmlFor="price_etb">Price (ETB) *</Label>
+                      <Input
+                        id="price_etb"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        {...register('price_etb', { valueAsNumber: true })}
+                      />
+                      {errors.price_etb && <p className="text-sm text-destructive">{errors.price_etb.message}</p>}
+                    </div>
+                  )}
                 </div>
                 <FileUpload
                   value={thumbnailUrl}
@@ -235,11 +267,27 @@ export default function AdminEditProductPage() {
                     onCheckedChange={(checked) => setValue('is_downloadable', checked)}
                   />
                 </div>
+                <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/50">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="is_free">Free Product</Label>
+                    <p className="text-sm text-muted-foreground">Make this product free (automatically added to library)</p>
+                  </div>
+                  <Switch
+                    id="is_free"
+                    checked={isFree || false}
+                    onCheckedChange={(checked) => setValue('is_free', checked)}
+                  />
+                </div>
               </div>
 
               {/* Resources Management Section - Only show if product exists */}
               {id && product && (
                 <div className="bg-card rounded-xl border border-border p-6">
+                  <div className="mb-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-sm text-foreground">
+                      <strong>Recommended File Types:</strong> For the best viewing experience, we recommend using <strong>Video (MP4)</strong> and <strong>PDF</strong> files. These formats provide optimal in-browser viewing without requiring downloads.
+                    </p>
+                  </div>
                   <ProductResourcesManager productId={id} />
                 </div>
               )}

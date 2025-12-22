@@ -81,6 +81,7 @@ export default function LoginPage() {
             <p className="text-muted-foreground">Admin: admin@cyberbiz.africa</p>
             <p className="text-muted-foreground">Employer: employer1@cyberbiz.africa</p>
             <p className="text-muted-foreground">Seeker: seeker1@cyberbiz.africa</p>
+            <p className="text-muted-foreground">Learner: learner@cyberbiz.africa</p>
             <p className="text-muted-foreground mt-1">Password: password123</p>
           </div>
 

@@ -61,7 +61,7 @@ export default function ProductDetailPage() {
     fetchProduct();
   }, [id, navigate, isAuthenticated, user]);
 
-  const handlePurchaseClick = () => {
+  const handlePurchaseClick = async () => {
     if (!isAuthenticated) {
       toast.error('Please sign in to purchase');
       navigate('/login', { state: { from: `/products/${id}` } });
@@ -72,6 +72,24 @@ export default function ProductDetailPage() {
     if (user?.role !== 'LEARNER' && user?.role !== 'SEEKER') {
       toast.error('Only learners and job seekers can purchase products. Please register with a learner or job seeker account.');
       navigate('/signup?role=LEARNER');
+      return;
+    }
+
+    // If product is free, claim it directly
+    if (product?.is_free) {
+      setIsProcessing(true);
+      try {
+        await apiService.claimFreeProduct(product.id);
+        toast.success('Product added to your library!');
+        // Refresh product to update access status
+        const response = await apiService.getProduct(product.id);
+        setProduct(response.data);
+        setHasAccess(true);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to claim product');
+      } finally {
+        setIsProcessing(false);
+      }
       return;
     }
 
@@ -177,14 +195,21 @@ export default function ProductDetailPage() {
               {/* Product Info */}
               <div className="space-y-6">
                 <div>
-                  <Badge variant={product.type === 'COURSE' ? 'default' : 'secondary'} className="mb-4">
-                    {product.type}
-                  </Badge>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant={product.type === 'COURSE' ? 'default' : 'secondary'}>
+                      {product.type}
+                    </Badge>
+                    {product.is_free && (
+                      <Badge variant="default" style={{ backgroundColor: '#10b981' }}>
+                        Free
+                      </Badge>
+                    )}
+                  </div>
                   <h1 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
                     {product.title}
                   </h1>
                   <div className="font-display text-4xl font-bold text-primary mb-6">
-                    {formatPrice(product.price_etb)}
+                    {product.is_free ? 'Free' : formatPrice(product.price_etb)}
                   </div>
                 </div>
 
@@ -214,8 +239,17 @@ export default function ProductDetailPage() {
                     onClick={handlePurchaseClick}
                     disabled={isProcessing}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    {isProcessing ? 'Processing...' : 'Purchase Now'}
+                    {product.is_free ? (
+                      <>
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        {isProcessing ? 'Adding to Library...' : 'Get Free'}
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5 mr-2" />
+                        {isProcessing ? 'Processing...' : 'Purchase Now'}
+                      </>
+                    )}
                   </Button>
                 )}
               </div>

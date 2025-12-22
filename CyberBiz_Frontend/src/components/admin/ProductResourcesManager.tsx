@@ -149,7 +149,7 @@ export function ProductResourcesManager({ productId }: ProductResourcesManagerPr
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Resources</h3>
           <p className="text-sm text-muted-foreground">
@@ -160,6 +160,11 @@ export function ProductResourcesManager({ productId }: ProductResourcesManagerPr
           <Plus className="w-4 h-4 mr-2" />
           Add Resource
         </Button>
+      </div>
+      <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+        <p className="text-xs text-foreground">
+          <strong>Recommended:</strong> Video (MP4) and PDF files provide the best in-browser viewing experience. Other file types may require download to view.
+        </p>
       </div>
 
       {resources.length === 0 ? (

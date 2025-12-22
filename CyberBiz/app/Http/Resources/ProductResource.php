@@ -20,6 +20,7 @@ class ProductResource extends JsonResource
             'access_url' => $this->access_url,
             'content_path' => $this->access_url, // Alias for backward compatibility
             'is_downloadable' => $this->is_downloadable ?? false,
+            'is_free' => $this->is_free ?? false,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
 

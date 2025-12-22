@@ -72,7 +72,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Product Resources (Public - requires access)
     Route::get('/products/{productId}/resources', [ProductResourceController::class, 'index']);
+    Route::get('/products/{productId}/resources/{resourceId}/view', [ProductResourceController::class, 'view']);
     Route::get('/products/{productId}/resources/{resourceId}/download', [ProductResourceController::class, 'download']);
+    Route::post('/products/{id}/claim-free', [ProductController::class, 'claimFree']);
 
     // Admin routes - check admin role in controller
     Route::prefix('admin')->group(function () {

@@ -68,18 +68,42 @@ class ProductController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'description_html' => 'nullable|string',
+            'description_html' => 'required|string',
             'type' => 'required|in:COURSE,EBOOK',
-            'price_etb' => 'required|numeric|min:0',
-            'thumbnail_url' => 'nullable|string|max:500',
+            'price_etb' => 'nullable|numeric|min:0',
+            'thumbnail_url' => 'nullable|string|max:1000',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'content_path' => 'nullable|string|max:500',
             'is_downloadable' => 'nullable|boolean',
+            'is_free' => 'nullable|boolean',
         ]);
 
         // Handle is_downloadable from FormData (comes as string '1' or '0')
         if (isset($validated['is_downloadable']) && is_string($validated['is_downloadable'])) {
             $validated['is_downloadable'] = $validated['is_downloadable'] === '1' || $validated['is_downloadable'] === 'true';
+        }
+
+        // Handle is_free from FormData (comes as string '1' or '0' or boolean)
+        $isFree = false;
+        if (isset($validated['is_free'])) {
+            if (is_string($validated['is_free'])) {
+                $isFree = $validated['is_free'] === '1' || $validated['is_free'] === 'true' || $validated['is_free'] === 'on';
+            } else {
+                $isFree = (bool)$validated['is_free'];
+            }
+            $validated['is_free'] = $isFree;
+        }
+
+        // If product is free, set price to 0 and skip price validation
+        if ($isFree) {
+            $validated['price_etb'] = 0;
+        } else {
+            // Custom validation: price is required if product is not free
+            if (!isset($validated['price_etb']) || $validated['price_etb'] <= 0) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'price_etb' => ['Price is required when product is not free.'],
+                ]);
+            }
         }
 
         // Handle thumbnail upload
@@ -115,6 +139,7 @@ class ProductController extends Controller
             'thumbnail_url' => $thumbnailUrl,
             'access_url' => $validated['content_path'] ?? null,
             'is_downloadable' => $validated['is_downloadable'] ?? false,
+            'is_free' => $validated['is_free'] ?? false,
         ]);
 
         return response()->json([
@@ -135,18 +160,46 @@ class ProductController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
-            'description_html' => 'sometimes|nullable|string',
+            'description_html' => 'sometimes|required|string',
             'type' => 'sometimes|required|in:COURSE,EBOOK',
-            'price_etb' => 'sometimes|required|numeric|min:0',
-            'thumbnail_url' => 'nullable|string|max:500',
+            'price_etb' => 'sometimes|nullable|numeric|min:0',
+            'thumbnail_url' => 'nullable|string|max:1000',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'content_path' => 'nullable|string|max:500',
             'is_downloadable' => 'sometimes|boolean',
+            'is_free' => 'sometimes|boolean',
         ]);
 
         // Handle is_downloadable from FormData (comes as string '1' or '0')
         if (isset($validated['is_downloadable']) && is_string($validated['is_downloadable'])) {
             $validated['is_downloadable'] = $validated['is_downloadable'] === '1' || $validated['is_downloadable'] === 'true';
+        }
+
+        // Handle is_free from FormData (comes as string '1' or '0')
+        if (isset($validated['is_free']) && is_string($validated['is_free'])) {
+            $validated['is_free'] = $validated['is_free'] === '1' || $validated['is_free'] === 'true';
+        }
+
+        // Custom validation: price is required if product is not free (only when is_free is being updated)
+        if (isset($validated['is_free'])) {
+            $isFree = $validated['is_free'] === true;
+            
+            if (!$isFree && (!isset($validated['price_etb']) || $validated['price_etb'] <= 0)) {
+                // Check if product already has a price (for updates)
+                if (!$product->price_etb || $product->price_etb <= 0) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'price_etb' => ['Price is required when product is not free.'],
+                    ]);
+                }
+            }
+            
+            // If product is free, set price to 0
+            if ($isFree) {
+                $validated['price_etb'] = 0;
+            }
+        } elseif (isset($validated['price_etb']) && $product->is_free) {
+            // If updating price but product is free, ignore the price update
+            unset($validated['price_etb']);
         }
 
         // Build update data from validated fields
@@ -203,6 +256,11 @@ class ProductController extends Controller
         // Handle is_downloadable
         if (isset($validated['is_downloadable'])) {
             $updateData['is_downloadable'] = $validated['is_downloadable'];
+        }
+
+        // Handle is_free
+        if (isset($validated['is_free'])) {
+            $updateData['is_free'] = $validated['is_free'];
         }
 
         // Update the product

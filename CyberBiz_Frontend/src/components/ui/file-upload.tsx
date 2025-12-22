@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, FileText, Video, File, FileIcon } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
@@ -28,24 +28,59 @@ export function FileUpload({
   const [preview, setPreview] = useState<string | null>(value || null);
   const [urlInput, setUrlInput] = useState<string>(value && value.startsWith('http') ? value : '');
   const [uploadMode, setUploadMode] = useState<'upload' | 'url'>(value && value.startsWith('http') ? 'url' : 'upload');
-  
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileType, setFileType] = useState<'image' | 'video' | 'pdf' | 'document' | 'other' | null>(null);
+
+  const getFileType = (file: File): 'image' | 'video' | 'pdf' | 'document' | 'other' => {
+    const type = file.type.toLowerCase();
+    const name = file.name.toLowerCase();
+    
+    if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(name)) {
+      return 'image';
+    }
+    if (type.startsWith('video/') || /\.(mp4|webm|ogg|mov|avi|wmv|flv)$/i.test(name)) {
+      return 'video';
+    }
+    if (type === 'application/pdf' || name.endsWith('.pdf')) {
+      return 'pdf';
+    }
+    if (type.includes('document') || type.includes('word') || type.includes('text') || 
+        /\.(doc|docx|txt|rtf|odt)$/i.test(name)) {
+      return 'document';
+    }
+    return 'other';
+  };
+
   // Sync preview and urlInput when value prop changes (for edit mode)
+  // Only sync if value is an external URL (not a blob URL from file selection)
   useEffect(() => {
     if (value !== undefined) {
-      if (value) {
-        setPreview(value);
-        if (value.startsWith('http') || value.startsWith('/')) {
-          setUrlInput(value);
-          setUploadMode('url');
-        } else {
-          setUrlInput('');
-          setUploadMode('upload');
+      // Only sync if it's an external URL (http/https)
+      if (value && (value.startsWith('http') || value.startsWith('/'))) {
+        // External URL - sync everything
+        if (preview !== value) {
+          setPreview(value);
         }
-      } else {
-        // If value is explicitly empty string, clear everything
+        setUrlInput(value);
+        setUploadMode('url');
+        setFileType(null);
+        setSelectedFile(null);
+      } else if (value && value.startsWith('blob:')) {
+        // Blob URL - only update if preview is different and we don't have a selectedFile
+        // This prevents clearing when user selects a file
+        if (preview !== value && !selectedFile) {
+          setPreview(value);
+        }
+        setUrlInput('');
+        setUploadMode('upload');
+      } else if (!value && !selectedFile) {
+        // Empty value and no selected file - clear everything
         setPreview(null);
         setUrlInput('');
+        setFileType(null);
       }
+      // If we have a selectedFile, don't let the value prop override it
+      // (this means user just selected a file, preserve it)
     }
   }, [value]);
 
@@ -59,16 +94,29 @@ export function FileUpload({
       return;
     }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setPreview(result);
-      onChange(file);
+    const detectedType = getFileType(file);
+    setSelectedFile(file);
+    setFileType(detectedType);
+
+    // Create preview based on file type
+    if (detectedType === 'image') {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setPreview(result);
+        onChange(file, undefined);
+        setUrlInput('');
+        setUploadMode('upload');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // For non-image files, create a blob URL for preview
+      const blobUrl = URL.createObjectURL(file);
+      setPreview(blobUrl);
+      onChange(file, undefined);
       setUrlInput('');
       setUploadMode('upload');
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleUrlSubmit = () => {
@@ -83,6 +131,8 @@ export function FileUpload({
   const handleRemove = () => {
     setPreview(null);
     setUrlInput('');
+    setSelectedFile(null);
+    setFileType(null);
     onChange(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -96,15 +146,43 @@ export function FileUpload({
       {/* Preview */}
       {preview && (
         <div className="relative w-full h-48 border border-border rounded-md overflow-hidden bg-muted">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-full object-contain"
-          />
+          {fileType === 'image' ? (
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-full object-contain"
+            />
+          ) : fileType === 'video' ? (
+            <video
+              src={preview}
+              controls
+              className="w-full h-full object-contain"
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : fileType === 'pdf' ? (
+            <div className="w-full h-full flex flex-col items-center justify-center p-4">
+              <FileText className="w-16 h-16 text-primary mb-2" />
+              <p className="text-sm font-medium text-foreground">{selectedFile?.name || 'PDF Document'}</p>
+              <p className="text-xs text-muted-foreground mt-1">PDF files will be available for download</p>
+            </div>
+          ) : fileType === 'document' ? (
+            <div className="w-full h-full flex flex-col items-center justify-center p-4">
+              <FileText className="w-16 h-16 text-primary mb-2" />
+              <p className="text-sm font-medium text-foreground">{selectedFile?.name || 'Document'}</p>
+              <p className="text-xs text-muted-foreground mt-1">Document files will be available for download</p>
+            </div>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-4">
+              <FileIcon className="w-16 h-16 text-primary mb-2" />
+              <p className="text-sm font-medium text-foreground">{selectedFile?.name || 'File'}</p>
+              <p className="text-xs text-muted-foreground mt-1">File will be available for download</p>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleRemove}
-            className="absolute top-2 right-2 p-1 bg-background/80 backdrop-blur-sm rounded-full hover:bg-background transition-colors"
+            className="absolute top-2 right-2 p-1 bg-background/80 backdrop-blur-sm rounded-full hover:bg-background transition-colors z-10"
           >
             <X className="w-4 h-4 text-foreground" />
           </button>

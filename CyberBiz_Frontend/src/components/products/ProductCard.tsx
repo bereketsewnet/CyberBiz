@@ -47,6 +47,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         >
           {product.type === 'COURSE' ? 'Course' : 'E-Book'}
         </Badge>
+        {product.is_free && (
+          <Badge className="absolute top-3 right-3" variant="default" style={{ backgroundColor: '#10b981' }}>
+            Free
+          </Badge>
+        )}
       </div>
       
       <div className="p-5">
@@ -59,7 +64,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         
         <div className="flex items-center justify-between">
           <span className="font-display font-bold text-xl text-primary">
-            {formatPrice(product.price_etb)}
+            {product.is_free ? 'Free' : formatPrice(product.price_etb)}
           </span>
           <Button asChild variant="ghost" size="sm" className="group/btn">
             <Link to={`/products/${product.id}`}>

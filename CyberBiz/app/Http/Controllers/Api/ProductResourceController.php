@@ -100,4 +100,61 @@ class ProductResourceController extends Controller
             $resource->file_name ?? 'download'
         );
     }
+
+    /**
+     * View a resource file (requires access, but not downloadable flag)
+     * This endpoint is for viewing files in the browser, not downloading
+     */
+    public function view(Request $request, string $productId, string $resourceId): \Symfony\Component\HttpFoundation\Response|JsonResponse
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $product = Product::findOrFail($productId);
+
+        // Check if user has access
+        $hasAccess = $user->isAdmin() || UserLibrary::where('user_id', $user->id)
+            ->where('product_id', $product->id)
+            ->exists();
+
+        if (!$hasAccess) {
+            return response()->json([
+                'message' => 'You do not have access to this product',
+            ], 403);
+        }
+
+        $resource = ProductResource::where('product_id', $product->id)
+            ->where('id', $resourceId)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        // Check if resource has a file
+        if (!$resource->file_path) {
+            return response()->json([
+                'message' => 'This resource does not have a file',
+            ], 404);
+        }
+
+        // Verify file exists
+        if (!Storage::disk('public')->exists($resource->file_path)) {
+            return response()->json([
+                'message' => 'File not found',
+            ], 404);
+        }
+
+        // Get file info
+        $file = Storage::disk('public')->get($resource->file_path);
+        $mimeType = Storage::disk('public')->mimeType($resource->file_path);
+        $fileName = $resource->file_name ?? basename($resource->file_path);
+
+        // Return file for viewing (inline, not download)
+        return response($file, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
 }

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Video, FileText, File, Download, ExternalLink, Loader2 } from 'lucide-react';
+import { Video, FileText, File, Download, ExternalLink, Loader2, Eye, Image as ImageIcon, Music, Code, FileSpreadsheet, Presentation, FileType, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
+import { ResourceViewer } from './ResourceViewer';
 import type { ProductResource } from '@/types';
 
 interface ProductResourcesProps {
@@ -15,6 +16,7 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
   const [resources, setResources] = useState<ProductResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [viewingResource, setViewingResource] = useState<ProductResource | null>(null);
 
   useEffect(() => {
     fetchResources();
@@ -61,14 +63,124 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getFileTypeTag = (resource: ProductResource): string => {
+    const fileName = resource.file_name?.toLowerCase() || '';
+    const mimeType = resource.mime_type?.toLowerCase() || '';
+
+    // PDF
+    if (mimeType === 'application/pdf' || fileName.endsWith('.pdf')) {
+      return 'PDF';
+    }
+
+    // Images
+    if (
+      mimeType.startsWith('image/') ||
+      /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|tiff|tif)$/i.test(fileName)
+    ) {
+      return 'IMAGE';
+    }
+
+    // ZIP/Compressed
+    if (
+      mimeType === 'application/zip' ||
+      mimeType === 'application/x-zip-compressed' ||
+      mimeType === 'application/x-rar-compressed' ||
+      mimeType === 'application/x-7z-compressed' ||
+      mimeType === 'application/gzip' ||
+      /\.(zip|rar|7z|tar|gz)$/i.test(fileName)
+    ) {
+      return 'ZIP';
+    }
+
+    // DOCX/DOC
+    if (
+      mimeType.includes('word') ||
+      mimeType.includes('msword') ||
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      /\.(docx|doc)$/i.test(fileName)
+    ) {
+      return 'DOCUMENT';
+    }
+
+    // XLSX/XLS
+    if (
+      mimeType.includes('excel') ||
+      mimeType.includes('spreadsheet') ||
+      mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      mimeType === 'application/vnd.ms-excel' ||
+      /\.(xlsx|xls)$/i.test(fileName)
+    ) {
+      return 'EXCEL';
+    }
+
+    // PPTX/PPT
+    if (
+      mimeType.includes('powerpoint') ||
+      mimeType.includes('presentation') ||
+      mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
+      /\.(pptx|ppt)$/i.test(fileName)
+    ) {
+      return 'POWERPOINT';
+    }
+
+    // Video
+    if (
+      mimeType.startsWith('video/') ||
+      /\.(mp4|webm|ogg|mov|avi|wmv|flv|mkv|m4v|3gp)$/i.test(fileName)
+    ) {
+      return 'VIDEO';
+    }
+
+    // Audio
+    if (
+      mimeType.startsWith('audio/') ||
+      /\.(mp3|wav|ogg|m4a|aac|flac|wma)$/i.test(fileName)
+    ) {
+      return 'AUDIO';
+    }
+
+    // Text files
+    if (
+      mimeType.startsWith('text/') ||
+      /\.(txt|rtf|md|log)$/i.test(fileName)
+    ) {
+      return 'TEXT';
+    }
+
+    // Code files
+    if (
+      /\.(js|jsx|ts|tsx|html|css|php|py|java|cpp|c|h|json|xml|yaml|yml)$/i.test(fileName)
+    ) {
+      return 'CODE';
+    }
+
+    // Default
+    return 'FILE';
+  };
+
+  const getTypeIcon = (tag: string) => {
+    switch (tag) {
       case 'VIDEO':
         return <Video className="w-5 h-5" />;
+      case 'PDF':
+        return <FileType className="w-5 h-5" />;
       case 'DOCUMENT':
         return <FileText className="w-5 h-5" />;
+      case 'IMAGE':
+        return <ImageIcon className="w-5 h-5" />;
+      case 'ZIP':
+        return <Archive className="w-5 h-5" />;
+      case 'EXCEL':
+        return <FileSpreadsheet className="w-5 h-5" />;
+      case 'POWERPOINT':
+        return <Presentation className="w-5 h-5" />;
+      case 'AUDIO':
+        return <Music className="w-5 h-5" />;
+      case 'CODE':
+        return <Code className="w-5 h-5" />;
+      case 'TEXT':
+        return <FileText className="w-5 h-5" />;
       case 'FILE':
-        return <File className="w-5 h-5" />;
       default:
         return <File className="w-5 h-5" />;
     }
@@ -110,7 +222,7 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
           >
             {/* Icon */}
             <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              {getTypeIcon(resource.type)}
+              {getTypeIcon(getFileTypeTag(resource))}
             </div>
 
             {/* Content */}
@@ -120,7 +232,7 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
                   {resource.title || resource.file_name || resource.external_url || 'Untitled Resource'}
                 </h4>
                 <Badge variant="outline" className="text-xs">
-                  {resource.type}
+                  {getFileTypeTag(resource)}
                 </Badge>
               </div>
               {resource.description && (
@@ -156,6 +268,18 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
                 </Button>
               ) : (
                 <>
+                  {/* View Button - Always show for files */}
+                  {resource.file_path && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingResource(resource)}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View
+                    </Button>
+                  )}
+                  {/* Download Button - Only show when isDownloadable is true */}
                   {isDownloadable && resource.file_path && (
                     <Button
                       variant="outline"
@@ -176,24 +300,23 @@ export function ProductResources({ productId, isDownloadable = false }: ProductR
                       )}
                     </Button>
                   )}
-                  {resource.download_url && (
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                    >
-                      <a href={resource.download_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        View
-                      </a>
-                    </Button>
-                  )}
                 </>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Resource Viewer Dialog */}
+      {viewingResource && (
+        <ResourceViewer
+          resource={viewingResource}
+          productId={productId}
+          open={!!viewingResource}
+          onOpenChange={(open) => !open && setViewingResource(null)}
+          isDownloadable={isDownloadable}
+        />
+      )}
     </div>
   );
 }
