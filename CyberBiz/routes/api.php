@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AdSlotController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\JobFavoriteController;
 use App\Http\Controllers\Api\JobPostingController;
@@ -26,6 +27,9 @@ Route::get('/jobs/{id}/jsonld', [JobPostingController::class, 'jsonLd']);
 // Products (Public)
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+
+// Contact Form (Public)
+Route::post('/contact', [ContactController::class, 'send']);
 
 // Ad Slots (Public)
 Route::get('/ads', [AdSlotController::class, 'index']);

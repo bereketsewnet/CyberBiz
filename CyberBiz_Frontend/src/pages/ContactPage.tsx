@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Header, Footer } from '@/components/layout';
 import { toast } from 'sonner';
-import emailjs from '@emailjs/browser';
+import { apiService } from '@/services/apiService';
 
 const contactSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -37,45 +37,19 @@ export default function ContactPage() {
     setIsSubmitting(true);
     
     try {
-      // Get email service configuration from environment variables
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-      const recipientEmail = import.meta.env.VITE_CONTACT_EMAIL || 'info@cyberbizafrica.com';
-
-      // Check if EmailJS is configured
-      if (!serviceId || !templateId || !publicKey) {
-        // Fallback: Use mailto link if EmailJS is not configured
-        const subject = encodeURIComponent('Contact Form Submission from CyberBiz Africa');
-        const body = encodeURIComponent(
-          `Name: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\n\nMessage:\n${data.message}`
-        );
-        window.location.href = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
-        toast.success('Opening your email client...');
-        reset();
-        return;
-      }
-
-      // Initialize EmailJS
-      emailjs.init(publicKey);
-
-      // Prepare template parameters
-      const templateParams = {
-        from_name: `${data.firstName} ${data.lastName}`,
-        from_email: data.email,
-        to_email: recipientEmail,
+      // Send email via backend API
+      await apiService.sendContactMessage({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
         message: data.message,
-        reply_to: data.email,
-      };
-
-      // Send email using EmailJS
-      await emailjs.send(serviceId, templateId, templateParams);
+      });
       
       toast.success('Message sent successfully! We\'ll get back to you soon.');
       reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending email:', error);
-      toast.error('Failed to send message. Please try again or contact us directly.');
+      toast.error(error?.message || 'Failed to send message. Please try again or contact us directly.');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,10 +120,10 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email</h3>
                       <a 
-                        href="mailto:info@cyberbizafrica.com" 
+                        href="mailto:bekwork65@gmail.com" 
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        info@cyberbizafrica.com
+                        bekwork65@gmail.com
                       </a>
                     </div>
                   </div>

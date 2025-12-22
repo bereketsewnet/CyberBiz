@@ -96,8 +96,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
-                <a href="mailto:info@cyberbizafrica.com" className="text-secondary-foreground/70 hover:text-primary transition-colors">
-                  info@cyberbizafrica.com
+                <a href="mailto:bekwork65@gmail.com" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                  bekwork65@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">

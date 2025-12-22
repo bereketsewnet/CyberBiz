@@ -51,6 +51,16 @@ export const apiService = {
     return api.post<{ message: string }>('/auth/forgot-password', { email });
   },
 
+  // ========== CONTACT ==========
+  async sendContactMessage(data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    message: string;
+  }): Promise<{ message: string }> {
+    return api.post<{ message: string }>('/contact', data);
+  },
+
   // ========== JOBS ==========
   async getJobs(params?: { q?: string; page?: number; status?: string; my_jobs?: boolean; job_type?: string; location?: string; experience?: string }): Promise<PaginatedResponse<JobPosting>> {
     return api.get<PaginatedResponse<JobPosting>>('/jobs', params);
