@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Briefcase, Users, CreditCard, TrendingUp, BarChart3, Settings, BookOpen } from 'lucide-react';
+import { Briefcase, Users, CreditCard, TrendingUp, BarChart3, Settings, BookOpen, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header, Footer } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';

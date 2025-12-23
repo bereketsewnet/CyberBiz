@@ -302,6 +302,25 @@ export const apiService = {
     return api.get<{ data: { active_jobs: number; companies: number; job_seekers: number; success_rate: number } }>('/stats');
   },
 
+  // ========== SETTINGS (PUBLIC) ==========
+  async getPublicSiteSettings(): Promise<{
+    data: {
+      id: number;
+      address?: string;
+      email?: string;
+      phone?: string;
+      facebook_url?: string;
+      twitter_url?: string;
+      linkedin_url?: string;
+      instagram_url?: string;
+      youtube_url?: string;
+      created_at: string;
+      updated_at: string;
+    };
+  }> {
+    return api.get('/settings');
+  },
+
   // ========== ADMIN - STATS ==========
   async getAdminStats(): Promise<{
     data: {
@@ -505,5 +524,52 @@ export const apiService = {
     }
 
     return response.blob();
+  },
+
+  // ========== ADMIN - SETTINGS ==========
+  async getSiteSettings(): Promise<{
+    data: {
+      id: number;
+      address?: string;
+      email?: string;
+      phone?: string;
+      facebook_url?: string;
+      twitter_url?: string;
+      linkedin_url?: string;
+      instagram_url?: string;
+      youtube_url?: string;
+      created_at: string;
+      updated_at: string;
+    };
+  }> {
+    return api.get('/admin/settings');
+  },
+
+  async updateSiteSettings(data: {
+    address?: string;
+    email?: string;
+    phone?: string;
+    facebook_url?: string;
+    twitter_url?: string;
+    linkedin_url?: string;
+    instagram_url?: string;
+    youtube_url?: string;
+  }): Promise<{
+    message: string;
+    data: {
+      id: number;
+      address?: string;
+      email?: string;
+      phone?: string;
+      facebook_url?: string;
+      twitter_url?: string;
+      linkedin_url?: string;
+      instagram_url?: string;
+      youtube_url?: string;
+      created_at: string;
+      updated_at: string;
+    };
+  }> {
+    return api.put('/admin/settings', data);
   },
 };

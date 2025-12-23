@@ -77,7 +77,12 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      throw new Error(data.message || data.error || 'An error occurred');
+      // Create error object with message and errors (for validation errors)
+      const error: any = new Error(data.message || data.error || 'An error occurred');
+      if (data.errors) {
+        error.errors = data.errors;
+      }
+      throw error;
     }
 
     return data;

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\AdSlotController as AdminAdSlotController;
 use App\Http\Controllers\Api\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\ProductResourceController as AdminProductResourceController;
+use App\Http\Controllers\Api\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Api\Admin\StatsController as AdminStatsController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AdSlotController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\JobPostingController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductResourceController;
+use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\StatsController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +38,9 @@ Route::get('/ads', [AdSlotController::class, 'index']);
 
 // Stats (Public)
 Route::get('/stats', [StatsController::class, 'index']);
+
+// Settings (Public)
+Route::get('/settings', [SettingsController::class, 'index']);
 
 // Auth routes
 Route::post('/auth/signup', [AuthController::class, 'signup']);
@@ -124,6 +129,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Jobs Management (using existing JobPostingController but admin-only list)
         Route::get('/jobs', [\App\Http\Controllers\Api\JobPostingController::class, 'index']);
+
+        // Settings Management
+        Route::get('/settings', [AdminSettingsController::class, 'index']);
+        Route::put('/settings', [AdminSettingsController::class, 'update']);
     });
 });
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageSquare } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -12,6 +12,12 @@ import { Header, Footer } from '@/components/layout';
 import { toast } from 'sonner';
 import { apiService } from '@/services/apiService';
 
+interface SiteSettings {
+  address?: string;
+  email?: string;
+  phone?: string;
+}
+
 const contactSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters'),
@@ -23,6 +29,8 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [settings, setSettings] = useState<SiteSettings>({});
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   
   const {
     register,
@@ -32,6 +40,21 @@ export default function ContactPage() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await apiService.getPublicSiteSettings();
+        setSettings(response.data);
+      } catch (error) {
+        console.error('Error fetching site settings:', error);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
@@ -98,47 +121,59 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-primary" />
+                  {settings.phone && (
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-1">Phone Number</h3>
+                        <a 
+                          href={`tel:${settings.phone.replace(/\s/g, '')}`} 
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {settings.phone}
+                        </a>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">Phone Number</h3>
-                      <a 
-                        href="tel:+251975096287" 
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        +251 975 096 287
-                      </a>
-                    </div>
-                  </div>
+                  )}
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-primary" />
+                  {settings.email && (
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-1">Email</h3>
+                        <a 
+                          href={`mailto:${settings.email}`} 
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {settings.email}
+                        </a>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                      <a 
-                        href="mailto:bekwork65@gmail.com" 
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        bekwork65@gmail.com
-                      </a>
-                    </div>
-                  </div>
+                  )}
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-primary" />
+                  {settings.address && (
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-1">Address</h3>
+                        <p className="text-muted-foreground">
+                          {settings.address}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">Address</h3>
-                      <p className="text-muted-foreground">
-                        Addis Ababa, Ethiopia
-                      </p>
+                  )}
+
+                  {!isLoadingSettings && !settings.address && !settings.email && !settings.phone && (
+                    <div className="text-muted-foreground text-sm">
+                      Contact information will be displayed here once configured.
                     </div>
-                  </div>
+                  )}
                 </div>
               </motion.div>
 

@@ -22,6 +22,7 @@ export default function HomePage() {
     success_rate: 85,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [heroImageError, setHeroImageError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,6 +63,20 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative bg-hero-gradient overflow-hidden">
+          {/* Hero Image Background */}
+          {!heroImageError && (
+            <img
+              src="/hero-image.jpg"
+              alt="Hero background"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={() => setHeroImageError(true)}
+            />
+          )}
+          
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60" />
+          
+          {/* Pattern and decorative elements */}
           <div className="absolute inset-0 pattern-dots opacity-30" />
           <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />

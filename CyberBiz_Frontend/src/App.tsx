@@ -42,6 +42,7 @@ import AdminAdsPage from "./pages/admin/AdminAdsPage";
 import AdminCreateAdPage from "./pages/admin/AdminCreateAdPage";
 import AdminEditAdPage from "./pages/admin/AdminEditAdPage";
 import AdminAdDetailPage from "./pages/admin/AdminAdDetailPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 
 // Components
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -262,6 +263,14 @@ const App = () => (
             element={
               <ProtectedRoute role="ADMIN">
                 <AdminEditAdPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminSettingsPage />
               </ProtectedRoute>
             }
           />
