@@ -28,6 +28,8 @@ return [
         'http://127.0.0.1:5173',
         'https://cyberbizafrica.com',
         'https://www.cyberbizafrica.com',
+        'https://cyberbiz.lula.com.et',
+        'https://www.cyberbiz.lula.com.et',
     ],
 
     'allowed_origins_patterns' => [],
