@@ -70,21 +70,21 @@ export default function HomePage() {
             <>
               {/* Mobile Image - under 480px (base/default) */}
               <img
-                src="/CyberBizAfrica-Mobile.png"
+                src="/CyberBizAfrica-Mobile.jpg"
                 alt="Hero background"
                 className="absolute inset-0 w-full h-full object-cover mobile:hidden"
                 onError={() => setHeroImageError(true)}
               />
               {/* Tablet Image - 480px to 1279px */}
               <img
-                src="/CyberBizAfrica-Tablet.png"
+                src="/CyberBizAfrica-Tablet.jpg"
                 alt="Hero background"
                 className="absolute inset-0 w-full h-full object-cover hidden mobile:block xl:hidden"
                 onError={() => setHeroImageError(true)}
               />
               {/* Desktop Image - 1280px and above */}
               <img
-                src="/CyberBizAfrica.png"
+                src="/CyberBizAfrica.jpg"
                 alt="Hero background"
                 className="absolute inset-0 w-full h-full object-cover hidden xl:block"
                 onError={() => setHeroImageError(true)}
