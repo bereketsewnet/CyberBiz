@@ -103,18 +103,18 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Settings className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center">
+                <Settings className="w-6 h-6 text-slate-600" />
               </div>
               <div>
-                <h1 className="font-display text-3xl font-bold text-foreground">Site Settings</h1>
-                <p className="text-muted-foreground">Manage website contact information and social media links</p>
+                <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Site Settings</h1>
+                <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Manage website contact information and social media links</p>
               </div>
             </div>
           </motion.div>
@@ -122,15 +122,15 @@ export default function AdminSettingsPage() {
           {isLoading ? (
             <div className="space-y-6">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-20 bg-muted rounded-xl animate-pulse" />
+                <div key={i} className="h-20 bg-slate-100 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <div className="bg-card rounded-xl border border-border p-6 space-y-6">
+              <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6 shadow-sm">
                 {/* Contact Information Section */}
                 <div>
-                  <h2 className="font-display text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                     <MapPin className="w-5 h-5 text-primary" />
                     Contact Information
                   </h2>
@@ -183,8 +183,8 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Social Media Section */}
-                <div className="border-t border-border pt-6">
-                  <h2 className="font-display text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <div className="border-t border-slate-200 pt-6">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                     <Facebook className="w-5 h-5 text-primary" />
                     Social Media Links
                   </h2>
@@ -267,8 +267,8 @@ export default function AdminSettingsPage() {
                 </div>
 
                 {/* Submit Button */}
-                <div className="border-t border-border pt-6 flex justify-end">
-                  <Button type="submit" size="lg" disabled={isSaving} className="bg-primary hover:opacity-90">
+                <div className="border-t border-slate-200 pt-6 flex justify-end">
+                  <Button type="submit" size="lg" disabled={isSaving} className="bg-primary hover:bg-accent transition-colors">
                     <Save className="w-4 h-4 mr-2" />
                     {isSaving ? 'Saving...' : 'Save Settings'}
                   </Button>

@@ -49,16 +49,16 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/jobs" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
+            <Link to="/jobs" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               Jobs
             </Link>
-            <Link to="/courses" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
+            <Link to="/courses" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               Courses
             </Link>
-            <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
+            <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               About
             </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors link-underline">
+            <Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               Contact
             </Link>
           </div>
@@ -145,7 +145,7 @@ export function Header() {
                 <Button variant="ghost" onClick={() => navigate('/login')}>
                   Sign In
                 </Button>
-                <Button onClick={() => navigate('/signup')} className="bg-primary hover:opacity-90">
+                <Button onClick={() => navigate('/signup')} className="bg-primary hover:bg-accent transition-colors">
                   Get Started
                 </Button>
               </>

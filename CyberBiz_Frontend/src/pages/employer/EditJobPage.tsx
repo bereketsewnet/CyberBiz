@@ -160,10 +160,10 @@ export default function EditJobPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -171,16 +171,17 @@ export default function EditJobPage() {
           >
             <Link
               to={window.location.pathname.includes('/admin/jobs') ? '/admin/jobs' : '/my-jobs'}
-              className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
+              className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-6 transition-colors"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Link>
 
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
               Edit Job Posting
             </h1>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-slate-600 mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
               Update your job posting details
             </p>
 
@@ -341,12 +342,13 @@ export default function EditJobPage() {
                   type="button"
                   variant="outline"
                   onClick={() => navigate(window.location.pathname.includes('/admin/jobs') ? '/admin/jobs' : '/my-jobs')}
+                  className="border-slate-300"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="bg-primary hover:opacity-90  flex-1"
+                  className="bg-primary hover:bg-accent transition-colors flex-1"
                   disabled={isSaving}
                 >
                   {isSaving ? (

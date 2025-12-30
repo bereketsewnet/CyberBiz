@@ -105,18 +105,18 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">Manage Users</h1>
-            <p className="text-muted-foreground">View, edit, and manage user accounts</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Manage Users</h1>
+            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>View, edit, and manage user accounts</p>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
                 type="text"
                 placeholder="Search users by name or email..."
@@ -125,17 +125,17 @@ export default function AdminUsersPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-10"
+                className="pl-10 border-slate-300"
               />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="h-20 bg-muted rounded-xl animate-pulse" />)}</div>
+            <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="h-20 bg-slate-100 rounded-xl animate-pulse" />)}</div>
           ) : users.length === 0 ? (
-            <div className="text-center py-20 bg-card rounded-xl border border-border">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">No users found</h3>
-              <p className="text-muted-foreground">{searchQuery ? 'Try a different search term' : 'No users registered yet'}</p>
+            <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No users found</h3>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>{searchQuery ? 'Try a different search term' : 'No users registered yet'}</p>
             </div>
           ) : (
             <>
@@ -146,19 +146,19 @@ export default function AdminUsersPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-card rounded-xl border border-border p-6"
+                    className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <UserIcon className="w-6 h-6 text-primary" />
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                          <UserIcon className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-display font-semibold text-lg text-foreground">{user.full_name}</h3>
+                            <h3 className="font-semibold text-lg text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{user.full_name}</h3>
                             {getRoleBadge(user.role)}
                           </div>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
                             <span className="flex items-center gap-1">
                               <Mail className="w-4 h-4" />
                               {user.email}
@@ -175,13 +175,14 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm" className="border-slate-300">
                           <Link to={`/admin/users/${user.id}`}><Eye className="w-4 h-4 mr-2" />View</Link>
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm" 
                           onClick={() => setResetPasswordModal({ open: true, user })}
+                          className="border-slate-300"
                         >
                           <Key className="w-4 h-4 mr-2" />
                           Reset Password
@@ -196,14 +197,14 @@ export default function AdminUsersPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="mt-10 flex justify-center gap-2">
-                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                <div className="mt-10 flex justify-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Previous
                   </Button>
-                  <div className="flex items-center px-4 text-sm text-muted-foreground">
+                  <div className="flex items-center px-4 text-sm text-slate-600">
                     Page {currentPage} of {totalPages}
                   </div>
-                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Next
                   </Button>
                 </div>
@@ -255,13 +256,14 @@ export default function AdminUsersPage() {
                   setResetPasswordModal({ open: false, user: null });
                   setNewPassword('');
                 }}
+                className="border-slate-300"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleResetPassword}
                 disabled={!newPassword || isResetting}
-                className="bg-primary hover:opacity-90"
+                className="bg-primary hover:bg-accent transition-colors"
               >
                 {isResetting ? 'Resetting...' : 'Reset Password'}
               </Button>

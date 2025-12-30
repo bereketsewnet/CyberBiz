@@ -70,23 +70,23 @@ export default function AdminJobsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground mb-2">Manage Jobs</h1>
-              <p className="text-muted-foreground">View, edit, and delete job postings</p>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Manage Jobs</h1>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>View, edit, and delete job postings</p>
             </div>
-            <Button asChild className="bg-primary hover:opacity-90 ">
+            <Button asChild className="bg-primary hover:bg-accent transition-colors">
               <Link to="/admin/jobs/create"><Plus className="w-4 h-4 mr-2" />Create Job</Link>
             </Button>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
                 type="text"
                 placeholder="Search jobs..."
@@ -95,18 +95,18 @@ export default function AdminJobsPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-10"
+                className="pl-10 border-slate-300"
               />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />)}</div>
+            <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />)}</div>
           ) : jobs.length === 0 ? (
-            <div className="text-center py-20 bg-card rounded-xl border border-border">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">No jobs found</h3>
-              <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'No jobs have been posted yet'}</p>
-              {!searchQuery && <Button asChild className="bg-primary"><Link to="/admin/jobs/create"><Plus className="w-4 h-4 mr-2" />Create First Job</Link></Button>}
+            <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No jobs found</h3>
+              <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>{searchQuery ? 'Try a different search term' : 'No jobs have been posted yet'}</p>
+              {!searchQuery && <Button asChild className="bg-primary hover:bg-accent transition-colors"><Link to="/admin/jobs/create"><Plus className="w-4 h-4 mr-2" />Create First Job</Link></Button>}
             </div>
           ) : (
             <>
@@ -117,28 +117,28 @@ export default function AdminJobsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-card rounded-xl border border-border p-6"
+                    className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-display font-semibold text-lg text-foreground truncate">{job.title}</h3>
+                          <h3 className="font-semibold text-lg text-slate-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{job.title}</h3>
                           {getStatusBadge(job.status)}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                        <div className="flex items-center gap-4 text-sm text-slate-600 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                           <span>Employer: {job.employer?.full_name || 'Unknown'}</span>
                           <span>Created {new Date(job.created_at).toLocaleDateString()}</span>
                           <span className="flex items-center gap-1"><Users className="w-4 h-4" />{job.applications_count || 0} applications</span>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-slate-600 line-clamp-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {job.description_html ? job.description_html.replace(/<[^>]*>/g, '').substring(0, 200) + '...' : 'No description'}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm" className="border-slate-300">
                           <Link to={`/jobs/${job.id}`}><Eye className="w-4 h-4 mr-2" />View Details</Link>
                         </Button>
-                        <Button asChild variant="outline" size="sm">
+                        <Button asChild variant="outline" size="sm" className="border-slate-300">
                           <Link to={`/admin/jobs/${job.id}/edit`}><Edit className="w-4 h-4 mr-2" />Edit</Link>
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDelete(job.id)}>
@@ -151,14 +151,14 @@ export default function AdminJobsPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="mt-10 flex justify-center gap-2">
-                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                <div className="mt-10 flex justify-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Previous
                   </Button>
-                  <div className="flex items-center px-4 text-sm text-muted-foreground">
+                  <div className="flex items-center px-4 text-sm text-slate-600">
                     Page {currentPage} of {totalPages}
                   </div>
-                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Next
                   </Button>
                 </div>

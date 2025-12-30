@@ -43,24 +43,24 @@ export default function MyFavoritesPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">My Saved Jobs</h1>
-            <p className="text-muted-foreground">View and manage your favorited job postings</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>My Saved Jobs</h1>
+            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>View and manage your favorited job postings</p>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input 
                 type="text" 
                 placeholder="Search saved jobs..." 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
-                className="pl-10" 
+                className="pl-10 border-slate-300" 
               />
             </div>
           </div>
@@ -68,26 +68,26 @@ export default function MyFavoritesPage() {
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-32 bg-muted rounded-xl animate-pulse" />
+                <div key={i} className="h-32 bg-slate-100 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : filteredFavorites.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-card rounded-2xl border border-border"
+              className="text-center py-16 bg-white rounded-2xl border border-slate-200"
             >
-              <Bookmark className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h2 className="font-display text-xl font-semibold text-foreground mb-2">
+              <Bookmark className="w-16 h-16 mx-auto text-slate-400 mb-4" />
+              <h2 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {searchQuery ? 'No matching jobs found' : 'No saved jobs yet'}
               </h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {searchQuery 
                   ? 'Try a different search term' 
                   : 'Start bookmarking jobs you\'re interested in'}
               </p>
               {!searchQuery && (
-                <Button asChild className="bg-primary hover:opacity-90 ">
+                <Button asChild className="bg-primary hover:bg-accent transition-colors">
                   <Link to="/jobs">
                     Browse Jobs
                     <ArrowRight className="w-4 h-4 ml-2" />

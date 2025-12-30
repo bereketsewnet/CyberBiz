@@ -158,15 +158,16 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
-        <section className="bg-card border-b border-border">
+        <section className="border-b" style={{ backgroundColor: '#0F172A', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8 py-8">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Courses
@@ -205,37 +206,38 @@ export default function ProductDetailPage() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                  <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                     {product.title}
                   </h1>
-                  <div className="font-display text-4xl font-bold text-primary mb-6">
+                  <div className="text-4xl font-bold mb-6" style={{ color: '#F97316', fontFamily: 'Inter, sans-serif' }}>
                     {product.is_free ? 'Free' : formatPrice(product.price_etb)}
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Description</h3>
+                    <h3 className="font-semibold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Description</h3>
                     {product.description_html ? (
                       <div
-                        className="text-muted-foreground leading-relaxed prose prose-slate max-w-none"
+                        className="text-slate-300 leading-relaxed prose prose-slate max-w-none prose-invert"
                         dangerouslySetInnerHTML={{ __html: product.description_html }}
+                        style={{ fontFamily: 'Inter, sans-serif' }}
                       />
                     ) : (
-                      <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                      <p className="text-slate-300 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>{product.description}</p>
                     )}
                   </div>
                 </div>
 
                 {hasAccess ? (
-                  <div className="bg-success/10 border border-success/20 rounded-lg p-4 text-center">
-                    <CheckCircle className="w-5 h-5 text-success mx-auto mb-2" />
-                    <p className="text-sm font-medium text-success">You have access to this product</p>
+                  <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-4 text-center">
+                    <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-green-400" style={{ fontFamily: 'Inter, sans-serif' }}>You have access to this product</p>
                   </div>
                 ) : (
                   <Button
                     size="lg"
-                    className="w-full bg-primary hover:opacity-90 "
+                    className="w-full bg-primary hover:bg-accent transition-colors"
                     onClick={handlePurchaseClick}
                     disabled={isProcessing}
                   >
@@ -259,7 +261,7 @@ export default function ProductDetailPage() {
 
         {/* Resources Section - Only show if user has access */}
         {hasAccess && id && (
-          <section className="py-10 border-t border-border">
+          <section className="py-10 border-t bg-white" style={{ borderColor: 'rgb(226 232 240)', fontFamily: 'Inter, sans-serif' }}>
             <div className="container mx-auto px-4 lg:px-8">
               <ProductResources productId={id} isDownloadable={product.is_downloadable || false} />
             </div>
@@ -317,13 +319,13 @@ export default function ProductDetailPage() {
           )}
 
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setShowPurchaseModal(false)}>
+            <Button variant="outline" onClick={() => setShowPurchaseModal(false)} className="border-slate-300">
               Cancel
             </Button>
             <Button
               onClick={handleUploadProof}
               disabled={!paymentProof || !transaction || isProcessing}
-              className="bg-primary"
+              className="bg-primary hover:bg-accent transition-colors"
             >
               {isProcessing ? 'Uploading...' : 'Upload Proof'}
             </Button>

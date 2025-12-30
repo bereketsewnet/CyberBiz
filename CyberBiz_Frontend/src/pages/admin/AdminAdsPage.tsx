@@ -54,23 +54,23 @@ export default function AdminAdsPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground mb-2">Manage Ads</h1>
-              <p className="text-muted-foreground">View, create, edit, and delete ad slots</p>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Manage Ads</h1>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>View, create, edit, and delete ad slots</p>
             </div>
-            <Button asChild className="bg-primary hover:opacity-90 ">
+            <Button asChild className="bg-primary hover:bg-accent transition-colors">
               <Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create Ad</Link>
             </Button>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
                 type="text"
                 placeholder="Search ads..."
@@ -79,20 +79,20 @@ export default function AdminAdsPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-10"
+                className="pl-10 border-slate-300"
               />
             </div>
           </div>
 
           {isLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-muted rounded-xl animate-pulse" />)}
+              {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-slate-100 rounded-xl animate-pulse" />)}
             </div>
           ) : filteredAds.length === 0 ? (
-            <div className="text-center py-20 bg-card rounded-xl border border-border">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">No ads found</h3>
-              <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'No ads have been created yet'}</p>
-              {!searchQuery && <Button asChild className="bg-primary"><Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create First Ad</Link></Button>}
+            <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No ads found</h3>
+              <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>{searchQuery ? 'Try a different search term' : 'No ads have been created yet'}</p>
+              {!searchQuery && <Button asChild className="bg-primary hover:bg-accent transition-colors"><Link to="/admin/ads/create"><Plus className="w-4 h-4 mr-2" />Create First Ad</Link></Button>}
             </div>
           ) : (
             <>
@@ -103,14 +103,14 @@ export default function AdminAdsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-card rounded-xl border border-border overflow-hidden"
+                    className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="aspect-video bg-muted relative">
+                    <div className="aspect-video bg-slate-100 relative">
                       {ad.image_url ? (
                         <img src={ad.image_url} alt={`Ad ${ad.position}`} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                          <ImageIcon className="w-12 h-12 text-slate-400" />
                         </div>
                       )}
                       <Badge className="absolute top-3 left-3" variant={ad.is_active ? 'default' : 'secondary'}>
@@ -118,14 +118,14 @@ export default function AdminAdsPage() {
                       </Badge>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-display font-semibold text-foreground mb-2">{ad.position}</h3>
-                      <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{ad.target_url}</p>
-                      <p className="text-xs text-muted-foreground mb-4">Impressions: {ad.impressions}</p>
+                      <h3 className="font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>{ad.position}</h3>
+                      <p className="text-sm text-slate-600 mb-2 line-clamp-1" style={{ fontFamily: 'Inter, sans-serif' }}>{ad.target_url}</p>
+                      <p className="text-xs text-slate-600 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Impressions: {ad.impressions}</p>
                       <div className="flex items-center gap-2">
-                        <Button asChild variant="outline" size="sm" className="flex-1">
+                        <Button asChild variant="outline" size="sm" className="flex-1 border-slate-300">
                           <Link to={`/admin/ads/${ad.id}`}><Eye className="w-4 h-4 mr-1" />View</Link>
                         </Button>
-                        <Button asChild variant="outline" size="sm" className="flex-1">
+                        <Button asChild variant="outline" size="sm" className="flex-1 border-slate-300">
                           <Link to={`/admin/ads/${ad.id}/edit`}><Edit className="w-4 h-4 mr-1" />Edit</Link>
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDelete(ad.id)}>
@@ -138,14 +138,14 @@ export default function AdminAdsPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="mt-10 flex justify-center gap-2">
-                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                <div className="mt-10 flex justify-center gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Previous
                   </Button>
-                  <div className="flex items-center px-4 text-sm text-muted-foreground">
+                  <div className="flex items-center px-4 text-sm text-slate-600">
                     Page {currentPage} of {totalPages}
                   </div>
-                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} className="border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors">
                     Next
                   </Button>
                 </div>

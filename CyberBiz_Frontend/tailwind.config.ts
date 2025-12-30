@@ -14,6 +14,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'mobile': '480px',
+      },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
         display: ['Plus Jakarta Sans', 'sans-serif'],

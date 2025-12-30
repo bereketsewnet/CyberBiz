@@ -45,22 +45,22 @@ const services = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-hero-gradient py-20">
+        <section className="py-20" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <h1 className="font-display text-4xl lg:text-5xl font-bold text-secondary-foreground mb-6">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                 WHO WE ARE
               </h1>
-              <p className="text-lg text-secondary-foreground/70">
+              <p className="text-lg text-slate-300 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Cyberbizafrica.com is founded by a veteran professional with over 30 years of executive-level career in management and leadership of high-performing teams and programs within the NGO sector at international levels. Cyberbizafrica consists of a team of professionals with years of tested results-based experience in jobs and business promotion as well as in providing training and coaching services on program management and leadership skills.
               </p>
             </motion.div>
@@ -68,19 +68,19 @@ export default function AboutPage() {
         </section>
 
         {/* Vision & Mission */}
-        <section className="py-20">
+        <section className="py-20 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="bg-card rounded-2xl border border-border p-8"
+                className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow"
               >
-                <h2 className="font-display text-3xl font-bold text-foreground mb-6">
+                <h2 className="text-3xl font-bold text-slate-900 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                   OUR VISION
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-slate-600 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
                   To be among the top organization for digital jobs and business promotion and for training and coaching in program management and leadership skills.
                   </p>
               </motion.div>
@@ -89,12 +89,12 @@ export default function AboutPage() {
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="bg-card rounded-2xl border border-border p-8"
+                className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow"
               >
-                <h2 className="font-display text-3xl font-bold text-foreground mb-6">
+                <h2 className="text-3xl font-bold text-slate-900 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                   OUR MISSION
                 </h2>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg text-slate-600 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
                   To help build the capacity of young and upcoming professionals in their quest for career advancement while connecting them with an available job and business opportunities and providing on the job training and coaching services for aspiring managers and with a focus on the nonprofit sector.
                 </p>
               </motion.div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
         </section>
 
         {/* Values */}
-        <section className="py-20 bg-muted/50">
+        <section className="py-20" style={{ backgroundColor: '#F8FAFC', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -111,41 +111,50 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="font-display text-3xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Our Values
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-slate-600 max-w-2xl mx-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
                 The principles that guide everything we do
               </p>
             </motion.div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {values.map((value, index) => (
-                <motion.div
-                  key={value.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-card rounded-xl border border-border p-6 text-center"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <value.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="font-display font-semibold text-foreground mb-2">
-                    {value.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {value.description}
-                  </p>
-                </motion.div>
-              ))}
+              {values.map((value, index) => {
+                const iconColors = [
+                  { bg: 'bg-blue-50', text: 'text-blue-600', darkBg: 'dark:bg-blue-950/30', darkText: 'dark:text-blue-400' },
+                  { bg: 'bg-orange-50', text: 'text-orange-600', darkBg: 'dark:bg-orange-950/30', darkText: 'dark:text-orange-400' },
+                  { bg: 'bg-purple-50', text: 'text-purple-600', darkBg: 'dark:bg-purple-950/30', darkText: 'dark:text-purple-400' },
+                  { bg: 'bg-green-50', text: 'text-green-600', darkBg: 'dark:bg-green-950/30', darkText: 'dark:text-green-400' },
+                ];
+                const colors = iconColors[index % iconColors.length];
+                return (
+                  <motion.div
+                    key={value.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-xl border border-slate-200 p-6 text-center group hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.darkBg} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                      <value.icon className={`w-6 h-6 ${colors.text} ${colors.darkText}`} />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {value.title}
+                    </h3>
+                    <p className="text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {value.description}
+                    </p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* What We Do */}
-        <section className="py-20">
+        <section className="py-20 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -153,35 +162,43 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="font-display text-3xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                 WHAT WE DO
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-slate-600 max-w-2xl mx-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
                 We offer unmatched services in the following areas
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {services.map((service, index) => (
-                <motion.div
-                  key={service.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-card rounded-xl border border-border p-6"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <service.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="font-display font-semibold text-foreground mb-3 text-lg">
-                    {index + 1}. {service.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {service.description}
-                  </p>
-                </motion.div>
-              ))}
+              {services.map((service, index) => {
+                const serviceIconColors = [
+                  { bg: 'bg-blue-900/30', text: 'text-blue-400' },
+                  { bg: 'bg-orange-900/30', text: 'text-orange-400' },
+                  { bg: 'bg-purple-900/30', text: 'text-purple-400' },
+                ];
+                const iconColors = serviceIconColors[index % serviceIconColors.length];
+                return (
+                  <motion.div
+                    key={service.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-xl border border-slate-200 p-6 group hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className={`w-14 h-14 rounded-xl ${iconColors.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <service.icon className={`w-7 h-7 ${iconColors.text}`} />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-3 text-lg" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {index + 1}. {service.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {service.description}
+                    </p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>

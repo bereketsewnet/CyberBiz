@@ -172,16 +172,16 @@ export default function AdminEditProductPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8 max-w-3xl">
-          <button onClick={() => navigate('/admin/products')} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6">
+          <button onClick={() => navigate('/admin/products')} className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
             <ArrowLeft className="w-4 h-4" />Back to Products
           </button>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">Edit Product</h1>
-            <p className="text-muted-foreground mb-8">Update product details</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Edit Product</h1>
+            <p className="text-slate-600 mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>Update product details</p>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="bg-card rounded-xl border border-border p-6 space-y-6">
                 <div className="space-y-2">
@@ -293,8 +293,8 @@ export default function AdminEditProductPage() {
               )}
 
               <div className="flex items-center justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
-                <Button type="submit" className="bg-primary hover:opacity-90" disabled={isSaving}>
+                <Button type="button" variant="outline" onClick={() => navigate('/admin/products')} className="border-slate-300">Cancel</Button>
+                <Button type="submit" className="bg-primary hover:bg-accent transition-colors" disabled={isSaving}>
                   {isSaving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />

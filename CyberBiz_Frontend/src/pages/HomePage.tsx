@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Briefcase, BookOpen, Users, ArrowRight, Sparkles, TrendingUp, Globe, FileText, Target, Building2, GraduationCap, HelpCircle } from 'lucide-react';
+import { Search, Briefcase, BookOpen, Users, ArrowRight, Sparkles, TrendingUp, Globe, FileText, Target, Building2, GraduationCap, HelpCircle, ChevronDown, DollarSign, School } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Header, Footer } from '@/components/layout';
 import { JobCard } from '@/components/jobs/JobCard';
+import { FeaturedJobCard } from '@/components/jobs/FeaturedJobCard';
 import { ProductCard } from '@/components/products/ProductCard';
+import { FeaturedProductCard } from '@/components/products/FeaturedProductCard';
 import { apiService } from '@/services/apiService';
 import type { JobPosting, Product } from '@/types';
 import { AdDisplay } from '@/components/ads/AdDisplay';
@@ -62,15 +64,32 @@ export default function HomePage() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative bg-hero-gradient overflow-hidden">
-          {/* Hero Image Background */}
+        <section className="relative overflow-hidden" style={{ backgroundColor: '#0F172A' }}>
+          {/* Hero Image Background - Responsive Images */}
           {!heroImageError && (
-            <img
-              src="/hero-image.jpg"
-              alt="Hero background"
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={() => setHeroImageError(true)}
-            />
+            <>
+              {/* Mobile Image - under 480px (base/default) */}
+              <img
+                src="/CyberBizAfrica-Mobile.png"
+                alt="Hero background"
+                className="absolute inset-0 w-full h-full object-cover mobile:hidden"
+                onError={() => setHeroImageError(true)}
+              />
+              {/* Tablet Image - 480px to 1279px */}
+              <img
+                src="/CyberBizAfrica-Tablet.png"
+                alt="Hero background"
+                className="absolute inset-0 w-full h-full object-cover hidden mobile:block xl:hidden"
+                onError={() => setHeroImageError(true)}
+              />
+              {/* Desktop Image - 1280px and above */}
+              <img
+                src="/CyberBizAfrica.png"
+                alt="Hero background"
+                className="absolute inset-0 w-full h-full object-cover hidden xl:block"
+                onError={() => setHeroImageError(true)}
+              />
+            </>
           )}
           
           {/* Dark overlay for better text readability */}
@@ -81,15 +100,15 @@ export default function HomePage() {
           <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
           
-          <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative z-10">
+          <div className="container mx-auto px-4 lg:px-8 py-10 lg:py-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white mb-6"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary text-white mb-6"
               >
-                <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Welcome to CyberBiz Africa</span>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium">Welcome to CyberBiz Africa</span>
               </motion.div>
               
               <motion.h1
@@ -110,7 +129,7 @@ export default function HomePage() {
                     ease: "easeInOut",
                   }}
                 >
-                  Solution Gateway
+                  Solution <span className="text-accent">Gateway</span>
                 </motion.span>
               </motion.h1>
               
@@ -146,7 +165,7 @@ export default function HomePage() {
                     className="pl-12 h-14 bg-white/95 border-0 text-foreground placeholder:text-muted-foreground shadow-lg"
                   />
                 </div>
-                <Button type="submit" size="lg" className="h-14 px-8 bg-primary hover:opacity-90 ">
+                <Button type="submit" size="lg" className="h-14 px-8 bg-primary hover:bg-accent transition-colors">
                   Search Jobs
                 </Button>
               </motion.form>
@@ -173,198 +192,218 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-card border-y border-border">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <section className="bg-card border-y border-border">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0 }}
-                className="text-center"
+                className="group"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
-                  <Briefcase className="w-7 h-7 text-primary" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform">
+                  <Briefcase className="w-6 h-6" />
                 </div>
                 <div className="font-display text-3xl font-bold text-foreground mb-1">
                   {stats.active_jobs}+
                 </div>
-                <div className="text-muted-foreground">Active Jobs</div>
+                <div className="text-sm text-muted-foreground">Active Jobs</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="text-center"
+                className="group md:border-l border-border/50"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
-                  <Globe className="w-7 h-7 text-primary" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 mb-3 group-hover:scale-110 transition-transform">
+                  <Building2 className="w-6 h-6" />
                 </div>
                 <div className="font-display text-3xl font-bold text-foreground mb-1">
                   {stats.companies}+
                 </div>
-                <div className="text-muted-foreground">Companies</div>
+                <div className="text-sm text-muted-foreground">Companies</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-center"
+                className="group md:border-l border-border/50"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
-                  <Users className="w-7 h-7 text-primary" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 mb-3 group-hover:scale-110 transition-transform">
+                  <Users className="w-6 h-6" />
                 </div>
                 <div className="font-display text-3xl font-bold text-foreground mb-1">
                   {stats.job_seekers}+
                 </div>
-                <div className="text-muted-foreground">Job Seekers</div>
+                <div className="text-sm text-muted-foreground">Job Seekers</div>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="text-center"
+                className="group md:border-l border-border/50"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
-                  <TrendingUp className="w-7 h-7 text-primary" />
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 mb-3 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-6 h-6" />
                 </div>
                 <div className="font-display text-3xl font-bold text-foreground mb-1">
                   {stats.success_rate}%
                 </div>
-                <div className="text-muted-foreground">Success Rate</div>
+                <div className="text-sm text-muted-foreground">Success Rate</div>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Home Header Ad */}
-        <section className="py-10">
-          <div className="container mx-auto px-4 lg:px-8">
-            <AdDisplay position="HOME_HEADER" />
-          </div>
-        </section>
+        {/* Home Header Ad - Hidden when no ads */}
+        <AdDisplay position="HOME_HEADER" />
 
         {/* Featured Jobs */}
-        <section className="py-12 sm:py-20">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-10 gap-4">
+        <section className="py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: '#0F172A' }}>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-end mb-10">
               <div>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2">
-                  Featured Jobs
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Latest opportunities from top African companies
-                </p>
+                <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>Featured Jobs</h2>
+                <p className="mt-2 text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>Latest opportunities from top African companies</p>
               </div>
-              <Button asChild variant="outline" className="hidden sm:flex">
-                <Link to="/jobs">
-                  View All Jobs
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
+              <Link 
+                to="/jobs"
+                className="hidden md:inline-flex items-center font-medium transition-colors"
+                style={{ color: '#2563EB', fontFamily: 'Inter, sans-serif' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#60A5FA'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#2563EB'}
+              >
+                View All Jobs <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-48 bg-muted rounded-xl animate-pulse" />
+              <div className="grid md:grid-cols-2 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-64 rounded-2xl animate-pulse" style={{ backgroundColor: '#1E293B' }} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-                {featuredJobs.map((job, index) => (
-                  <JobCard key={job.id} job={job} index={index} />
+              <div className="grid md:grid-cols-2 gap-6">
+                {featuredJobs.slice(0, 3).map((job, index) => (
+                  <FeaturedJobCard key={job.id} job={job} index={index} />
                 ))}
               </div>
             )}
 
-            <div className="mt-6 sm:mt-8 text-center sm:hidden">
-              <Button asChild>
-                <Link to="/jobs">View All Jobs</Link>
-              </Button>
+            <div className="mt-8 text-center md:hidden">
+              <Link
+                to="/jobs"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md transition-colors"
+                style={{ 
+                  fontFamily: 'Inter, sans-serif',
+                  backgroundColor: '#EBF4FF',
+                  color: '#2563EB'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#DBEAFE';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#EBF4FF';
+                }}
+              >
+                View All Jobs
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Featured Products */}
-        <section className="py-20 bg-muted/50">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex items-center justify-between mb-10">
+        <section className="py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: '#F8FAFC', fontFamily: 'Inter, sans-serif' }}>
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full blur-3xl" style={{ backgroundColor: 'rgba(249, 115, 22, 0.1)' }}></div>
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full blur-3xl" style={{ backgroundColor: 'rgba(37, 99, 235, 0.1)' }}></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-end mb-10">
               <div>
-                <h2 className="font-display text-3xl font-bold text-foreground mb-2">
+                <h2 className="text-3xl font-bold" style={{ color: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
                   Boost Your Skills
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="mt-2" style={{ color: '#475569', fontFamily: 'Inter, sans-serif' }}>
                   Courses and resources to advance your career
                 </p>
               </div>
-              <Button asChild variant="outline" className="hidden sm:flex">
-                <Link to="/courses">
-                  Browse All
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
+              <Link
+                to="/courses"
+                className="hidden md:inline-flex items-center font-medium transition-colors"
+                style={{ color: '#F97316', fontFamily: 'Inter, sans-serif' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#FB923C'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#F97316'}
+              >
+                Browse All <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
             </div>
 
             {isLoading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-8">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-80 bg-muted rounded-xl animate-pulse" />
+                  <div key={i} className="h-80 bg-white rounded-2xl animate-pulse border" style={{ borderColor: 'rgb(241 245 249)' }} />
                 ))}
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-8">
                 {featuredProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
+                  <FeaturedProductCard key={product.id} product={product} index={index} />
                 ))}
               </div>
             )}
-
-            <div className="mt-8 text-center sm:hidden">
-              <Button asChild>
-                <Link to="/courses">Browse All Courses</Link>
-              </Button>
-            </div>
           </div>
         </section>
 
         {/* Our Services Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+        <section className="py-16 md:py-24" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Our Services
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-4 text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Comprehensive solutions for job seekers, employers, and professionals
               </p>
-            </motion.div>
+            </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 gap-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0 }}
-                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+                className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl transition-colors group"
+                style={{
+                  backgroundColor: '#1E293B',
+                  border: '1px solid rgb(30 41 59)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#2563EB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(30 41 59)';
+                }}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Briefcase className="w-6 h-6 text-primary" />
+                <div className="shrink-0">
+                  <div 
+                    className="w-16 h-16 rounded-2xl bg-blue-900/30 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform duration-300"
+                  >
+                    <Briefcase className="w-8 h-8" />
+                  </div>
                 </div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
-                  Charity Job Board Ethiopia
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  A specialized job board focusing solely on jobs within the nonprofit sectors including jobs within the local and international NGOs, the UN system as well as those from international aid and development agencies.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Charity Job Board Ethiopia
+                  </h3>
+                  <p className="text-slate-400 text-sm leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    A specialized job board focusing solely on jobs within the nonprofit sectors including jobs within the local and international NGOs, the UN system as well as those from international aid and development agencies.
+                  </p>
+                </div>
               </motion.div>
 
               <motion.div
@@ -372,17 +411,34 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+                className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl transition-colors group"
+                style={{
+                  backgroundColor: '#1E293B',
+                  border: '1px solid rgb(30 41 59)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#F97316';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(30 41 59)';
+                }}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <FileText className="w-6 h-6 text-primary" />
+                <div className="shrink-0">
+                  <div 
+                    className="w-16 h-16 rounded-2xl bg-orange-900/30 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform duration-300"
+                  >
+                    <FileText className="w-8 h-8" />
+                  </div>
                 </div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
-                  Career Blogs
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  A blog with state of the art career advice, knowledge, and skills whether for fresh graduates wanting to enter the job market or for veteran workers seeking to further develop, advance, or change their careers.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Career Blogs
+                  </h3>
+                  <p className="text-slate-400 text-sm leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    A blog with state of the art career advice, knowledge, and skills whether for fresh graduates wanting to enter the job market or for veteran workers seeking to further develop, advance, or change their careers.
+                  </p>
+                </div>
               </motion.div>
 
               <motion.div
@@ -390,17 +446,34 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+                className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl transition-colors group"
+                style={{
+                  backgroundColor: '#1E293B',
+                  border: '1px solid rgb(30 41 59)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#F97316';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(30 41 59)';
+                }}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Target className="w-6 h-6 text-primary" />
+                <div className="shrink-0">
+                  <div 
+                    className="w-16 h-16 rounded-2xl bg-purple-900/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform duration-300"
+                  >
+                    <Target className="w-8 h-8" />
+                  </div>
                 </div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
-                  CyberBizPromo
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  A virtual digital solution to promote businesses and increase the profitability and marketability of organizations within nonprofit, private, or public sectors.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    CyberBizPromo
+                  </h3>
+                  <p className="text-slate-400 text-sm leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    A virtual digital solution to promote businesses and increase the profitability and marketability of organizations within nonprofit, private, or public sectors.
+                  </p>
+                </div>
               </motion.div>
 
               <motion.div
@@ -408,164 +481,205 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-colors"
+                className="flex flex-col md:flex-row gap-6 p-8 rounded-2xl transition-colors group"
+                style={{
+                  backgroundColor: '#1E293B',
+                  border: '1px solid rgb(30 41 59)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#2563EB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(30 41 59)';
+                }}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <GraduationCap className="w-6 h-6 text-primary" />
+                <div className="shrink-0">
+                  <div 
+                    className="w-16 h-16 rounded-2xl bg-green-900/30 flex items-center justify-center text-green-400 group-hover:scale-110 transition-transform duration-300"
+                  >
+                    <GraduationCap className="w-8 h-8" />
+                  </div>
                 </div>
-                <h3 className="font-display font-semibold text-lg text-foreground mb-2">
-                  Virtual Coach Africa
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  An online coaching site on program lifecycle management as well as leadership skills.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Virtual Coach Africa
+                  </h3>
+                  <p className="text-slate-400 text-sm leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    An online coaching site on program lifecycle management as well as leadership skills.
+                  </p>
+                </div>
               </motion.div>
             </div>
           </div>
         </section>
 
         {/* Our Clients Section */}
-        <section className="py-20 bg-muted/50">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Our Clients
-              </h2>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="max-w-4xl mx-auto"
-            >
-              <p className="text-lg text-muted-foreground text-center leading-relaxed">
-                Include local and international NGOs, international humanitarian and development aid organizations, high school, college as well as university graduates looking for jobs and or wanting to advance their careers, local and international small and medium as well as large businesses operating in Ethiopia, project and or program managers as well as senior executives working in public, private as well as nonprofit sectors.
-              </p>
-            </motion.div>
+        <section className="py-16 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-2xl font-bold mb-8" style={{ color: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
+              Our Clients
+            </h2>
+            <p className="text-slate-600 text-lg leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Include local and international NGOs, international humanitarian and development aid organizations, high school, college as well as university graduates looking for jobs and or wanting to advance their careers, local and international small and medium as well as large businesses operating in Ethiopia, project and or program managers as well as senior executives working in public, private as well as nonprofit sectors.
+            </p>
           </div>
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="font-display text-3xl lg:text-4xl font-bold text-foreground mb-4">
+        <section className="py-16 md:py-24" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Frequently Asked Questions
               </h2>
-              <p className="text-muted-foreground">
+              <p className="mt-2 text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Get answers to common questions about our platform
               </p>
-            </motion.div>
-
-            <div className="max-w-3xl mx-auto space-y-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0 }}
-                className="bg-card rounded-xl border border-border p-6"
+            </div>
+            <div className="space-y-4">
+              <div 
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <HelpCircle className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-2">
-                      How can I access content of the site?
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      You can browse jobs and courses for free. Some premium content may require registration or purchase.
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <HelpCircle className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>How can I access content of the site?</span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    You can browse jobs and courses for free. Some premium content may require registration or purchase.
+                  </p>
+                </details>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="bg-card rounded-xl border border-border p-6"
+              <div 
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <HelpCircle className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-2">
-                      Is the job board free to access?
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>Is the job board free to access?</span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.
+                  </p>
+                </details>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-card rounded-xl border border-border p-6"
+              <div 
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <HelpCircle className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-foreground mb-2">
-                      How can I access the cybercoach service?
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <School className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>How can I access the cybercoach service?</span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.
+                  </p>
+                </details>
+              </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="relative rounded-3xl bg-hero-gradient overflow-hidden">
-              <div className="absolute inset-0 pattern-dots opacity-20" />
-              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-              
-              <div className="relative z-10 py-16 px-8 lg:px-16 flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div className="text-center lg:text-left">
-                  <h2 className="font-display text-3xl lg:text-4xl font-bold text-secondary-foreground mb-4">
-                    Ready to Hire Top Talent?
-                  </h2>
-                  <p className="text-secondary-foreground/70 max-w-lg">
-                    Post your job openings and reach thousands of qualified candidates across Africa.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild size="lg" className="bg-primary hover:opacity-90 text-white">
-                    <Link to="/signup?role=EMPLOYER">Post a Job</Link>
-                  </Button>
-                  <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 border-2 border-white">
-                    <Link to="/signup?role=EMPLOYER">Register as Employer</Link>
-                  </Button>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32 pb-16">
+          <div className="rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden" style={{ 
+            background: 'linear-gradient(to right, #0F172A, #1e3a8a)',
+            fontFamily: 'Inter, sans-serif'
+          }}>
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full blur-3xl" style={{ backgroundColor: 'rgba(37, 99, 235, 0.2)' }}></div>
+            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full blur-3xl" style={{ backgroundColor: 'rgba(249, 115, 22, 0.2)' }}></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="text-center md:text-left">
+                <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Ready to Hire Top Talent?
+                </h2>
+                <p className="text-blue-100 max-w-xl" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Post your job openings and reach thousands of qualified candidates across Africa.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/signup?role=EMPLOYER"
+                  className="px-6 py-3 border rounded-lg font-medium transition-colors"
+                  style={{
+                    borderColor: '#60A5FA',
+                    color: '#DBEAFE',
+                    fontFamily: 'Inter, sans-serif'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#DBEAFE';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Post a Job
+                </Link>
+                <Link
+                  to="/signup?role=EMPLOYER"
+                  className="px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:scale-105"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    color: '#2563EB',
+                    fontFamily: 'Inter, sans-serif'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F3F4F6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                  }}
+                >
+                  Register as Employer
+                </Link>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </main>
 
       <Footer />

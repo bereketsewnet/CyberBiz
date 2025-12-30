@@ -50,21 +50,25 @@ export function AdDisplay({ position, className = '' }: AdDisplayProps) {
   return (
     <div className={className}>
       {position === 'HOME_HEADER' ? (
-        <div className="w-full mb-6">
-          <a
-            href={ad.target_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleClick}
-            className="block w-full"
-          >
-            <img
-              src={getImageUrl(ad.image_url)}
-              alt="Advertisement"
-              className="w-full h-auto rounded-lg object-cover"
-            />
-          </a>
-        </div>
+        <section className="py-10">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="w-full mb-6">
+              <a
+                href={ad.target_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleClick}
+                className="block w-full"
+              >
+                <img
+                  src={getImageUrl(ad.image_url)}
+                  alt="Advertisement"
+                  className="w-full h-auto rounded-lg object-cover"
+                />
+              </a>
+            </div>
+          </div>
+        </section>
       ) : (
         <div className="bg-card rounded-xl border border-border p-4">
           <a

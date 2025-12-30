@@ -103,32 +103,32 @@ export default function AdminPaymentsPage() {
   const formatPrice = (amount: number) => new Intl.NumberFormat('en-ET', { style: 'currency', currency: 'ETB', minimumFractionDigits: 0 }).format(amount);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">Payment Management</h1>
-            <p className="text-muted-foreground">Review and approve pending payment submissions</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Payment Management</h1>
+            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Review and approve pending payment submissions</p>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input type="text" placeholder="Search payments..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input type="text" placeholder="Search payments..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 border-slate-300" />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />)}</div>
+            <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />)}</div>
           ) : payments.filter(p => 
             !searchQuery || 
             p.user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             p.product?.title?.toLowerCase().includes(searchQuery.toLowerCase())
           ).length === 0 ? (
-            <div className="text-center py-20 bg-card rounded-xl border border-border">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">No pending payments</h3>
-              <p className="text-muted-foreground">All payment submissions have been processed</p>
+            <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No pending payments</h3>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>All payment submissions have been processed</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -137,22 +137,22 @@ export default function AdminPaymentsPage() {
                 p.user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 p.product?.title?.toLowerCase().includes(searchQuery.toLowerCase())
               ).map((payment, index) => (
-                <motion.div key={payment.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="bg-card rounded-xl border border-border p-6">
+                <motion.div key={payment.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-display font-semibold text-foreground">{payment.user?.full_name || 'Unknown User'}</h3>
+                        <h3 className="font-semibold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{payment.user?.full_name || 'Unknown User'}</h3>
                         {getStatusBadge(payment.status)}
                       </div>
-                      <div className="space-y-1 text-sm text-muted-foreground mb-3">
+                      <div className="space-y-1 text-sm text-slate-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
                         <p>Product: {payment.product?.title || 'Unknown'}</p>
-                        <p>Amount: <span className="font-medium text-foreground">{formatPrice(payment.amount)}</span></p>
+                        <p>Amount: <span className="font-medium text-slate-900">{formatPrice(payment.amount)}</span></p>
                         <p>Date: {new Date(payment.created_at).toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewProof(payment)}><Eye className="w-4 h-4 mr-2" />View Proof</Button>
-                      <Button size="sm" className="bg-success hover:bg-success/90" onClick={() => handleApprove(payment.id)}><Check className="w-4 h-4 mr-2" />Approve</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleViewProof(payment)} className="border-slate-300"><Eye className="w-4 h-4 mr-2" />View Proof</Button>
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700 transition-colors" onClick={() => handleApprove(payment.id)}><Check className="w-4 h-4 mr-2" />Approve</Button>
                       <Button variant="destructive" size="sm" onClick={() => handleReject(payment.id)}><X className="w-4 h-4 mr-2" />Reject</Button>
                     </div>
                   </div>

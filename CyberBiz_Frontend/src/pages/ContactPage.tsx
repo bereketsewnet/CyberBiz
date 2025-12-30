@@ -79,22 +79,22 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-hero-gradient py-16">
+        <section className="py-16" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <h1 className="font-display text-4xl lg:text-5xl font-bold text-secondary-foreground mb-6">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Contact Us
               </h1>
-              <p className="text-lg text-secondary-foreground/70">
+              <p className="text-lg text-slate-300 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
                 We promise, your message won't disappear into the abyss. We're standing by and ready to help with any questions, comments, or thoughts you may have.
               </p>
             </motion.div>
@@ -102,7 +102,7 @@ export default function ContactPage() {
         </section>
 
         {/* Contact Section */}
-        <section className="py-20">
+        <section className="py-20 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Information */}
@@ -112,10 +112,10 @@ export default function ContactPage() {
                 className="space-y-8"
               >
                 <div>
-                  <h2 className="font-display text-3xl font-bold text-foreground mb-6">
+                  <h2 className="text-3xl font-bold text-slate-900 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Talk to us for any questions
                   </h2>
-                  <p className="text-muted-foreground mb-8">
+                  <p className="text-slate-600 mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Get in touch with us through any of the following channels. We're here to help!
                   </p>
                 </div>
@@ -123,14 +123,15 @@ export default function ContactPage() {
                 <div className="space-y-6">
                   {settings.phone && (
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Phone className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <Phone className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">Phone Number</h3>
+                        <h3 className="font-semibold text-slate-900 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Phone Number</h3>
                         <a 
                           href={`tel:${settings.phone.replace(/\s/g, '')}`} 
-                          className="text-muted-foreground hover:text-primary transition-colors"
+                          className="text-slate-600 hover:text-primary transition-colors"
+                          style={{ fontFamily: 'Inter, sans-serif' }}
                         >
                           {settings.phone}
                         </a>
@@ -140,14 +141,15 @@ export default function ContactPage() {
 
                   {settings.email && (
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Mail className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-6 h-6 text-orange-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">Email</h3>
+                        <h3 className="font-semibold text-slate-900 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Email</h3>
                         <a 
                           href={`mailto:${settings.email}`} 
-                          className="text-muted-foreground hover:text-primary transition-colors"
+                          className="text-slate-600 hover:text-primary transition-colors"
+                          style={{ fontFamily: 'Inter, sans-serif' }}
                         >
                           {settings.email}
                         </a>
@@ -157,12 +159,12 @@ export default function ContactPage() {
 
                   {settings.address && (
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-purple-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">Address</h3>
-                        <p className="text-muted-foreground">
+                        <h3 className="font-semibold text-slate-900 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Address</h3>
+                        <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {settings.address}
                         </p>
                       </div>
@@ -170,7 +172,7 @@ export default function ContactPage() {
                   )}
 
                   {!isLoadingSettings && !settings.address && !settings.email && !settings.phone && (
-                    <div className="text-muted-foreground text-sm">
+                    <div className="text-slate-600 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
                       Contact information will be displayed here once configured.
                     </div>
                   )}
@@ -181,13 +183,13 @@ export default function ContactPage() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-card rounded-2xl border border-border p-8"
+                className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-green-600" />
                   </div>
-                  <h2 className="font-display text-2xl font-bold text-foreground">
+                  <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Let's Chat!
                   </h2>
                 </div>
@@ -260,7 +262,7 @@ export default function ContactPage() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-primary hover:opacity-90 "
+                    className="w-full bg-primary hover:bg-accent transition-colors"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (

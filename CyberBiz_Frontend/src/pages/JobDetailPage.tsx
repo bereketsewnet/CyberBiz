@@ -132,16 +132,17 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
         {/* Header */}
-        <section className="bg-card border-b border-border">
+        <section className="border-b" style={{ backgroundColor: '#0F172A', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8 py-8">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Jobs
@@ -157,16 +158,16 @@ export default function JobDetailPage() {
                   <Building2 className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                  <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                     {job.title}
                   </h1>
-                  <p className="text-lg text-muted-foreground mb-4">
+                  <p className="text-lg text-slate-400 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                     {job.employer?.full_name || 'Company Name'}
                   </p>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>
                     <span className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      Addis Ababa, Ethiopia
+                      {job.location || 'Addis Ababa, Ethiopia'}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
@@ -188,13 +189,28 @@ export default function JobDetailPage() {
                   size="icon"
                   onClick={handleToggleFavorite}
                   disabled={isTogglingFavorite}
-                  className={isFavorite ? 'bg-primary/10 border-primary text-primary' : ''}
+                  className={isFavorite ? 'border-primary bg-primary/20 text-primary' : ''}
+                  style={!isFavorite ? {
+                    borderColor: 'rgb(100 116 139)',
+                    color: '#ffffff',
+                    backgroundColor: 'transparent'
+                  } : {}}
+                  onMouseEnter={(e) => {
+                    if (!isFavorite) {
+                      e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isFavorite) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
                 >
                   <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </Button>
                 <Button
                   size="lg"
-                  className="bg-primary hover:opacity-90 "
+                  className="bg-primary hover:bg-accent transition-colors"
                   onClick={handleApplyClick}
                 >
                   Apply Now
@@ -205,7 +221,7 @@ export default function JobDetailPage() {
         </section>
 
         {/* Content */}
-        <section className="py-10">
+        <section className="py-10 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className="grid lg:grid-cols-3 gap-10">
               {/* Main Content */}
@@ -215,7 +231,7 @@ export default function JobDetailPage() {
                 transition={{ delay: 0.1 }}
                 className="lg:col-span-2"
               >
-                <div className="bg-card rounded-xl border border-border p-6 lg:p-8">
+                <div className="bg-white rounded-xl border border-slate-200 p-6 lg:p-8">
                   <div
                     className="prose prose-slate max-w-none"
                     dangerouslySetInnerHTML={{ __html: job.description_html }}
@@ -231,33 +247,33 @@ export default function JobDetailPage() {
                 className="space-y-6"
               >
                 {/* Job Overview */}
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <h3 className="font-display font-semibold text-lg mb-4">Job Overview</h3>
+                <div className="bg-white rounded-xl border border-slate-200 p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Job Overview</h3>
                   <div className="space-y-4">
                     {job.job_type && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Job Type</span>
-                        <span className="font-medium">
+                        <span className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Job Type</span>
+                        <span className="font-medium text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
                           {job.job_type.replace('_', '-').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       </div>
                     )}
                     {job.location && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Location</span>
-                        <span className="font-medium">{job.location}</span>
+                        <span className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Location</span>
+                        <span className="font-medium text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{job.location}</span>
                       </div>
                     )}
                     {job.experience && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Experience</span>
-                        <span className="font-medium">{job.experience}</span>
+                        <span className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Experience</span>
+                        <span className="font-medium text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{job.experience}</span>
                       </div>
                     )}
                     {job.expires_at && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Deadline</span>
-                        <span className="font-medium">{formatDate(job.expires_at)}</span>
+                        <span className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Deadline</span>
+                        <span className="font-medium text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{formatDate(job.expires_at)}</span>
                       </div>
                     )}
                   </div>
@@ -265,8 +281,8 @@ export default function JobDetailPage() {
 
                 {/* Tags */}
                 {job.skills && job.skills.length > 0 && (
-                  <div className="bg-card rounded-xl border border-border p-6">
-                    <h3 className="font-display font-semibold text-lg mb-4">Skills</h3>
+                  <div className="bg-white rounded-xl border border-slate-200 p-6">
+                    <h3 className="font-semibold text-lg mb-4 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {job.skills.map((skill, index) => (
                         <Badge key={index} variant="secondary">{skill}</Badge>
@@ -276,33 +292,33 @@ export default function JobDetailPage() {
                 )}
 
                 {/* Company */}
-                <div className="bg-card rounded-xl border border-border p-6">
-                  <h3 className="font-display font-semibold text-lg mb-4">About the Company</h3>
+                <div className="bg-white rounded-xl border border-slate-200 p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>About the Company</h3>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                       <Building2 className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium">{job.employer?.full_name || job.employer?.company_name || 'Company'}</p>
+                      <p className="font-medium text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>{job.employer?.full_name || job.employer?.company_name || 'Company'}</p>
                       {job.employer?.company_name && job.employer?.company_name !== job.employer?.full_name && (
-                        <p className="text-sm text-muted-foreground">{job.employer.company_name}</p>
+                        <p className="text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>{job.employer.company_name}</p>
                       )}
                     </div>
                   </div>
                   {job.company_description && (
-                    <p className="text-sm text-muted-foreground mb-4">
+                    <p className="text-sm text-slate-600 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                       {job.company_description}
                     </p>
                   )}
                   {!job.company_description && (
-                    <p className="text-sm text-muted-foreground mb-4">
+                    <p className="text-sm text-slate-600 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
                       No company description available.
                     </p>
                   )}
                   {job.employer?.website_url && (
                     <Button 
                       variant="outline" 
-                      className="w-full" 
+                      className="w-full hover:bg-accent hover:text-white hover:border-accent transition-colors border-slate-300" 
                       size="sm"
                       asChild
                     >
@@ -375,13 +391,13 @@ export default function JobDetailPage() {
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setShowApplyModal(false)}>
+            <Button variant="outline" onClick={() => setShowApplyModal(false)} className="border-slate-300">
               Cancel
             </Button>
             <Button
               onClick={handleApply}
               disabled={!cvFile || isApplying}
-              className="bg-primary"
+              className="bg-primary hover:bg-accent transition-colors"
             >
               {isApplying ? 'Submitting...' : 'Submit Application'}
             </Button>

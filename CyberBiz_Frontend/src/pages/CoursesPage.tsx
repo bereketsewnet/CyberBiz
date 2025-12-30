@@ -110,45 +110,45 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
         {/* Search Header */}
-        <section className="bg-card border-b border-border py-6 sm:py-8">
+        <section className="py-6 sm:py-8 border-b" style={{ backgroundColor: '#0F172A', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 text-center sm:text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Level Up Your Skills
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-center sm:text-left">
+              <p className="text-sm sm:text-base text-slate-400 mb-4 sm:mb-6 text-center sm:text-left" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Access premium courses and ebooks designed for African professionals
               </p>
 
               <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
                     type="text"
                     placeholder="Search by title..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 h-12 w-full"
+                    className="pl-12 h-12 w-full bg-white border-slate-300"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={clearSearch}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   )}
                 </div>
-                <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-primary hover:opacity-90 flex-1 sm:flex-none">
+                <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-primary hover:bg-accent transition-colors flex-1 sm:flex-none">
                   <Search className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Search</span>
                 </Button>
@@ -158,7 +158,7 @@ export default function CoursesPage() {
         </section>
 
         {/* Products */}
-        <section className="py-6 sm:py-12">
+        <section className="py-6 sm:py-12 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 sm:mb-8">
               <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
@@ -178,26 +178,26 @@ export default function CoursesPage() {
               {/* Main Content */}
               <div className={hasSidebarAds ? 'lg:col-span-3' : 'w-full'}>
                 {searchParams.get('q') && (
-                  <p className="text-muted-foreground mb-6">
-                    Showing results for "<span className="text-foreground font-medium">{searchParams.get('q')}</span>"
+                  <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Showing results for "<span className="text-slate-900 font-medium">{searchParams.get('q')}</span>"
                   </p>
                 )}
 
                 {isLoading ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-80 bg-muted rounded-xl animate-pulse" />
+                      <div key={i} className="h-80 bg-slate-100 rounded-xl animate-pulse" />
                     ))}
                   </div>
                 ) : products.length === 0 ? (
-                  <div className="text-center py-20">
-                    <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                  <div className="text-center py-20" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                       No products found
                     </h3>
-                    <p className="text-muted-foreground mb-6">
+                    <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                       Try adjusting your search or filters
                     </p>
-                    <Button onClick={clearSearch} variant="outline">
+                    <Button onClick={clearSearch} variant="outline" className="border-slate-300 hover:bg-accent hover:text-white">
                       Clear Search
                     </Button>
                   </div>
@@ -211,23 +211,23 @@ export default function CoursesPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2">
+                      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                         <Button
                           variant="outline"
                           disabled={currentPage === 1}
                           onClick={() => setCurrentPage((p) => p - 1)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors"
                         >
                           Previous
                         </Button>
-                        <div className="flex items-center px-4 text-sm text-muted-foreground">
+                        <div className="flex items-center px-4 text-sm text-slate-600">
                           Page {currentPage} of {totalPages}
                         </div>
                         <Button
                           variant="outline"
                           disabled={currentPage === totalPages}
                           onClick={() => setCurrentPage((p) => p + 1)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors"
                         >
                           Next
                         </Button>

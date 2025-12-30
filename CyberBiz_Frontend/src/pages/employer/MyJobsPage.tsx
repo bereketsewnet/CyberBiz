@@ -69,54 +69,54 @@ export default function MyJobsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="font-display text-3xl font-bold text-foreground mb-2">My Job Postings</h1>
-              <p className="text-muted-foreground">Manage your job listings and view applications</p>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>My Job Postings</h1>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Manage your job listings and view applications</p>
             </div>
-            <Button asChild className="bg-primary hover:opacity-90 ">
+            <Button asChild className="bg-primary hover:bg-accent transition-colors">
               <Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link>
             </Button>
           </motion.div>
 
           <div className="mb-6">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input type="text" placeholder="Search your jobs..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input type="text" placeholder="Search your jobs..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 border-slate-300" />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />)}</div>
+            <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />)}</div>
           ) : filteredJobs.length === 0 ? (
-            <div className="text-center py-20 bg-card rounded-xl border border-border">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">No jobs found</h3>
-              <p className="text-muted-foreground mb-6">{searchQuery ? 'Try a different search term' : 'Create your first job posting'}</p>
-              {!searchQuery && <Button asChild className="bg-primary"><Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link></Button>}
+            <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No jobs found</h3>
+              <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>{searchQuery ? 'Try a different search term' : 'Create your first job posting'}</p>
+              {!searchQuery && <Button asChild className="bg-primary hover:bg-accent transition-colors"><Link to="/my-jobs/create"><Plus className="w-4 h-4 mr-2" />Post New Job</Link></Button>}
             </div>
           ) : (
             <div className="space-y-4">
               {filteredJobs.map((job, index) => (
-                <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="bg-card rounded-xl border border-border p-6">
+                <motion.div key={job.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-display font-semibold text-lg text-foreground truncate">{job.title}</h3>
+                        <h3 className="font-semibold text-lg text-slate-900 truncate" style={{ fontFamily: 'Inter, sans-serif' }}>{job.title}</h3>
                         {getStatusBadge(job.status)}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-4 text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
                         <span>Created {new Date(job.created_at).toLocaleDateString()}</span>
                         <span className="flex items-center gap-1"><Users className="w-4 h-4" />{job.applications_count || 0} applications</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button asChild variant="outline" size="sm"><Link to={`/my-jobs/${job.id}/applications`}><Users className="w-4 h-4 mr-2" />View Applications</Link></Button>
+                      <Button asChild variant="outline" size="sm" className="border-slate-300"><Link to={`/my-jobs/${job.id}/applications`}><Users className="w-4 h-4 mr-2" />View Applications</Link></Button>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="border-slate-300"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild><Link to={`/jobs/${job.id}`}><Eye className="w-4 h-4 mr-2" />View</Link></DropdownMenuItem>
                           <DropdownMenuItem asChild><Link to={`/my-jobs/${job.id}/edit`}><Edit className="w-4 h-4 mr-2" />Edit</Link></DropdownMenuItem>

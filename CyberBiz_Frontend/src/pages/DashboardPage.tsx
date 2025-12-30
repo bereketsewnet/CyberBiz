@@ -68,20 +68,20 @@ export default function DashboardPage() {
   const content = getRoleSpecificContent();
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="font-display text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
               {content.title}
             </h1>
-            <p className="text-muted-foreground">{content.description}</p>
+            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>{content.description}</p>
           </motion.div>
 
           {/* Welcome Card */}
@@ -89,23 +89,24 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-hero-gradient rounded-2xl p-8 mb-8"
+            className="rounded-2xl p-8 mb-8"
+            style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h2 className="font-display text-2xl font-bold text-secondary-foreground mb-2">
+                <h2 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                   Welcome back, {user?.full_name?.split(' ')[0]}!
                 </h2>
-                <p className="text-secondary-foreground/70">
+                <p className="text-slate-300" style={{ fontFamily: 'Inter, sans-serif' }}>
                   {user?.role === 'SEEKER' && "You're doing great! Keep applying to find your dream job."}
                   {user?.role === 'EMPLOYER' && "Ready to find your next star employee?"}
                   {user?.role === 'LEARNER' && "Continue learning and building your skills."}
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-center px-4 py-2 rounded-lg bg-secondary-foreground/10">
-                  <p className="text-2xl font-bold text-primary">{user?.credits || 0}</p>
-                  <p className="text-xs text-secondary-foreground/70">Credits</p>
+                <div className="text-center px-4 py-2 rounded-lg bg-white/10">
+                  <p className="text-2xl font-bold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>{user?.credits || 0}</p>
+                  <p className="text-xs text-slate-300" style={{ fontFamily: 'Inter, sans-serif' }}>Credits</p>
                 </div>
               </div>
             </div>
@@ -118,24 +119,33 @@ export default function DashboardPage() {
             transition={{ delay: 0.2 }}
             className="grid md:grid-cols-3 gap-6"
           >
-            {content.actions.map((action, index) => (
-              <Link
-                key={action.label}
-                to={action.href}
-                className="bg-card rounded-xl border border-border p-6 hover:border-primary/50 transition-all group card-hover"
-              >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <action.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                  {action.label}
-                </h3>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  Go to {action.label.toLowerCase()}
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            ))}
+            {content.actions.map((action, index) => {
+              const iconColors = [
+                { bg: 'bg-blue-50', text: 'text-blue-600' },
+                { bg: 'bg-orange-50', text: 'text-orange-600' },
+                { bg: 'bg-purple-50', text: 'text-purple-600' },
+                { bg: 'bg-green-50', text: 'text-green-600' },
+              ];
+              const colors = iconColors[index % iconColors.length];
+              return (
+                <Link
+                  key={action.label}
+                  to={action.href}
+                  className="bg-white rounded-xl border border-slate-200 p-6 hover:border-primary/50 hover:shadow-md transition-all group"
+                >
+                  <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <action.icon className={`w-6 h-6 ${colors.text}`} />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 mb-2 group-hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {action.label}
+                  </h3>
+                  <div className="flex items-center text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Go to {action.label.toLowerCase()}
+                    <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              );
+            })}
           </motion.div>
         </div>
       </main>

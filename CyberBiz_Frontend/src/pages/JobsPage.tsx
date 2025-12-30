@@ -111,52 +111,68 @@ export default function JobsPage() {
   const activeFiltersCount = [jobType, location, experience].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
       
       <main className="flex-1">
         {/* Search Header */}
-        <section className="bg-card border-b border-border py-6 sm:py-8">
+        <section className="py-6 sm:py-8 border-b" style={{ backgroundColor: '#0F172A', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Browse Jobs
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+              <p className="text-sm sm:text-base text-slate-400 mb-4 sm:mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Find your next opportunity from top African companies
               </p>
 
               <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
                     type="text"
                     placeholder="Search jobs by title, company, or keyword..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 h-12 w-full"
+                    className="pl-12 h-12 w-full bg-white border-slate-300"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={clearSearch}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   )}
                 </div>
                 <div className="flex gap-3">
-                  <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-primary hover:opacity-90 flex-1 sm:flex-none">
+                  <Button type="submit" size="lg" className="h-12 px-4 sm:px-6 bg-primary hover:bg-accent transition-colors flex-1 sm:flex-none">
                     <Search className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Search</span>
                   </Button>
                   <Sheet open={showFilters} onOpenChange={setShowFilters}>
                     <SheetTrigger asChild>
-                      <Button type="button" variant="outline" size="lg" className="h-12 px-4 sm:px-6 relative">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="lg" 
+                        className="h-12 px-4 sm:px-6 relative"
+                        style={{
+                          borderColor: 'rgb(100 116 139)',
+                          color: '#ffffff',
+                          backgroundColor: 'transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
                         <Filter className="w-4 h-4 sm:mr-2" />
                         <span className="hidden sm:inline">Filters</span>
                         {activeFiltersCount > 0 && (
@@ -166,10 +182,10 @@ export default function JobsPage() {
                         )}
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:w-[400px] overflow-y-auto">
+                    <SheetContent side="right" className="w-full sm:w-[400px] overflow-y-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
                       <SheetHeader>
-                        <SheetTitle>Filter Jobs</SheetTitle>
-                        <SheetDescription>
+                        <SheetTitle style={{ fontFamily: 'Inter, sans-serif' }}>Filter Jobs</SheetTitle>
+                        <SheetDescription style={{ fontFamily: 'Inter, sans-serif' }}>
                           Refine your job search by selecting filters below
                         </SheetDescription>
                       </SheetHeader>
@@ -245,7 +261,7 @@ export default function JobsPage() {
                         <div className="flex flex-col sm:flex-row gap-3 pt-4">
                           <Button
                             onClick={applyFilters}
-                            className="flex-1 bg-primary hover:opacity-90"
+                            className="flex-1 bg-primary hover:bg-accent transition-colors"
                           >
                             Apply Filters
                           </Button>
@@ -267,21 +283,21 @@ export default function JobsPage() {
         </section>
 
         {/* Results */}
-        <section className="py-6 sm:py-10">
+        <section className="py-6 sm:py-10 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
             <div className={`grid ${hasSidebarAds ? 'lg:grid-cols-4' : 'lg:grid-cols-1'} gap-6 lg:gap-10`}>
               {/* Main Content */}
               <div className={hasSidebarAds ? 'lg:col-span-3' : 'w-full'}>
                 {searchParams.get('q') && (
-                  <p className="text-muted-foreground mb-6">
-                    Showing results for "<span className="text-foreground font-medium">{searchParams.get('q')}</span>"
+                  <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Showing results for "<span className="text-slate-900 font-medium">{searchParams.get('q')}</span>"
                   </p>
                 )}
 
                 {/* Active Filters Display */}
                 {(jobType || location || experience) && (
-                  <div className="flex flex-wrap items-center gap-2 mb-6">
-                    <span className="text-sm text-muted-foreground">Active filters:</span>
+                  <div className="flex flex-wrap items-center gap-2 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <span className="text-sm text-slate-600">Active filters:</span>
                     {jobType && (
                       <Button
                         variant="secondary"
@@ -328,7 +344,7 @@ export default function JobsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={clearFilters}
-                      className="h-7 text-xs text-muted-foreground"
+                      className="h-7 text-xs text-slate-600 hover:text-slate-900"
                     >
                       Clear all
                     </Button>
@@ -342,14 +358,14 @@ export default function JobsPage() {
                     ))}
                   </div>
                 ) : jobs.length === 0 ? (
-                  <div className="text-center py-20">
-                    <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                  <div className="text-center py-20" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                       No jobs found
                     </h3>
-                    <p className="text-muted-foreground mb-6">
+                    <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                       Try adjusting your search or filters
                     </p>
-                    <Button onClick={clearSearch} variant="outline">
+                    <Button onClick={clearSearch} variant="outline" className="hover:bg-accent hover:text-white border-slate-300">
                       Clear Search
                     </Button>
                   </div>
@@ -363,23 +379,23 @@ export default function JobsPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2">
+                      <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                         <Button
                           variant="outline"
                           disabled={currentPage === 1}
                           onClick={() => setCurrentPage((p) => p - 1)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors"
                         >
                           Previous
                         </Button>
-                        <div className="flex items-center px-4 text-sm text-muted-foreground">
+                        <div className="flex items-center px-4 text-sm text-slate-600">
                           Page {currentPage} of {totalPages}
                         </div>
                         <Button
                           variant="outline"
                           disabled={currentPage === totalPages}
                           onClick={() => setCurrentPage((p) => p + 1)}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto border-slate-300 hover:bg-accent hover:text-white hover:border-accent transition-colors"
                         >
                           Next
                         </Button>

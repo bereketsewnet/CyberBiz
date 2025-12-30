@@ -34,30 +34,40 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="bg-secondary text-secondary-foreground">
-      <div className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="py-12 border-t" style={{ backgroundColor: '#0F172A', color: '#CBD5E1', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
-          <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
+          <div className="col-span-1 md:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-6">
               <img 
-                src="/logo.svg" 
+                src="/favicon.svg" 
                 alt="CyberBiz Africa" 
-                className="h-10 w-auto"
+                className="h-8 w-8 rounded-lg"
               />
+              <span className="font-bold text-xl text-white tracking-tight" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Cyber<span style={{ color: '#F97316' }}>Biz</span>
+              </span>
             </Link>
-            <p className="text-secondary-foreground/70 mb-6">
+            <p className="text-sm text-slate-400 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
               Empowering African talent with opportunities and skills for the digital economy.
             </p>
-            <div className="flex gap-4">
+            <div className="flex space-x-4">
               {settings.facebook_url && (
                 <a 
                   href={settings.facebook_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ backgroundColor: 'rgb(30 41 59)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F97316';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                  }}
                 >
-                  <Facebook className="w-5 h-5" />
+                  <Facebook className="w-4 h-4 text-slate-300" />
                 </a>
               )}
               {settings.twitter_url && (
@@ -65,9 +75,16 @@ export function Footer() {
                   href={settings.twitter_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ backgroundColor: 'rgb(30 41 59)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F97316';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                  }}
                 >
-                  <Twitter className="w-5 h-5" />
+                  <Twitter className="w-4 h-4 text-slate-300" />
                 </a>
               )}
               {settings.linkedin_url && (
@@ -75,9 +92,16 @@ export function Footer() {
                   href={settings.linkedin_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ backgroundColor: 'rgb(30 41 59)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F97316';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                  }}
                 >
-                  <Linkedin className="w-5 h-5" />
+                  <Linkedin className="w-4 h-4 text-slate-300" />
                 </a>
               )}
               {settings.instagram_url && (
@@ -85,9 +109,16 @@ export function Footer() {
                   href={settings.instagram_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ backgroundColor: 'rgb(30 41 59)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F97316';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                  }}
                 >
-                  <Instagram className="w-5 h-5" />
+                  <Instagram className="w-4 h-4 text-slate-300" />
                 </a>
               )}
               {settings.youtube_url && (
@@ -95,9 +126,16 @@ export function Footer() {
                   href={settings.youtube_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center hover:bg-primary transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                  style={{ backgroundColor: 'rgb(30 41 59)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F97316';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgb(30 41 59)';
+                  }}
                 >
-                  <Youtube className="w-5 h-5" />
+                  <Youtube className="w-4 h-4 text-slate-300" />
                 </a>
               )}
             </div>
@@ -105,25 +143,33 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-3">
+            <h4 className="text-white font-semibold mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Quick Links</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/jobs" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/jobs" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Browse Jobs
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/courses" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Courses & Ebooks
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/about" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/contact" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Contact
                 </Link>
               </li>
@@ -132,20 +178,26 @@ export function Footer() {
 
           {/* For Employers */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">For Employers</h3>
-            <ul className="space-y-3">
+            <h4 className="text-white font-semibold mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>For Employers</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link to="/signup?role=EMPLOYER" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/signup?role=EMPLOYER" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Post a Job
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/pricing" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Pricing Plans
                 </Link>
               </li>
               <li>
-                <Link to="/employer-faq" className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                <Link to="/employer-faq" className="hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   Employer FAQ
                 </Link>
               </li>
@@ -154,50 +206,64 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-4">
+            <h4 className="text-white font-semibold mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>Contact Us</h4>
+            <ul className="space-y-3 text-sm">
               {settings.address && (
                 <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-primary mt-0.5" />
-                  <span className="text-secondary-foreground/70">
-                    {settings.address}
-                  </span>
+                  <MapPin className="text-primary text-sm mt-1" style={{ color: '#F97316' }} />
+                  <span style={{ fontFamily: 'Inter, sans-serif' }}>{settings.address}</span>
                 </li>
               )}
               {settings.email && (
                 <li className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-primary" />
-                  <a href={`mailto:${settings.email}`} className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                  <Mail className="text-primary text-sm" style={{ color: '#F97316' }} />
+                  <a 
+                    href={`mailto:${settings.email}`} 
+                    className="hover:text-primary transition-colors"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = ''}
+                  >
                     {settings.email}
                   </a>
                 </li>
               )}
               {settings.phone && (
                 <li className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-primary" />
-                  <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="text-secondary-foreground/70 hover:text-primary transition-colors">
+                  <Phone className="text-primary text-sm" style={{ color: '#F97316' }} />
+                  <a 
+                    href={`tel:${settings.phone.replace(/\s/g, '')}`} 
+                    className="hover:text-primary transition-colors"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#F97316'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = ''}
+                  >
                     {settings.phone}
                   </a>
                 </li>
               )}
               {!settings.address && !settings.email && !settings.phone && !isLoading && (
-                <li className="text-secondary-foreground/50 text-sm">Contact information not available</li>
+                <li className="text-slate-500 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>Contact information not available</li>
               )}
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-secondary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-secondary-foreground/50 text-sm">
-            © {new Date().getFullYear()} CyberBiz Africa. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="text-secondary-foreground/50 hover:text-primary transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-secondary-foreground/50 hover:text-primary transition-colors">
-              Terms of Service
-            </Link>
+        <div className="border-t pt-8 flex flex-col md:flex-row justify-between items-center text-xs" style={{ borderColor: 'rgb(30 41 59)', color: '#64748B', fontFamily: 'Inter, sans-serif' }}>
+          <p>© {new Date().getFullYear()} CyberBiz Africa. All rights reserved.</p>
+          <div className="mt-4 md:mt-0">
+            <p className="text-slate-500 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+              🧡 made by{' '}
+              <a 
+                href="https://wubsites.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-slate-300 hover:underline transition-colors"
+                style={{ fontFamily: 'Inter, sans-serif' }}
+              >
+                wubsites
+              </a>
+            </p>
           </div>
         </div>
       </div>
