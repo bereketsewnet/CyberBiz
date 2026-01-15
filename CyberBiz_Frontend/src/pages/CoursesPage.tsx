@@ -9,8 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiService } from '@/services/apiService';
 import type { Product } from '@/types';
-import { AdDisplay } from '@/components/ads/AdDisplay';
-import { useAdCheck } from '@/components/ads/useAdCheck';
+import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 
 export default function CoursesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,7 +21,6 @@ export default function CoursesPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'COURSE' | 'EBOOK'>(
     (searchParams.get('type') as 'COURSE' | 'EBOOK') || 'all'
   );
-  const { hasAds: hasSidebarAds } = useAdCheck('SIDEBAR');
 
   // Sync tab with URL params on mount
   useEffect(() => {
@@ -174,9 +172,9 @@ export default function CoursesPage() {
               </TabsList>
             </Tabs>
 
-            <div className={`grid ${hasSidebarAds ? 'lg:grid-cols-4' : 'lg:grid-cols-1'} gap-6 lg:gap-10`}>
+            <div className="grid lg:grid-cols-4 gap-6 lg:gap-10">
               {/* Main Content */}
-              <div className={hasSidebarAds ? 'lg:col-span-3' : 'w-full'}>
+              <div className="lg:col-span-3">
                 {searchParams.get('q') && (
                   <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Showing results for "<span className="text-slate-900 font-medium">{searchParams.get('q')}</span>"
@@ -237,22 +235,18 @@ export default function CoursesPage() {
                 )}
               </div>
 
-              {/* Sidebar with Ads - Desktop */}
-              {hasSidebarAds && (
-                <div className="lg:col-span-1 hidden lg:block">
-                  <div className="sticky top-24">
-                    <AdDisplay position="SIDEBAR" />
-                  </div>
+              {/* Sidebar with Native Ads - Desktop */}
+              <div className="lg:col-span-1 hidden lg:block">
+                <div className="sticky top-24">
+                  <NativeAdDisplay position="sidebar" />
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Bottom Ads - Mobile & Tablet */}
-            {hasSidebarAds && (
-              <div className="mt-8 lg:hidden">
-                <AdDisplay position="SIDEBAR" />
-              </div>
-            )}
+            {/* Bottom Native Ads - Mobile & Tablet */}
+            <div className="mt-8 lg:hidden">
+              <NativeAdDisplay position="sidebar" />
+            </div>
           </div>
         </section>
       </main>

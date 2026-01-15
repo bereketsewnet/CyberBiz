@@ -45,13 +45,12 @@ export default function AdminNativeAdsPage() {
         per_page: 15,
         position: positionFilter !== 'all' ? positionFilter : undefined,
         type: typeFilter !== 'all' ? typeFilter : undefined,
-        is_active: statusFilter === 'all' ? undefined : statusFilter === 'active',
+        is_active: statusFilter === 'all' ? undefined : statusFilter === 'active' ? true : false,
         q: searchQuery || undefined,
       });
       setAds(response.data);
       setTotalPages(response.meta.last_page);
     } catch (error) {
-      console.error('Error fetching native ads:', error);
       toast.error('Failed to load native ads');
     } finally {
       setIsLoading(false);
@@ -209,9 +208,64 @@ export default function AdminNativeAdsPage() {
                             ) : (
                               <Badge variant="secondary">Inactive</Badge>
                             )}
+                            {(() => {
+                              const now = new Date();
+                              const startDate = ad.start_date ? new Date(ad.start_date) : null;
+                              const endDate = ad.end_date ? new Date(ad.end_date) : null;
+                              const isFuture = startDate && startDate > now;
+                              const isExpired = endDate && endDate < now;
+                              const isScheduled = isFuture || (startDate && startDate > now);
+                              
+                              if (!ad.is_active) {
+                                return null;
+                              }
+                              
+                              if (isFuture) {
+                                return (
+                                  <Badge className="bg-orange-100 text-orange-800" title={`Scheduled to start: ${new Date(ad.start_date!).toLocaleString()}`}>
+                                    Scheduled
+                                  </Badge>
+                                );
+                              }
+                              
+                              if (isExpired) {
+                                return (
+                                  <Badge className="bg-red-100 text-red-800" title={`Ended: ${new Date(ad.end_date!).toLocaleString()}`}>
+                                    Expired
+                                  </Badge>
+                                );
+                              }
+                              
+                              return null;
+                            })()}
                             <Badge variant="outline">{getPositionLabel(ad.position)}</Badge>
                             <Badge variant="outline">{getTypeLabel(ad.type)}</Badge>
                           </div>
+                          {(() => {
+                            const now = new Date();
+                            const startDate = ad.start_date ? new Date(ad.start_date) : null;
+                            const endDate = ad.end_date ? new Date(ad.end_date) : null;
+                            const isFuture = startDate && startDate > now;
+                            const isExpired = endDate && endDate < now;
+                            
+                            if (isFuture && ad.is_active) {
+                              return (
+                                <div className="mb-2 p-2 bg-orange-50 border border-orange-200 rounded text-sm text-orange-800">
+                                  ⚠️ This ad is scheduled and won't display until {new Date(ad.start_date!).toLocaleString()}
+                                </div>
+                              );
+                            }
+                            
+                            if (isExpired && ad.is_active) {
+                              return (
+                                <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                                  ⚠️ This ad has expired and won't display (ended on {new Date(ad.end_date!).toLocaleString()})
+                                </div>
+                              );
+                            }
+                            
+                            return null;
+                          })()}
                           {ad.description && (
                             <p className="text-slate-600 mb-3 line-clamp-2">{ad.description}</p>
                           )}
@@ -266,7 +320,7 @@ export default function AdminNativeAdsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleDelete(ad.id)}
-                            className="border-red-300 text-red-600 hover:bg-red-50"
+                            className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

@@ -19,7 +19,6 @@ const quickLinks = [
   { label: 'Sponsorship Posts', href: '/admin/sponsorship-posts', icon: FileText },
   { label: 'Affiliate Programs', href: '/admin/affiliate/programs', icon: TrendingUp },
   { label: 'Manage Users', href: '/admin/users', icon: Users },
-  { label: 'Manage Ads', href: '/admin/ads', icon: BarChart3 },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

@@ -11,8 +11,7 @@ import { Header, Footer } from '@/components/layout';
 import { JobCard } from '@/components/jobs/JobCard';
 import { apiService } from '@/services/apiService';
 import type { JobPosting } from '@/types';
-import { AdDisplay } from '@/components/ads/AdDisplay';
-import { useAdCheck } from '@/components/ads/useAdCheck';
+import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 
 export default function JobsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,7 +21,6 @@ export default function JobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const { hasAds: hasSidebarAds } = useAdCheck('SIDEBAR');
 
   // Filter states
   const [jobType, setJobType] = useState<string>(searchParams.get('job_type') || '');
@@ -285,9 +283,9 @@ export default function JobsPage() {
         {/* Results */}
         <section className="py-6 sm:py-10 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8">
-            <div className={`grid ${hasSidebarAds ? 'lg:grid-cols-4' : 'lg:grid-cols-1'} gap-6 lg:gap-10`}>
+            <div className="grid lg:grid-cols-4 gap-6 lg:gap-10">
               {/* Main Content */}
-              <div className={hasSidebarAds ? 'lg:col-span-3' : 'w-full'}>
+              <div className="lg:col-span-3">
                 {searchParams.get('q') && (
                   <p className="text-slate-600 mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                     Showing results for "<span className="text-slate-900 font-medium">{searchParams.get('q')}</span>"
@@ -405,22 +403,18 @@ export default function JobsPage() {
                 )}
               </div>
 
-              {/* Sidebar with Ads - Desktop */}
-              {hasSidebarAds && (
-                <div className="lg:col-span-1 hidden lg:block">
-                  <div className="sticky top-24">
-                    <AdDisplay position="SIDEBAR" />
-                  </div>
+              {/* Sidebar with Native Ads - Desktop */}
+              <div className="lg:col-span-1 hidden lg:block">
+                <div className="sticky top-24">
+                  <NativeAdDisplay position="sidebar" />
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Bottom Ads - Mobile & Tablet */}
-            {hasSidebarAds && (
-              <div className="mt-8 lg:hidden">
-                <AdDisplay position="SIDEBAR" />
-              </div>
-            )}
+            {/* Bottom Native Ads - Mobile & Tablet */}
+            <div className="mt-8 lg:hidden">
+              <NativeAdDisplay position="sidebar" />
+            </div>
           </div>
         </section>
       </main>

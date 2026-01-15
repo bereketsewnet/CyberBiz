@@ -899,6 +899,7 @@ export const apiService = {
     title: string;
     description?: string;
     image_url?: string;
+    image?: File;
     link_url: string;
     position: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
     type: 'sponsored' | 'advertisement' | 'promoted';
@@ -908,13 +909,32 @@ export const apiService = {
     end_date?: string;
     priority?: number;
   }): Promise<{ message: string; data: NativeAd }> {
-    return api.post('/admin/native-ads', data);
+    // Use FormData if file is present, otherwise use JSON
+    if (data.image) {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('link_url', data.link_url);
+      formData.append('position', data.position);
+      formData.append('type', data.type);
+      if (data.description) formData.append('description', data.description);
+      formData.append('image', data.image);
+      if (data.image_url) formData.append('image_url', data.image_url);
+      if (data.advertiser_name) formData.append('advertiser_name', data.advertiser_name);
+      if (data.is_active !== undefined) formData.append('is_active', data.is_active ? '1' : '0');
+      if (data.start_date) formData.append('start_date', data.start_date);
+      if (data.end_date) formData.append('end_date', data.end_date);
+      if (data.priority !== undefined) formData.append('priority', data.priority.toString());
+      return api.post('/admin/native-ads', formData);
+    } else {
+      return api.post('/admin/native-ads', data);
+    }
   },
 
   async updateNativeAd(id: string, data: {
     title?: string;
     description?: string;
     image_url?: string;
+    image?: File;
     link_url?: string;
     position?: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
     type?: 'sponsored' | 'advertisement' | 'promoted';
@@ -924,7 +944,25 @@ export const apiService = {
     end_date?: string;
     priority?: number;
   }): Promise<{ message: string; data: NativeAd }> {
-    return api.put(`/admin/native-ads/${id}`, data);
+    // Use FormData if file is present, otherwise use JSON
+    if (data.image) {
+      const formData = new FormData();
+      if (data.title) formData.append('title', data.title);
+      if (data.link_url) formData.append('link_url', data.link_url);
+      if (data.position) formData.append('position', data.position);
+      if (data.type) formData.append('type', data.type);
+      if (data.description !== undefined) formData.append('description', data.description || '');
+      formData.append('image', data.image);
+      if (data.image_url) formData.append('image_url', data.image_url);
+      if (data.advertiser_name !== undefined) formData.append('advertiser_name', data.advertiser_name || '');
+      if (data.is_active !== undefined) formData.append('is_active', data.is_active ? '1' : '0');
+      if (data.start_date) formData.append('start_date', data.start_date);
+      if (data.end_date) formData.append('end_date', data.end_date);
+      if (data.priority !== undefined) formData.append('priority', data.priority.toString());
+      return api.put(`/admin/native-ads/${id}`, formData);
+    } else {
+      return api.put(`/admin/native-ads/${id}`, data);
+    }
   },
 
   async deleteNativeAd(id: string): Promise<{ message: string }> {

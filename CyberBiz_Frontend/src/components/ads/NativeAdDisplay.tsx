@@ -12,6 +12,7 @@ interface NativeAdDisplayProps {
 export function NativeAdDisplay({ position, className = '', limit = 1 }: NativeAdDisplayProps) {
   const [ads, setAds] = useState<NativeAd[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     fetchAds();
@@ -19,11 +20,21 @@ export function NativeAdDisplay({ position, className = '', limit = 1 }: NativeA
 
   const fetchAds = async () => {
     setIsLoading(true);
+    setHasError(false);
     try {
       const response = await apiService.getNativeAds({ position, limit });
-      setAds(response.data);
+      // Ensure we have an array
+      const adsData = Array.isArray(response.data) ? response.data : [];
+      setAds(adsData);
+      
+      // If no ads found but no error, that's OK - component will hide itself
+      if (adsData.length === 0) {
+        // Silently handle - no ads for this position
+      }
     } catch (error) {
-      console.error('Error fetching native ads:', error);
+      // Only set error if it's a real error, not just no ads
+      setHasError(true);
+      setAds([]);
     } finally {
       setIsLoading(false);
     }
@@ -35,18 +46,26 @@ export function NativeAdDisplay({ position, className = '', limit = 1 }: NativeA
       // Open in new tab
       window.open(response.redirect_url, '_blank', 'noopener,noreferrer');
     } catch (error) {
-      console.error('Error tracking click:', error);
       // Still open the link even if tracking fails
       window.open(ad.link_url, '_blank', 'noopener,noreferrer');
     }
   };
 
-  if (isLoading || ads.length === 0) {
+  // Don't render anything if loading or error (but allow empty array - no ads is valid)
+  if (isLoading || hasError) {
+    return null;
+  }
+  
+  // If no ads found, don't render anything
+  if (ads.length === 0) {
     return null;
   }
 
+  // For footer position, display ads in a grid
+  const isFooterPosition = position === 'footer';
+  
   return (
-    <div className={`native-ad-container ${className}`}>
+    <div className={`native-ad-container ${isFooterPosition ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'} ${className}`}>
       {ads.map((ad) => (
         <div
           key={ad.id}

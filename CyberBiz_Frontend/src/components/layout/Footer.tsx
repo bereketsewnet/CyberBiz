@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
 import { apiService } from '@/services/apiService';
 import { NewsletterSignup } from '@/components/newsletter/NewsletterSignup';
+import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 
 interface SiteSettings {
   address?: string;
@@ -37,6 +38,11 @@ export function Footer() {
   return (
     <footer className="py-12 border-t" style={{ backgroundColor: '#0F172A', color: '#CBD5E1', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Footer Native Ads - Limit to 5 ads max to avoid cluttering */}
+        <div className="mb-12">
+          <NativeAdDisplay position="footer" limit={5} />
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">

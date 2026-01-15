@@ -19,6 +19,7 @@ export default function AdminEditNativeAdPage() {
   const [ad, setAd] = useState<NativeAd | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -59,7 +60,6 @@ export default function AdminEditNativeAdPage() {
         priority: adData.priority,
       });
     } catch (error) {
-      console.error('Error fetching native ad:', error);
       toast.error('Failed to load native ad');
       navigate('/admin/native-ads');
     } finally {
@@ -69,24 +69,80 @@ export default function AdminEditNativeAdPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.link_url) {
+    setErrors({});
+
+    // Basic client-side validation for required fields
+    const newErrors: Record<string, string[]> = {};
+    if (!formData.title.trim()) {
+      newErrors.title = ['Title is required'];
+    }
+    if (!formData.link_url.trim()) {
+      newErrors.link_url = ['Link URL is required'];
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       toast.error('Please fill in all required fields');
       return;
     }
 
     setIsSaving(true);
     try {
-      await apiService.updateNativeAd(id!, {
-        ...formData,
-        start_date: formData.start_date || undefined,
-        end_date: formData.end_date || undefined,
-        priority: formData.priority || 0,
-      });
+      const submitData: any = {
+        title: formData.title.trim(),
+        link_url: formData.link_url.trim(),
+        position: formData.position,
+        type: formData.type,
+        is_active: formData.is_active,
+      };
+
+      // Only include optional fields if they have values or are being changed
+      if (formData.description !== undefined) submitData.description = formData.description.trim();
+      // Image updates are not allowed from edit page - image_url is preserved by backend
+      if (formData.advertiser_name !== undefined) submitData.advertiser_name = formData.advertiser_name.trim();
+      if (formData.start_date) submitData.start_date = formData.start_date;
+      if (formData.end_date) submitData.end_date = formData.end_date;
+      if (formData.priority !== undefined) submitData.priority = formData.priority;
+
+      await apiService.updateNativeAd(id!, submitData);
       toast.success('Native ad updated successfully!');
       navigate('/admin/native-ads');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update native ad');
+      // Handle validation errors from backend
+      // The API client attaches errors directly to the error object
+      if (error.errors) {
+        // Convert Laravel validation errors format to our format
+        // Laravel returns: { field: ["message1", "message2"] }
+        const formattedErrors: Record<string, string[]> = {};
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            formattedErrors[field] = messages;
+          } else if (typeof messages === 'string') {
+            formattedErrors[field] = [messages];
+          } else if (typeof messages === 'object' && messages !== null) {
+            // Handle nested validation errors
+            formattedErrors[field] = [String(messages)];
+          }
+        });
+        
+        setErrors(formattedErrors);
+        
+        // Show a toast with all validation errors
+        const errorMessages: string[] = [];
+        Object.entries(formattedErrors).forEach(([field, messages]) => {
+          messages.forEach((msg: string) => {
+            errorMessages.push(`${field}: ${msg}`);
+          });
+        });
+        
+        if (errorMessages.length > 0) {
+          toast.error(errorMessages.slice(0, 3).join(', ') + (errorMessages.length > 3 ? '...' : ''));
+        } else {
+          toast.error('Validation failed. Please check the form.');
+        }
+      } else {
+        toast.error(error.message || 'Failed to update native ad');
+      }
     } finally {
       setIsSaving(false);
     }
@@ -140,11 +196,17 @@ export default function AdminEditNativeAdPage() {
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, title: e.target.value });
+                      if (errors.title) setErrors({ ...errors, title: [] });
+                    }}
                     placeholder="Ad title"
-                    className="mt-1 border-slate-300"
+                    className={`mt-1 border-slate-300 ${errors.title ? 'border-red-500' : ''}`}
                     required
                   />
+                  {errors.title && errors.title.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">{errors.title[0]}</p>
+                  )}
                 </div>
 
                 <div>
@@ -152,37 +214,50 @@ export default function AdminEditNativeAdPage() {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, description: e.target.value });
+                      if (errors.description) setErrors({ ...errors, description: [] });
+                    }}
                     placeholder="Ad description"
                     rows={3}
-                    className="mt-1 border-slate-300"
+                    className={`mt-1 border-slate-300 ${errors.description ? 'border-red-500' : ''}`}
                   />
+                  {errors.description && errors.description.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">{errors.description[0]}</p>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {formData.image_url && (
                   <div>
-                    <Label htmlFor="image_url">Image URL (optional)</Label>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                      className="mt-1 border-slate-300"
-                    />
+                    <Label>Current Image</Label>
+                    <div className="mt-1 w-full h-48 border border-slate-300 rounded-md overflow-hidden bg-slate-50">
+                      <img
+                        src={formData.image_url}
+                        alt="Current ad image"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">Image cannot be updated from this page. Delete and recreate the ad to change the image.</p>
                   </div>
+                )}
 
-                  <div>
-                    <Label htmlFor="link_url">Link URL *</Label>
-                    <Input
-                      id="link_url"
-                      type="url"
-                      value={formData.link_url}
-                      onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                      placeholder="https://example.com"
-                      className="mt-1 border-slate-300"
-                      required
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="link_url">Link URL *</Label>
+                  <Input
+                    id="link_url"
+                    type="url"
+                    value={formData.link_url}
+                    onChange={(e) => {
+                      setFormData({ ...formData, link_url: e.target.value });
+                      if (errors.link_url) setErrors({ ...errors, link_url: [] });
+                    }}
+                    placeholder="https://example.com"
+                    className={`mt-1 border-slate-300 ${errors.link_url ? 'border-red-500' : ''}`}
+                    required
+                  />
+                  {errors.link_url && errors.link_url.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">{errors.link_url[0]}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,9 +265,12 @@ export default function AdminEditNativeAdPage() {
                     <Label htmlFor="position">Position *</Label>
                     <Select
                       value={formData.position}
-                      onValueChange={(value) => setFormData({ ...formData, position: value as any })}
+                      onValueChange={(value) => {
+                        setFormData({ ...formData, position: value as any });
+                        if (errors.position) setErrors({ ...errors, position: [] });
+                      }}
                     >
-                      <SelectTrigger className="mt-1 border-slate-300">
+                      <SelectTrigger className={`mt-1 border-slate-300 ${errors.position ? 'border-red-500' : ''}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -203,15 +281,21 @@ export default function AdminEditNativeAdPage() {
                         <SelectItem value="after_content">After Content</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.position && errors.position.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">{errors.position[0]}</p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="type">Type *</Label>
                     <Select
                       value={formData.type}
-                      onValueChange={(value) => setFormData({ ...formData, type: value as any })}
+                      onValueChange={(value) => {
+                        setFormData({ ...formData, type: value as any });
+                        if (errors.type) setErrors({ ...errors, type: [] });
+                      }}
                     >
-                      <SelectTrigger className="mt-1 border-slate-300">
+                      <SelectTrigger className={`mt-1 border-slate-300 ${errors.type ? 'border-red-500' : ''}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -220,6 +304,9 @@ export default function AdminEditNativeAdPage() {
                         <SelectItem value="promoted">Promoted</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.type && errors.type.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">{errors.type[0]}</p>
+                    )}
                   </div>
                 </div>
 
@@ -228,10 +315,16 @@ export default function AdminEditNativeAdPage() {
                   <Input
                     id="advertiser_name"
                     value={formData.advertiser_name}
-                    onChange={(e) => setFormData({ ...formData, advertiser_name: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, advertiser_name: e.target.value });
+                      if (errors.advertiser_name) setErrors({ ...errors, advertiser_name: [] });
+                    }}
                     placeholder="Advertiser/Sponsor name"
-                    className="mt-1 border-slate-300"
+                    className={`mt-1 border-slate-300 ${errors.advertiser_name ? 'border-red-500' : ''}`}
                   />
+                  {errors.advertiser_name && errors.advertiser_name.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">{errors.advertiser_name[0]}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -241,9 +334,23 @@ export default function AdminEditNativeAdPage() {
                       id="start_date"
                       type="datetime-local"
                       value={formData.start_date}
-                      onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                      className="mt-1 border-slate-300"
+                      onChange={(e) => {
+                        setFormData({ ...formData, start_date: e.target.value });
+                        if (errors.start_date) setErrors({ ...errors, start_date: [] });
+                      }}
+                      className={`mt-1 border-slate-300 ${errors.start_date ? 'border-red-500' : ''}`}
                     />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Leave empty to show immediately, or set a future date to schedule
+                    </p>
+                    {formData.start_date && new Date(formData.start_date) > new Date() && (
+                      <p className="text-xs text-orange-600 mt-1">
+                        ⚠️ Ad won't display until this date (currently scheduled for future)
+                      </p>
+                    )}
+                    {errors.start_date && errors.start_date.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">{errors.start_date[0]}</p>
+                    )}
                   </div>
 
                   <div>
@@ -252,9 +359,28 @@ export default function AdminEditNativeAdPage() {
                       id="end_date"
                       type="datetime-local"
                       value={formData.end_date}
-                      onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                      className="mt-1 border-slate-300"
+                      onChange={(e) => {
+                        setFormData({ ...formData, end_date: e.target.value });
+                        if (errors.end_date) setErrors({ ...errors, end_date: [] });
+                      }}
+                      className={`mt-1 border-slate-300 ${errors.end_date ? 'border-red-500' : ''}`}
                     />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Leave empty to show indefinitely, or set when ad should stop displaying
+                    </p>
+                    {formData.end_date && formData.start_date && new Date(formData.end_date) < new Date(formData.start_date) && (
+                      <p className="text-xs text-red-600 mt-1">
+                        ⚠️ End date must be after start date
+                      </p>
+                    )}
+                    {formData.end_date && new Date(formData.end_date) < new Date() && (
+                      <p className="text-xs text-red-600 mt-1">
+                        ⚠️ End date is in the past - ad won't display
+                      </p>
+                    )}
+                    {errors.end_date && errors.end_date.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">{errors.end_date[0]}</p>
+                    )}
                   </div>
                 </div>
 
@@ -265,12 +391,18 @@ export default function AdminEditNativeAdPage() {
                       id="priority"
                       type="number"
                       value={formData.priority}
-                      onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
-                      className="mt-1 border-slate-300"
+                      onChange={(e) => {
+                        setFormData({ ...formData, priority: parseInt(e.target.value) || 0 });
+                        if (errors.priority) setErrors({ ...errors, priority: [] });
+                      }}
+                      className={`mt-1 border-slate-300 ${errors.priority ? 'border-red-500' : ''}`}
                       min="0"
                       max="100"
                     />
                     <p className="text-sm text-slate-500 mt-1">Higher priority ads are shown first</p>
+                    {errors.priority && errors.priority.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">{errors.priority[0]}</p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 pt-6">

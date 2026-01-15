@@ -11,7 +11,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { FeaturedProductCard } from '@/components/products/FeaturedProductCard';
 import { apiService } from '@/services/apiService';
 import type { JobPosting, Product } from '@/types';
-import { AdDisplay } from '@/components/ads/AdDisplay';
+import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -278,8 +278,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Home Header Ad - Hidden when no ads */}
-        <AdDisplay position="HOME_HEADER" />
+        {/* Content Inline Native Ad */}
+        <section className="py-6">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <NativeAdDisplay position="content_inline" limit={1} />
+          </div>
+        </section>
 
         {/* Featured Jobs */}
         <section className="py-16 md:py-24 relative overflow-hidden" style={{ backgroundColor: '#0F172A' }}>
@@ -333,6 +337,13 @@ export default function HomePage() {
                 View All Jobs
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Between Sections Native Ad */}
+        <section className="py-6">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <NativeAdDisplay position="content_inline" limit={1} />
           </div>
         </section>
 

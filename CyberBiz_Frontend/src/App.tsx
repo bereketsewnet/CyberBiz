@@ -41,10 +41,6 @@ import AdminCreateProductPage from "./pages/admin/AdminCreateProductPage";
 import AdminEditProductPage from "./pages/admin/AdminEditProductPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminUserDetailPage from "./pages/admin/AdminUserDetailPage";
-import AdminAdsPage from "./pages/admin/AdminAdsPage";
-import AdminCreateAdPage from "./pages/admin/AdminCreateAdPage";
-import AdminEditAdPage from "./pages/admin/AdminEditAdPage";
-import AdminAdDetailPage from "./pages/admin/AdminAdDetailPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminBlogsPage from "./pages/admin/AdminBlogsPage";
 import AdminCreateBlogPage from "./pages/admin/AdminCreateBlogPage";
@@ -261,38 +257,6 @@ const App = () => (
             element={
               <ProtectedRoute role="ADMIN">
                 <AdminUserDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/ads"
-            element={
-              <ProtectedRoute role="ADMIN">
-                <AdminAdsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/ads/create"
-            element={
-              <ProtectedRoute role="ADMIN">
-                <AdminCreateAdPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/ads/:id"
-            element={
-              <ProtectedRoute role="ADMIN">
-                <AdminAdDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/ads/:id/edit"
-            element={
-              <ProtectedRoute role="ADMIN">
-                <AdminEditAdPage />
               </ProtectedRoute>
             }
           />

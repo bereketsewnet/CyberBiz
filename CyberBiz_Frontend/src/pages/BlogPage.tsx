@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Calendar, User, FileText, ArrowRight } from 'lucide-react';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
+import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 import type { Blog, BlogCategory } from '@/types';
 
 export default function BlogPage() {
@@ -132,51 +134,58 @@ export default function BlogPage() {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {blogs.map((blog) => (
-                    <motion.div
-                      key={blog.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow"
-                    >
-                      {blog.featured_image_url && (
-                        <img
-                          src={blog.featured_image_url}
-                          alt={blog.title}
-                          className="w-full h-48 object-cover"
-                        />
-                      )}
-                      <div className="p-6">
-                        {blog.category && (
-                          <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full mb-3">
-                            {blog.category.name}
-                          </span>
-                        )}
-                        <h3 className="text-xl font-semibold text-slate-900 mb-2 line-clamp-2">{blog.title}</h3>
-                        {blog.excerpt && (
-                          <p className="text-slate-600 text-sm mb-4 line-clamp-3">{blog.excerpt}</p>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
-                          {blog.author && (
-                            <span className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              {blog.author.full_name}
-                            </span>
-                          )}
-                          {blog.published_at && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(blog.published_at).toLocaleDateString()}
-                            </span>
-                          )}
+                  {blogs.map((blog, index) => (
+                    <React.Fragment key={blog.id}>
+                      {/* Show ad every 3 posts (after 3rd, 6th, etc.) */}
+                      {index > 0 && index % 3 === 0 && (
+                        <div className="col-span-full my-6">
+                          <NativeAdDisplay position="between_posts" limit={1} />
                         </div>
-                        <Link to={`/blogs/${blog.id}`}>
-                          <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-50 hover:text-slate-900">
-                            Read More <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </motion.div>
+                      )}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow"
+                      >
+                        {blog.featured_image_url && (
+                          <img
+                            src={blog.featured_image_url}
+                            alt={blog.title}
+                            className="w-full h-48 object-cover"
+                          />
+                        )}
+                        <div className="p-6">
+                          {blog.category && (
+                            <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full mb-3">
+                              {blog.category.name}
+                            </span>
+                          )}
+                          <h3 className="text-xl font-semibold text-slate-900 mb-2 line-clamp-2">{blog.title}</h3>
+                          {blog.excerpt && (
+                            <p className="text-slate-600 text-sm mb-4 line-clamp-3">{blog.excerpt}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
+                            {blog.author && (
+                              <span className="flex items-center gap-1">
+                                <User className="w-3 h-3" />
+                                {blog.author.full_name}
+                              </span>
+                            )}
+                            {blog.published_at && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(blog.published_at).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                          <Link to={`/blogs/${blog.id}`}>
+                            <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-50 hover:text-slate-900">
+                              Read More <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    </React.Fragment>
                   ))}
                 </div>
 
