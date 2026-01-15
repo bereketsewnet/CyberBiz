@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\NativeAd;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class NativeAdController extends Controller
@@ -83,7 +84,9 @@ class NativeAdController extends Controller
 
         // Filter by active status
         if ($request->has('is_active')) {
-            $query->where('is_active', $request->is_active);
+            // Convert string "true"/"false" or "1"/"0" to boolean
+            $isActive = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);
+            $query->where('is_active', $isActive);
         }
 
         // Search
@@ -122,7 +125,8 @@ class NativeAdController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'image_url' => 'nullable|url|max:255',
+            'image_url' => 'nullable|url|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'link_url' => 'required|url|max:255',
             'position' => 'required|in:content_inline,sidebar,footer,between_posts,after_content',
             'type' => 'required|in:sponsored,advertisement,promoted',
@@ -140,7 +144,26 @@ class NativeAdController extends Controller
             ], 422);
         }
 
-        $ad = NativeAd::create($validator->validated());
+        $data = $validator->validated();
+
+        // Handle image upload
+        $imageUrl = $data['image_url'] ?? null;
+        if ($request->hasFile('image')) {
+            $imageFile = $request->file('image');
+            $imagePath = $imageFile->storeAs(
+                'native-ads',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            // Generate full URL for the image
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $imageUrl = asset('storage/' . $pathWithoutPublic);
+        }
+
+        $data['image_url'] = $imageUrl;
+        unset($data['image']); // Remove file from data array
+
+        $ad = NativeAd::create($data);
 
         return response()->json([
             'message' => 'Native ad created successfully',
@@ -178,7 +201,8 @@ class NativeAdController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'image_url' => 'nullable|url|max:255',
+            'image_url' => 'nullable|url|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'link_url' => 'sometimes|required|url|max:255',
             'position' => 'sometimes|required|in:content_inline,sidebar,footer,between_posts,after_content',
             'type' => 'sometimes|required|in:sponsored,advertisement,promoted',
@@ -196,7 +220,39 @@ class NativeAdController extends Controller
             ], 422);
         }
 
-        $ad->update($validator->validated());
+        $data = $validator->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($ad->image_url) {
+                $oldPath = str_replace(asset('storage/'), '', $ad->image_url);
+                // Extract just the filename from the path
+                $oldPath = 'native-ads/' . basename($oldPath);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $imageFile = $request->file('image');
+            $imagePath = $imageFile->storeAs(
+                'native-ads',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            // Generate full URL for the image
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $data['image_url'] = asset('storage/' . $pathWithoutPublic);
+        } else if (isset($data['image_url']) && !empty($data['image_url'])) {
+            // Only update image_url if it's provided and not empty
+            // If empty string is sent, keep the existing image_url
+            $data['image_url'] = $data['image_url'];
+        }
+        // If image_url is not set or is empty, the existing value is preserved (Laravel doesn't update it)
+
+        unset($data['image']); // Remove file from data array
+
+        $ad->update($data);
 
         return response()->json([
             'message' => 'Native ad updated successfully',
