@@ -14,6 +14,9 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
+import BlogPage from "./pages/BlogPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
@@ -43,6 +46,28 @@ import AdminCreateAdPage from "./pages/admin/AdminCreateAdPage";
 import AdminEditAdPage from "./pages/admin/AdminEditAdPage";
 import AdminAdDetailPage from "./pages/admin/AdminAdDetailPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminBlogsPage from "./pages/admin/AdminBlogsPage";
+import AdminCreateBlogPage from "./pages/admin/AdminCreateBlogPage";
+import AdminEditBlogPage from "./pages/admin/AdminEditBlogPage";
+import AdminNewslettersPage from "./pages/admin/AdminNewslettersPage";
+import AdminCreateNewsletterPage from "./pages/admin/AdminCreateNewsletterPage";
+import AdminNewsletterSubscribersPage from "./pages/admin/AdminNewsletterSubscribersPage";
+import UnsubscribePage from "./pages/UnsubscribePage";
+import ServicesPage from "./pages/ServicesPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
+import AdminServicesPage from "./pages/admin/AdminServicesPage";
+import AdminCreateServicePage from "./pages/admin/AdminCreateServicePage";
+import AdminEditServicePage from "./pages/admin/AdminEditServicePage";
+import AdminServiceInquiriesPage from "./pages/admin/AdminServiceInquiriesPage";
+import AdminNativeAdsPage from "./pages/admin/AdminNativeAdsPage";
+import AdminCreateNativeAdPage from "./pages/admin/AdminCreateNativeAdPage";
+import AdminEditNativeAdPage from "./pages/admin/AdminEditNativeAdPage";
+import AdminSponsorshipPostsPage from "./pages/admin/AdminSponsorshipPostsPage";
+import AdminCreateSponsorshipPostPage from "./pages/admin/AdminCreateSponsorshipPostPage";
+import AdminEditSponsorshipPostPage from "./pages/admin/AdminEditSponsorshipPostPage";
+import AdminAffiliateProgramsPage from "./pages/admin/AdminAffiliateProgramsPage";
+import AdminCreateAffiliateProgramPage from "./pages/admin/AdminCreateAffiliateProgramPage";
+import AffiliateDashboardPage from "./pages/AffiliateDashboardPage";
 
 // Components
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -64,8 +89,13 @@ const App = () => (
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/blogs" element={<BlogPage />} />
+          <Route path="/blogs/:id" element={<BlogDetailPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/:idOrSlug" element={<ServiceDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
           {/* Protected Routes - Any authenticated user */}
           <Route
@@ -271,6 +301,160 @@ const App = () => (
             element={
               <ProtectedRoute role="ADMIN">
                 <AdminSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blogs"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminBlogsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blogs/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateBlogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blogs/:id/edit"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminEditBlogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/newsletters"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminNewslettersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/newsletters/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateNewsletterPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/newsletters/subscribers"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminNewsletterSubscribersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminServicesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateServicePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/:id/edit"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminEditServicePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/services/inquiries"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminServiceInquiriesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/native-ads"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminNativeAdsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/native-ads/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateNativeAdPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/native-ads/:id/edit"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminEditNativeAdPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sponsorship-posts"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminSponsorshipPostsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sponsorship-posts/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateSponsorshipPostPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sponsorship-posts/:id/edit"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminEditSponsorshipPostPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/affiliate/programs"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminAffiliateProgramsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/affiliate/programs/create"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminCreateAffiliateProgramPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Authenticated Routes */}
+          <Route
+            path="/affiliate/dashboard"
+            element={
+              <ProtectedRoute>
+                <AffiliateDashboardPage />
               </ProtectedRoute>
             }
           />

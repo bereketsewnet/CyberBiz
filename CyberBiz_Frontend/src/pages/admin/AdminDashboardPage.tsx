@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Briefcase, Users, CreditCard, TrendingUp, BarChart3, Settings, BookOpen, Key } from 'lucide-react';
+import { Briefcase, Users, CreditCard, TrendingUp, BarChart3, Settings, BookOpen, Key, FileText, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header, Footer } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';
@@ -11,6 +11,13 @@ const quickLinks = [
   { label: 'Pending Payments', href: '/admin/payments', icon: CreditCard },
   { label: 'Manage Jobs', href: '/admin/jobs', icon: Briefcase },
   { label: 'Manage Products', href: '/admin/products', icon: BookOpen },
+  { label: 'Manage Blogs', href: '/admin/blogs', icon: FileText },
+  { label: 'Newsletters', href: '/admin/newsletters', icon: Mail },
+  { label: 'Services & Consulting', href: '/admin/services', icon: Briefcase },
+  { label: 'Service Inquiries', href: '/admin/services/inquiries', icon: MessageSquare },
+  { label: 'Native Ads', href: '/admin/native-ads', icon: TrendingUp },
+  { label: 'Sponsorship Posts', href: '/admin/sponsorship-posts', icon: FileText },
+  { label: 'Affiliate Programs', href: '/admin/affiliate/programs', icon: TrendingUp },
   { label: 'Manage Users', href: '/admin/users', icon: Users },
   { label: 'Manage Ads', href: '/admin/ads', icon: BarChart3 },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
@@ -22,6 +29,7 @@ export default function AdminDashboardPage() {
     total_users: 0,
     total_users_change: '+0%',
     active_jobs: 0,
+    visible_jobs: 0,
     active_jobs_change: '+0%',
     revenue_etb: 0,
     revenue_change: '+0%',
@@ -107,7 +115,14 @@ export default function AdminDashboardPage() {
                 <p className="text-2xl font-bold text-slate-900 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
                   {stats.active_jobs.toLocaleString()}
                 </p>
-                <p className="text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Active Jobs</p>
+                <p className="text-sm text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Published Jobs
+                  {stats.visible_jobs !== undefined && stats.visible_jobs !== stats.active_jobs && (
+                    <span className="ml-2 text-xs text-slate-500">
+                      ({stats.visible_jobs} active)
+                    </span>
+                  )}
+                </p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -205,7 +220,7 @@ export default function AdminDashboardPage() {
                     )}
                     {index === 1 && stats.active_jobs > 0 && (
                       <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
-                        {stats.active_jobs} active
+                        {stats.active_jobs} published
                       </span>
                     )}
                   </div>

@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuthStore } from '@/store/authStore';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
+import { SocialLoginButton } from '@/components/auth/SocialLoginButton';
 
 const signupSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -259,6 +260,34 @@ export default function SignupPage() {
               <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
             </p>
           </form>
+
+          {/* Social Login Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Social Login Buttons */}
+          <div className="space-y-3">
+            <SocialLoginButton
+              provider="google"
+              onClick={() => {
+                window.location.href = apiService.getSocialLoginUrl('google');
+              }}
+              disabled={isLoading}
+            />
+            <SocialLoginButton
+              provider="facebook"
+              onClick={() => {
+                window.location.href = apiService.getSocialLoginUrl('facebook');
+              }}
+              disabled={isLoading}
+            />
+          </div>
 
           <p className="text-center text-muted-foreground mt-8">
             Already have an account?{' '}

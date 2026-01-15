@@ -6,6 +6,7 @@ export type ProductType = 'COURSE' | 'EBOOK';
 export type ProductResourceType = 'VIDEO' | 'DOCUMENT' | 'FILE';
 export type PaymentGateway = 'MANUAL' | 'CHAPA' | 'STRIPE';
 export type AdPosition = 'HOME_HEADER' | 'SIDEBAR' | 'JOBS_BANNER' | 'FOOTER';
+export type BlogStatus = 'draft' | 'published';
 
 export interface User {
   id: string;
@@ -132,4 +133,214 @@ export interface AuthResponse {
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
+}
+
+export interface BlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  blogs_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Blog {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  featured_image_url?: string;
+  category?: BlogCategory;
+  author?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  published_at?: string;
+  status: BlogStatus;
+  meta_title?: string;
+  meta_description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogComment {
+  id: number;
+  blog_id: number;
+  user: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  parent_id?: number;
+  content: string;
+  depth: number;
+  can_reply: boolean;
+  replies?: BlogComment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NewsletterSubscriber {
+  id: number;
+  email: string;
+  name?: string;
+  status: 'subscribed' | 'unsubscribed';
+  subscribed_at: string;
+  unsubscribed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Newsletter {
+  id: number;
+  subject: string;
+  content: string;
+  sent_at?: string;
+  recipient_count: number;
+  created_by: string;
+  creator?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Service {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  content?: string;
+  icon?: string;
+  image_url?: string;
+  order: number;
+  is_active: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceInquiry {
+  id: number;
+  service_id: number;
+  service?: Service;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  message: string;
+  status: 'new' | 'contacted' | 'in_progress' | 'completed' | 'cancelled';
+  admin_notes?: string;
+  assigned_to?: string;
+  assignedUser?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NativeAd {
+  id: number;
+  title: string;
+  description?: string;
+  image_url?: string;
+  link_url: string;
+  position: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
+  type: 'sponsored' | 'advertisement' | 'promoted';
+  advertiser_name?: string;
+  is_active: boolean;
+  impressions: number;
+  clicks: number;
+  start_date?: string;
+  end_date?: string;
+  priority: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SponsorshipPost {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  featured_image_url?: string;
+  sponsor_name: string;
+  sponsor_logo_url?: string;
+  sponsor_website?: string;
+  sponsor_description?: string;
+  status: 'draft' | 'published' | 'archived';
+  published_at?: string;
+  expires_at?: string;
+  priority: number;
+  created_by: string;
+  creator?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  meta_title?: string;
+  meta_description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AffiliateProgram {
+  id: number;
+  name: string;
+  description?: string;
+  type: 'percentage' | 'fixed';
+  commission_rate: number;
+  target_url: string;
+  is_active: boolean;
+  cookie_duration: number;
+  created_at: string;
+  updated_at: string;
+  links_count?: number;
+  active_links_count?: number;
+}
+
+export interface AffiliateLink {
+  id: number;
+  program_id: number;
+  program?: AffiliateProgram;
+  affiliate_id: string;
+  affiliate?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  code: string;
+  url: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  clicks_count?: number;
+  conversions_count?: number;
+  total_clicks?: number;
+  total_conversions?: number;
+  total_commission?: number;
+}
+
+export interface AffiliateConversion {
+  id: number;
+  link_id: number;
+  link?: AffiliateLink;
+  click_id?: number;
+  transaction_id?: string;
+  amount: number;
+  commission: number;
+  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  notes?: string;
+  converted_at: string;
+  created_at: string;
+  updated_at: string;
 }

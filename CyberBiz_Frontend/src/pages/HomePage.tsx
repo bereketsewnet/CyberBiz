@@ -24,7 +24,6 @@ export default function HomePage() {
     success_rate: 85,
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [heroImageError, setHeroImageError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,40 +64,60 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden" style={{ backgroundColor: '#0F172A' }}>
-          {/* Hero Image Background - Responsive Images */}
-          {!heroImageError && (
-            <>
-              {/* Mobile Image - under 480px (base/default) */}
-              <img
-                src="/CyberBizAfrica-Mobile.jpg"
-                alt="Hero background"
-                className="absolute inset-0 w-full h-full object-cover mobile:hidden"
-                onError={() => setHeroImageError(true)}
-              />
-              {/* Tablet Image - 480px to 1279px */}
-              <img
-                src="/CyberBizAfrica-Tablet.jpg"
-                alt="Hero background"
-                className="absolute inset-0 w-full h-full object-cover hidden mobile:block xl:hidden"
-                onError={() => setHeroImageError(true)}
-              />
-              {/* Desktop Image - 1280px and above */}
-              <img
-                src="/CyberBizAfrica.jpg"
-                alt="Hero background"
-                className="absolute inset-0 w-full h-full object-cover hidden xl:block"
-                onError={() => setHeroImageError(true)}
-              />
-            </>
-          )}
+          {/* Animated Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            {/* Animated gradient orbs */}
+            <div 
+              className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse"
+              style={{
+                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
+                animation: 'float 20s ease-in-out infinite',
+              }}
+            />
+            <div 
+              className="absolute top-1/2 right-0 w-96 h-96 rounded-full blur-3xl opacity-20"
+              style={{
+                background: 'radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%)',
+                animation: 'float 15s ease-in-out infinite reverse',
+              }}
+            />
+            <div 
+              className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-25"
+              style={{
+                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
+                animation: 'float 25s ease-in-out infinite',
+              }}
+            />
+          </div>
           
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60" />
+          {/* Pattern overlay */}
+          <div className="absolute inset-0 pattern-dots opacity-20" />
           
-          {/* Pattern and decorative elements */}
-          <div className="absolute inset-0 pattern-dots opacity-30" />
-          <div className="absolute top-20 right-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+          {/* Animated grid pattern */}
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '50px 50px',
+              animation: 'gridMove 20s linear infinite',
+            }}
+          />
+          
+          {/* Add CSS animations */}
+          <style>{`
+            @keyframes float {
+              0%, 100% { transform: translate(0, 0) scale(1); }
+              33% { transform: translate(30px, -30px) scale(1.1); }
+              66% { transform: translate(-20px, 20px) scale(0.9); }
+            }
+            @keyframes gridMove {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(50px, 50px); }
+            }
+          `}</style>
           
           <div className="container mx-auto px-4 lg:px-8 py-10 lg:py-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
@@ -240,21 +259,21 @@ export default function HomePage() {
                 </div>
                 <div className="text-sm text-muted-foreground">Job Seekers</div>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
                 className="group md:border-l border-border/50"
-              >
+                >
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 mb-3 group-hover:scale-110 transition-transform">
                   <TrendingUp className="w-6 h-6" />
-                </div>
-                <div className="font-display text-3xl font-bold text-foreground mb-1">
+                  </div>
+                  <div className="font-display text-3xl font-bold text-foreground mb-1">
                   {stats.success_rate}%
-                </div>
+                  </div>
                 <div className="text-sm text-muted-foreground">Success Rate</div>
-              </motion.div>
+                </motion.div>
             </div>
           </div>
         </section>
@@ -278,7 +297,7 @@ export default function HomePage() {
                 onMouseLeave={(e) => e.currentTarget.style.color = '#2563EB'}
               >
                 View All Jobs <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
+                </Link>
             </div>
 
             {isLoading ? (
@@ -339,7 +358,7 @@ export default function HomePage() {
                 onMouseLeave={(e) => e.currentTarget.style.color = '#F97316'}
               >
                 Browse All <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
+                </Link>
             </div>
 
             {isLoading ? (
@@ -633,13 +652,13 @@ export default function HomePage() {
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="text-center md:text-left">
                 <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  Ready to Hire Top Talent?
-                </h2>
+                    Ready to Hire Top Talent?
+                  </h2>
                 <p className="text-blue-100 max-w-xl" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  Post your job openings and reach thousands of qualified candidates across Africa.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4">
+                    Post your job openings and reach thousands of qualified candidates across Africa.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/signup?role=EMPLOYER"
                   className="px-6 py-3 border rounded-lg font-medium transition-colors"

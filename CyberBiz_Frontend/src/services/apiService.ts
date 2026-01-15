@@ -10,6 +10,18 @@ import type {
   AdSlot,
   PaginatedResponse,
   AuthResponse,
+  Blog,
+  BlogCategory,
+  BlogComment,
+  Newsletter,
+  NewsletterSubscriber,
+  Service,
+  ServiceInquiry,
+  NativeAd,
+  SponsorshipPost,
+  AffiliateProgram,
+  AffiliateLink,
+  AffiliateConversion,
 } from '@/types';
 
 export const apiService = {
@@ -27,6 +39,13 @@ export const apiService = {
     role?: 'SEEKER' | 'EMPLOYER' | 'LEARNER';
   }): Promise<AuthResponse> {
     return api.post<AuthResponse>('/auth/signup', data);
+  },
+
+  getSocialLoginUrl(provider: 'google' | 'facebook'): string {
+    // OAuth routes are in web.php, not api.php, so remove /api from the URL
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    const baseUrl = BASE_URL.replace('/api', '');
+    return `${baseUrl}/auth/${provider}/redirect`;
   },
 
   async getUser(): Promise<{ user: User }> {
@@ -327,6 +346,7 @@ export const apiService = {
       total_users: number;
       total_users_change: string;
       active_jobs: number;
+      visible_jobs?: number;
       active_jobs_change: string;
       revenue_etb: number;
       revenue_change: string;
@@ -334,7 +354,8 @@ export const apiService = {
       conversion_rate_change: string;
       pending_payments: number;
       active_ads: number;
-      recent_activities: Array<{
+      pending_password_resets?: number;
+      recent_activities?: Array<{
         type: string;
         action: string;
         user: string;
@@ -571,5 +592,504 @@ export const apiService = {
     };
   }> {
     return api.put('/admin/settings', data);
+  },
+
+  // ========== BLOGS ==========
+  async getBlogs(params?: {
+    page?: number;
+    per_page?: number;
+    q?: string;
+    category_id?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<Blog>> {
+    return api.get('/blogs', params);
+  },
+
+  async getAdminBlogs(params?: {
+    page?: number;
+    per_page?: number;
+    q?: string;
+    category_id?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<Blog>> {
+    return api.get('/admin/blogs', params);
+  },
+
+  async getBlog(id: string): Promise<{ data: Blog }> {
+    return api.get(`/blogs/${id}`);
+  },
+
+  async getAdminBlog(id: string): Promise<{ data: Blog }> {
+    return api.get(`/admin/blogs/${id}`);
+  },
+
+  async getBlogCategories(): Promise<{ data: BlogCategory[] }> {
+    return api.get('/blogs/categories/all');
+  },
+
+  async createBlog(data: {
+    title: string;
+    slug?: string;
+    content: string;
+    excerpt?: string;
+    featured_image_url?: string;
+    featured_image?: File;
+    category_id?: number;
+    published_at?: string;
+    status: 'draft' | 'published';
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: Blog }> {
+    // Use FormData if file is present, otherwise use JSON
+    if (data.featured_image) {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('content', data.content);
+      formData.append('status', data.status);
+      if (data.slug) formData.append('slug', data.slug);
+      if (data.excerpt) formData.append('excerpt', data.excerpt);
+      formData.append('featured_image', data.featured_image);
+      if (data.featured_image_url) formData.append('featured_image_url', data.featured_image_url);
+      if (data.category_id) formData.append('category_id', data.category_id.toString());
+      if (data.published_at) formData.append('published_at', data.published_at);
+      if (data.meta_title) formData.append('meta_title', data.meta_title);
+      if (data.meta_description) formData.append('meta_description', data.meta_description);
+      return api.post('/admin/blogs', formData);
+    } else {
+      return api.post('/admin/blogs', data);
+    }
+  },
+
+  async updateBlog(id: string, data: {
+    title?: string;
+    slug?: string;
+    content?: string;
+    excerpt?: string;
+    featured_image_url?: string;
+    featured_image?: File;
+    category_id?: number;
+    published_at?: string;
+    status?: 'draft' | 'published';
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: Blog }> {
+    // Always use FormData for updates (Laravel doesn't parse FormData correctly with PUT)
+    const formData = new FormData();
+    if (data.title !== undefined) formData.append('title', data.title);
+    if (data.content !== undefined) formData.append('content', data.content);
+    if (data.status !== undefined) formData.append('status', data.status);
+    if (data.slug !== undefined) formData.append('slug', data.slug || '');
+    if (data.excerpt !== undefined) formData.append('excerpt', data.excerpt || '');
+    if (data.featured_image) formData.append('featured_image', data.featured_image);
+    if (data.featured_image_url !== undefined) formData.append('featured_image_url', data.featured_image_url || '');
+    if (data.category_id !== undefined) formData.append('category_id', data.category_id.toString());
+    if (data.published_at !== undefined) formData.append('published_at', data.published_at || '');
+    if (data.meta_title !== undefined) formData.append('meta_title', data.meta_title || '');
+    if (data.meta_description !== undefined) formData.append('meta_description', data.meta_description || '');
+    // Use POST endpoint for FormData updates (Laravel doesn't parse FormData correctly with PUT)
+    return api.post<{ message: string; data: Blog }>(`/admin/blogs/${id}/update`, formData);
+  },
+
+  async deleteBlog(id: string): Promise<{ message: string }> {
+    return api.delete(`/admin/blogs/${id}`);
+  },
+
+  // ========== BLOG COMMENTS ==========
+  async getBlogComments(blogId: string): Promise<{ data: BlogComment[] }> {
+    return api.get(`/blogs/${blogId}/comments`);
+  },
+
+  async createBlogComment(blogId: string, data: {
+    content: string;
+    parent_id?: number;
+  }): Promise<{ message: string; data: BlogComment }> {
+    return api.post(`/blogs/${blogId}/comments`, data);
+  },
+
+  async updateBlogComment(commentId: string, data: {
+    content: string;
+  }): Promise<{ message: string; data: BlogComment }> {
+    return api.put(`/comments/${commentId}`, data);
+  },
+
+  async deleteBlogComment(commentId: string): Promise<{ message: string }> {
+    return api.delete(`/comments/${commentId}`);
+  },
+
+  // ========== NEWSLETTER ==========
+  async subscribeNewsletter(data: {
+    email: string;
+    name?: string;
+  }): Promise<{ message: string }> {
+    return api.post('/newsletter/subscribe', data);
+  },
+
+  async unsubscribeNewsletter(email: string): Promise<{ message: string }> {
+    return api.post('/newsletter/unsubscribe', { email });
+  },
+
+  async getNewsletters(params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Newsletter>> {
+    return api.get('/admin/newsletters', params);
+  },
+
+  async createNewsletter(data: {
+    subject: string;
+    content: string;
+  }): Promise<{ message: string; data: Newsletter }> {
+    return api.post('/admin/newsletters', data);
+  },
+
+  async sendNewsletter(newsletterId: string, subscriberIds?: number[]): Promise<{ message: string; data: { recipient_count: number; failed_count?: number } }> {
+    const data: any = {};
+    if (subscriberIds && subscriberIds.length > 0) {
+      data.subscriber_ids = subscriberIds;
+    }
+    return api.post(`/admin/newsletters/${newsletterId}/send`, data);
+  },
+
+  async deleteNewsletter(newsletterId: string): Promise<{ message: string }> {
+    return api.delete(`/admin/newsletters/${newsletterId}`);
+  },
+
+  async getNewsletterSubscribers(params?: {
+    page?: number;
+    per_page?: number;
+    status?: 'subscribed' | 'unsubscribed';
+    q?: string;
+  }): Promise<PaginatedResponse<NewsletterSubscriber>> {
+    return api.get('/admin/newsletters/subscribers', params);
+  },
+
+  async deleteNewsletterSubscriber(subscriberId: string): Promise<{ message: string }> {
+    return api.delete(`/admin/newsletters/subscribers/${subscriberId}`);
+  },
+
+  // ========== SERVICES ==========
+  async getServices(): Promise<{ data: Service[] }> {
+    return api.get('/services');
+  },
+
+  async getService(idOrSlug: string): Promise<{ data: Service }> {
+    return api.get(`/services/${idOrSlug}`);
+  },
+
+  async submitServiceInquiry(serviceId: string, data: {
+    name: string;
+    email: string;
+    phone?: string;
+    company?: string;
+    message: string;
+  }): Promise<{ message: string; data: ServiceInquiry }> {
+    return api.post(`/services/${serviceId}/inquiry`, data);
+  },
+
+  async getAdminServices(): Promise<{ data: Service[] }> {
+    return api.get('/admin/services');
+  },
+
+  async createService(data: {
+    title: string;
+    slug?: string;
+    description: string;
+    content?: string;
+    icon?: string;
+    image_url?: string;
+    order?: number;
+    is_active?: boolean;
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: Service }> {
+    return api.post('/admin/services', data);
+  },
+
+  async updateService(id: string, data: {
+    title?: string;
+    slug?: string;
+    description?: string;
+    content?: string;
+    icon?: string;
+    image_url?: string;
+    order?: number;
+    is_active?: boolean;
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: Service }> {
+    return api.put(`/admin/services/${id}`, data);
+  },
+
+  async deleteService(id: string): Promise<{ message: string }> {
+    return api.delete(`/admin/services/${id}`);
+  },
+
+  async getServiceInquiries(params?: {
+    page?: number;
+    per_page?: number;
+    service_id?: number;
+    status?: string;
+    q?: string;
+  }): Promise<PaginatedResponse<ServiceInquiry>> {
+    return api.get('/admin/services/inquiries', params);
+  },
+
+  async updateServiceInquiry(inquiryId: string, data: {
+    status?: 'new' | 'contacted' | 'in_progress' | 'completed' | 'cancelled';
+    admin_notes?: string;
+    assigned_to?: string;
+  }): Promise<{ message: string; data: ServiceInquiry }> {
+    return api.put(`/admin/services/inquiries/${inquiryId}`, data);
+  },
+
+  async deleteServiceInquiry(inquiryId: string): Promise<{ message: string }> {
+    return api.delete(`/admin/services/inquiries/${inquiryId}`);
+  },
+
+  // ========== NATIVE ADS ==========
+  async getNativeAds(params?: {
+    position?: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
+    limit?: number;
+  }): Promise<{ data: NativeAd[] }> {
+    return api.get('/native-ads', params);
+  },
+
+  async trackNativeAdClick(adId: string): Promise<{ message: string; redirect_url: string }> {
+    return api.post(`/native-ads/${adId}/click`);
+  },
+
+  async getAdminNativeAds(params?: {
+    page?: number;
+    per_page?: number;
+    position?: string;
+    type?: string;
+    is_active?: boolean;
+    q?: string;
+  }): Promise<PaginatedResponse<NativeAd>> {
+    return api.get('/admin/native-ads', params);
+  },
+
+  async getAdminNativeAd(id: string): Promise<{ data: NativeAd }> {
+    return api.get(`/admin/native-ads/${id}`);
+  },
+
+  async createNativeAd(data: {
+    title: string;
+    description?: string;
+    image_url?: string;
+    link_url: string;
+    position: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
+    type: 'sponsored' | 'advertisement' | 'promoted';
+    advertiser_name?: string;
+    is_active?: boolean;
+    start_date?: string;
+    end_date?: string;
+    priority?: number;
+  }): Promise<{ message: string; data: NativeAd }> {
+    return api.post('/admin/native-ads', data);
+  },
+
+  async updateNativeAd(id: string, data: {
+    title?: string;
+    description?: string;
+    image_url?: string;
+    link_url?: string;
+    position?: 'content_inline' | 'sidebar' | 'footer' | 'between_posts' | 'after_content';
+    type?: 'sponsored' | 'advertisement' | 'promoted';
+    advertiser_name?: string;
+    is_active?: boolean;
+    start_date?: string;
+    end_date?: string;
+    priority?: number;
+  }): Promise<{ message: string; data: NativeAd }> {
+    return api.put(`/admin/native-ads/${id}`, data);
+  },
+
+  async deleteNativeAd(id: string): Promise<{ message: string }> {
+    return api.delete(`/admin/native-ads/${id}`);
+  },
+
+  async resetNativeAdStats(id: string): Promise<{ message: string; data: NativeAd }> {
+    return api.post(`/admin/native-ads/${id}/reset-stats`);
+  },
+
+  // ========== SPONSORSHIP POSTS ==========
+  async getSponsorshipPosts(params?: {
+    page?: number;
+    per_page?: number;
+    q?: string;
+  }): Promise<PaginatedResponse<SponsorshipPost>> {
+    return api.get('/sponsorship-posts', params);
+  },
+
+  async getSponsorshipPost(idOrSlug: string): Promise<{ data: SponsorshipPost }> {
+    return api.get(`/sponsorship-posts/${idOrSlug}`);
+  },
+
+  async getAdminSponsorshipPosts(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    q?: string;
+  }): Promise<PaginatedResponse<SponsorshipPost>> {
+    return api.get('/admin/sponsorship-posts', params);
+  },
+
+  async getAdminSponsorshipPost(id: string): Promise<{ data: SponsorshipPost }> {
+    return api.get(`/admin/sponsorship-posts/${id}`);
+  },
+
+  async createSponsorshipPost(data: {
+    title: string;
+    slug?: string;
+    content: string;
+    excerpt?: string;
+    featured_image_url?: string;
+    sponsor_name: string;
+    sponsor_logo_url?: string;
+    sponsor_website?: string;
+    sponsor_description?: string;
+    status: 'draft' | 'published' | 'archived';
+    published_at?: string;
+    expires_at?: string;
+    priority?: number;
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: SponsorshipPost }> {
+    return api.post('/admin/sponsorship-posts', data);
+  },
+
+  async updateSponsorshipPost(id: string, data: {
+    title?: string;
+    slug?: string;
+    content?: string;
+    excerpt?: string;
+    featured_image_url?: string;
+    sponsor_name?: string;
+    sponsor_logo_url?: string;
+    sponsor_website?: string;
+    sponsor_description?: string;
+    status?: 'draft' | 'published' | 'archived';
+    published_at?: string;
+    expires_at?: string;
+    priority?: number;
+    meta_title?: string;
+    meta_description?: string;
+  }): Promise<{ message: string; data: SponsorshipPost }> {
+    return api.put(`/admin/sponsorship-posts/${id}`, data);
+  },
+
+  async deleteSponsorshipPost(id: string): Promise<{ message: string }> {
+    return api.delete(`/admin/sponsorship-posts/${id}`);
+  },
+
+  // ========== AFFILIATE ==========
+  async getAffiliatePrograms(): Promise<{ data: AffiliateProgram[] }> {
+    return api.get('/affiliate/programs');
+  },
+
+  async trackAffiliateClick(code: string): Promise<{ message: string; redirect_url: string; link_id: number }> {
+    return api.get(`/affiliate/click/${code}`);
+  },
+
+  async trackAffiliateConversion(data: {
+    transaction_id: string;
+    amount: number;
+    affiliate_code?: string;
+  }): Promise<{ message: string; data: AffiliateConversion }> {
+    return api.post('/affiliate/conversion', data);
+  },
+
+  async getAffiliateDashboard(): Promise<{
+    data: {
+      links: AffiliateLink[];
+      stats: {
+        total_links: number;
+        total_clicks: number;
+        total_conversions: number;
+        total_commission: number;
+        pending_commission: number;
+        paid_commission: number;
+      };
+    };
+  }> {
+    return api.get('/affiliate/dashboard');
+  },
+
+  async joinAffiliateProgram(programId: string): Promise<{ message: string; data: AffiliateLink }> {
+    return api.post(`/affiliate/programs/${programId}/join`);
+  },
+
+  async getAdminAffiliatePrograms(): Promise<{ data: AffiliateProgram[] }> {
+    return api.get('/admin/affiliate/programs');
+  },
+
+  async createAffiliateProgram(data: {
+    name: string;
+    description?: string;
+    type: 'percentage' | 'fixed';
+    commission_rate: number;
+    target_url: string;
+    is_active?: boolean;
+    cookie_duration?: number;
+  }): Promise<{ message: string; data: AffiliateProgram }> {
+    return api.post('/admin/affiliate/programs', data);
+  },
+
+  async updateAffiliateProgram(id: string, data: {
+    name?: string;
+    description?: string;
+    type?: 'percentage' | 'fixed';
+    commission_rate?: number;
+    target_url?: string;
+    is_active?: boolean;
+    cookie_duration?: number;
+  }): Promise<{ message: string; data: AffiliateProgram }> {
+    return api.put(`/admin/affiliate/programs/${id}`, data);
+  },
+
+  async deleteAffiliateProgram(id: string): Promise<{ message: string }> {
+    return api.delete(`/admin/affiliate/programs/${id}`);
+  },
+
+  async getAdminAffiliateLinks(params?: {
+    page?: number;
+    per_page?: number;
+    program_id?: number;
+    affiliate_id?: string;
+  }): Promise<PaginatedResponse<AffiliateLink>> {
+    return api.get('/admin/affiliate/links', params);
+  },
+
+  async getAdminAffiliateConversions(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    link_id?: number;
+  }): Promise<PaginatedResponse<AffiliateConversion>> {
+    return api.get('/admin/affiliate/conversions', params);
+  },
+
+  async updateAffiliateConversion(id: string, data: {
+    status: 'pending' | 'approved' | 'paid' | 'rejected';
+    notes?: string;
+  }): Promise<{ message: string; data: AffiliateConversion }> {
+    return api.put(`/admin/affiliate/conversions/${id}`, data);
+  },
+
+  async getAdminAffiliateStats(): Promise<{
+    data: {
+      total_programs: number;
+      active_programs: number;
+      total_links: number;
+      active_links: number;
+      total_clicks: number;
+      total_conversions: number;
+      total_commission: number;
+      pending_commission: number;
+      paid_commission: number;
+    };
+  }> {
+    return api.get('/admin/affiliate/stats');
   },
 };

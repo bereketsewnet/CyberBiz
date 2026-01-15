@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/store/authStore';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
+import { SocialLoginButton } from '@/components/auth/SocialLoginButton';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -22,11 +23,22 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const from = (location.state as { from?: string })?.from || '/dashboard';
+
+  // Check for OAuth error in query params
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      toast.error(decodeURIComponent(error));
+      // Remove error from URL
+      navigate('/login', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const {
     register,
@@ -177,6 +189,33 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          {/* Social Login Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Social Login Buttons */}
+          <div className="space-y-3">
+            <SocialLoginButton
+              provider="google"
+              onClick={() => {
+                window.location.href = apiService.getSocialLoginUrl('google');
+              }}
+              disabled={isLoading}
+            />
+            <SocialLoginButton
+              provider="facebook"
+              onClick={() => {
+                window.location.href = apiService.getSocialLoginUrl('facebook');
+              }}
+              disabled={isLoading}
+            />
+          </div>
 
           <p className="text-center text-muted-foreground mt-8">
             Don't have an account?{' '}
