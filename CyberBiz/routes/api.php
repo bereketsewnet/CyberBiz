@@ -19,6 +19,13 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductResourceController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\BlogCommentController;
+use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\NativeAdController;
+use App\Http\Controllers\Api\SponsorshipPostController;
+use App\Http\Controllers\Api\AffiliateController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -42,12 +49,51 @@ Route::get('/stats', [StatsController::class, 'index']);
 // Settings (Public)
 Route::get('/settings', [SettingsController::class, 'index']);
 
+// Blogs (Public)
+Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{id}', [BlogController::class, 'show']);
+Route::get('/blogs/categories/all', [BlogController::class, 'categories']);
+
+// Blog Comments (Public read, authenticated write)
+Route::get('/blogs/{blogId}/comments', [BlogCommentController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/blogs/{blogId}/comments', [BlogCommentController::class, 'store']);
+    Route::put('/comments/{id}', [BlogCommentController::class, 'update']);
+    Route::delete('/comments/{id}', [BlogCommentController::class, 'destroy']);
+});
+
+// Newsletter (Public subscribe/unsubscribe, Admin management)
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
+Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe']);
+
+// Services (Public)
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{id}', [ServiceController::class, 'show']);
+Route::post('/services/{serviceId}/inquiry', [ServiceController::class, 'submitInquiry']);
+
+// Native Ads (Public)
+Route::get('/native-ads', [NativeAdController::class, 'index']);
+Route::post('/native-ads/{id}/click', [NativeAdController::class, 'trackClick']);
+
+// Sponsorship Posts (Public)
+Route::get('/sponsorship-posts', [SponsorshipPostController::class, 'index']);
+Route::get('/sponsorship-posts/{id}', [SponsorshipPostController::class, 'show']);
+
+// Affiliate (Public)
+Route::get('/affiliate/programs', [AffiliateController::class, 'programs']);
+Route::get('/affiliate/click/{code}', [AffiliateController::class, 'trackClick']);
+Route::post('/affiliate/conversion', [AffiliateController::class, 'trackConversion']);
+
+// Affiliate (Authenticated)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/affiliate/dashboard', [AffiliateController::class, 'dashboard']);
+    Route::post('/affiliate/programs/{programId}/join', [AffiliateController::class, 'joinProgram']);
+});
+
 // Auth routes
 Route::post('/auth/signup', [AuthController::class, 'signup']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::get('/auth/google/redirect', [AuthController::class, 'googleRedirect']);
-Route::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -133,6 +179,56 @@ Route::middleware('auth:sanctum')->group(function () {
         // Settings Management
         Route::get('/settings', [AdminSettingsController::class, 'index']);
         Route::put('/settings', [AdminSettingsController::class, 'update']);
+
+        // Blogs Management
+        Route::get('/blogs', [BlogController::class, 'adminIndex']); // Admin-specific index that shows all blogs
+        Route::get('/blogs/{id}', [BlogController::class, 'adminShow']); // Admin-specific show that shows all blogs including drafts
+        Route::post('/blogs', [BlogController::class, 'store']);
+        Route::put('/blogs/{id}', [BlogController::class, 'update']);
+        Route::post('/blogs/{id}/update', [BlogController::class, 'update']); // POST endpoint for FormData updates
+        Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
+
+        // Newsletter Management
+        Route::get('/newsletters', [NewsletterController::class, 'index']);
+        Route::post('/newsletters', [NewsletterController::class, 'store']);
+        Route::post('/newsletters/{id}/send', [NewsletterController::class, 'send']);
+        Route::delete('/newsletters/{id}', [NewsletterController::class, 'destroy']);
+        Route::get('/newsletters/subscribers', [NewsletterController::class, 'subscribers']);
+        Route::delete('/newsletters/subscribers/{id}', [NewsletterController::class, 'deleteSubscriber']);
+
+        // Services Management
+        Route::get('/services', [ServiceController::class, 'adminIndex']);
+        Route::post('/services', [ServiceController::class, 'store']);
+        Route::put('/services/{id}', [ServiceController::class, 'update']);
+        Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
+        Route::get('/services/inquiries', [ServiceController::class, 'inquiries']);
+        Route::put('/services/inquiries/{id}', [ServiceController::class, 'updateInquiry']);
+        Route::delete('/services/inquiries/{id}', [ServiceController::class, 'deleteInquiry']);
+
+        // Native Ads Management
+        Route::get('/native-ads', [NativeAdController::class, 'adminIndex']);
+        Route::get('/native-ads/{id}', [NativeAdController::class, 'show']);
+        Route::post('/native-ads', [NativeAdController::class, 'store']);
+        Route::put('/native-ads/{id}', [NativeAdController::class, 'update']);
+        Route::delete('/native-ads/{id}', [NativeAdController::class, 'destroy']);
+        Route::post('/native-ads/{id}/reset-stats', [NativeAdController::class, 'resetStats']);
+
+        // Sponsorship Posts Management
+        Route::get('/sponsorship-posts', [SponsorshipPostController::class, 'adminIndex']);
+        Route::get('/sponsorship-posts/{id}', [SponsorshipPostController::class, 'adminShow']);
+        Route::post('/sponsorship-posts', [SponsorshipPostController::class, 'store']);
+        Route::put('/sponsorship-posts/{id}', [SponsorshipPostController::class, 'update']);
+        Route::delete('/sponsorship-posts/{id}', [SponsorshipPostController::class, 'destroy']);
+
+        // Affiliate Management
+        Route::get('/affiliate/programs', [AffiliateController::class, 'adminPrograms']);
+        Route::post('/affiliate/programs', [AffiliateController::class, 'createProgram']);
+        Route::put('/affiliate/programs/{id}', [AffiliateController::class, 'updateProgram']);
+        Route::delete('/affiliate/programs/{id}', [AffiliateController::class, 'deleteProgram']);
+        Route::get('/affiliate/links', [AffiliateController::class, 'adminLinks']);
+        Route::get('/affiliate/conversions', [AffiliateController::class, 'adminConversions']);
+        Route::put('/affiliate/conversions/{id}', [AffiliateController::class, 'updateConversion']);
+        Route::get('/affiliate/stats', [AffiliateController::class, 'adminStats']);
     });
 });
 

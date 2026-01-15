@@ -44,9 +44,9 @@ class SettingsController extends Controller
         }, $request->all());
 
         $validator = Validator::make($data, [
-            'address' => 'nullable|string|max:1000',
+            'address' => 'nullable|string',
             'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:50',
+            'phone' => 'nullable|string|max:100',
             'facebook_url' => 'nullable|url|max:255',
             'twitter_url' => 'nullable|url|max:255',
             'linkedin_url' => 'nullable|url|max:255',

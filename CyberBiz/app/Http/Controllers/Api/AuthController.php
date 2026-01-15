@@ -63,10 +63,13 @@ class AuthController extends Controller
 
     public function googleRedirect()
     {
+        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
+            return redirect(config('app.frontend_url', 'http://localhost:5173') . '/login?error=' . urlencode('Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file.'));
+        }
         return Socialite::driver('google')->redirect();
     }
 
-    public function googleCallback(Request $request): JsonResponse
+    public function googleCallback(Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -93,17 +96,56 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'Google login successful',
-                'user' => new UserResource($user),
-                'token' => $token,
-                'requires_phone' => empty($user->phone), // Frontend should prompt for phone if empty
-            ]);
+            // Redirect to frontend with token
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            return redirect($frontendUrl . '/auth/callback?token=' . urlencode($token) . '&provider=google&requires_phone=' . (empty($user->phone) ? '1' : '0'));
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Google authentication failed',
-                'error' => $e->getMessage(),
-            ], 401);
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            return redirect($frontendUrl . '/login?error=' . urlencode('Google authentication failed: ' . $e->getMessage()));
+        }
+    }
+
+    public function facebookRedirect()
+    {
+        if (empty(config('services.facebook.client_id')) || empty(config('services.facebook.client_secret'))) {
+            return redirect(config('app.frontend_url', 'http://localhost:5173') . '/login?error=' . urlencode('Facebook OAuth is not configured. Please set FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET in your .env file.'));
+        }
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function facebookCallback(Request $request)
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+
+            $user = User::where('email', $facebookUser->email)->first();
+
+            if (!$user) {
+                // Create new user
+                $user = User::create([
+                    'full_name' => $facebookUser->name,
+                    'email' => $facebookUser->email,
+                    'phone' => '', // Facebook may not provide phone
+                    'password' => null, // Social login, no password
+                    'email_verified_at' => now(),
+                    'role' => 'SEEKER',
+                ]);
+            } else {
+                // Update email verification if not already verified
+                if (!$user->email_verified_at) {
+                    $user->email_verified_at = now();
+                    $user->save();
+                }
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Redirect to frontend with token
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            return redirect($frontendUrl . '/auth/callback?token=' . urlencode($token) . '&provider=facebook&requires_phone=' . (empty($user->phone) ? '1' : '0'));
+        } catch (\Exception $e) {
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            return redirect($frontendUrl . '/login?error=' . urlencode('Facebook authentication failed: ' . $e->getMessage()));
         }
     }
 
