@@ -26,8 +26,8 @@ export function FileUpload({
 }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(value || null);
-  const [urlInput, setUrlInput] = useState<string>(value && value.startsWith('http') ? value : '');
-  const [uploadMode, setUploadMode] = useState<'upload' | 'url'>(value && value.startsWith('http') ? 'url' : 'upload');
+  const [urlInput, setUrlInput] = useState<string>((value && typeof value === 'string' && value.startsWith('http')) ? value : '');
+  const [uploadMode, setUploadMode] = useState<'upload' | 'url'>((value && typeof value === 'string' && value.startsWith('http')) ? 'url' : 'upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<'image' | 'video' | 'pdf' | 'document' | 'other' | null>(null);
 
@@ -55,25 +55,27 @@ export function FileUpload({
   // Only sync if value is an external URL (not a blob URL from file selection)
   useEffect(() => {
     if (value !== undefined) {
+      // Ensure value is a string before calling startsWith
+      const stringValue = typeof value === 'string' ? value : '';
       // Only sync if it's an external URL (http/https)
-      if (value && (value.startsWith('http') || value.startsWith('/'))) {
+      if (stringValue && (stringValue.startsWith('http') || stringValue.startsWith('/'))) {
         // External URL - sync everything
-        if (preview !== value) {
-          setPreview(value);
+        if (preview !== stringValue) {
+          setPreview(stringValue);
         }
-        setUrlInput(value);
+        setUrlInput(stringValue);
         setUploadMode('url');
         setFileType(null);
         setSelectedFile(null);
-      } else if (value && value.startsWith('blob:')) {
+      } else if (stringValue && stringValue.startsWith('blob:')) {
         // Blob URL - only update if preview is different and we don't have a selectedFile
         // This prevents clearing when user selects a file
-        if (preview !== value && !selectedFile) {
-          setPreview(value);
+        if (preview !== stringValue && !selectedFile) {
+          setPreview(stringValue);
         }
         setUrlInput('');
         setUploadMode('upload');
-      } else if (!value && !selectedFile) {
+      } else if (!stringValue && !selectedFile) {
         // Empty value and no selected file - clear everything
         setPreview(null);
         setUrlInput('');

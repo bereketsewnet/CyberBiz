@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Header, Footer } from '@/components/layout';
+import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import { FileUpload } from '@/components/ui/file-upload';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
@@ -25,6 +27,7 @@ export default function AdminCreateServicePage() {
     meta_title: '',
     meta_description: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +40,57 @@ export default function AdminCreateServicePage() {
 
     setIsSaving(true);
     try {
-      await apiService.createService(formData);
+      // If image file is provided, use FormData; otherwise use JSON
+      if (imageFile) {
+        const formDataToSend = new FormData();
+        formDataToSend.append('title', formData.title);
+        if (formData.slug.trim()) {
+          formDataToSend.append('slug', formData.slug.trim());
+        }
+        formDataToSend.append('description', formData.description);
+        if (formData.content.trim()) {
+          formDataToSend.append('content', formData.content.trim());
+        }
+        if (formData.icon.trim()) {
+          formDataToSend.append('icon', formData.icon.trim());
+        }
+        formDataToSend.append('image', imageFile);
+        formDataToSend.append('order', formData.order.toString());
+        formDataToSend.append('is_active', formData.is_active ? '1' : '0');
+        if (formData.meta_title.trim()) {
+          formDataToSend.append('meta_title', formData.meta_title.trim());
+        }
+        if (formData.meta_description.trim()) {
+          formDataToSend.append('meta_description', formData.meta_description.trim());
+        }
+        await apiService.createService(formDataToSend as any);
+      } else {
+        const dataToSend: any = {
+          title: formData.title,
+          description: formData.description,
+          order: formData.order,
+          is_active: formData.is_active,
+        };
+        if (formData.slug.trim()) {
+          dataToSend.slug = formData.slug.trim();
+        }
+        if (formData.content.trim()) {
+          dataToSend.content = formData.content.trim();
+        }
+        if (formData.icon.trim()) {
+          dataToSend.icon = formData.icon.trim();
+        }
+        if (formData.image_url.trim()) {
+          dataToSend.image_url = formData.image_url.trim();
+        }
+        if (formData.meta_title.trim()) {
+          dataToSend.meta_title = formData.meta_title.trim();
+        }
+        if (formData.meta_description.trim()) {
+          dataToSend.meta_description = formData.meta_description.trim();
+        }
+        await apiService.createService(dataToSend);
+      }
       toast.success('Service created successfully!');
       navigate('/admin/services');
     } catch (error: any) {
@@ -89,7 +142,7 @@ export default function AdminCreateServicePage() {
                     id="slug"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    placeholder="service-slug"
+                    placeholder="service-slug (auto-generated if empty)"
                     className="mt-1 border-slate-300"
                   />
                   <p className="text-sm text-slate-500 mt-1">Leave empty to auto-generate from title</p>
@@ -110,13 +163,10 @@ export default function AdminCreateServicePage() {
 
                 <div>
                   <Label htmlFor="content">Content (optional)</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Detailed content (HTML supported)"
-                    rows={10}
-                    className="mt-1 border-slate-300 font-mono text-sm"
+                  <RichTextEditor
+                    value={formData.content || ''}
+                    onChange={(value) => setFormData({ ...formData, content: value })}
+                    type="product"
                   />
                 </div>
 
@@ -133,13 +183,15 @@ export default function AdminCreateServicePage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="image_url">Image URL (optional)</Label>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                      className="mt-1 border-slate-300"
+                    <Label>Image (optional)</Label>
+                    <FileUpload
+                      value={formData.image_url || ''}
+                      onChange={(file, url) => {
+                        setImageFile(file);
+                        setFormData({ ...formData, image_url: url || '' });
+                      }}
+                      accept="image/*"
+                      className="mt-1"
                     />
                   </div>
                 </div>
@@ -217,4 +269,3 @@ export default function AdminCreateServicePage() {
     </div>
   );
 }
-

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Building, Calendar, User, Search, Edit, Trash2, MessageSquare } from 'lucide-react';
+import { Mail, Phone, Building, Calendar, User, Search, Edit, Trash2, MessageSquare, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +11,14 @@ import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { ServiceInquiry, Service } from '@/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function AdminServiceInquiriesPage() {
   const [inquiries, setInquiries] = useState<ServiceInquiry[]>([]);
@@ -25,6 +34,13 @@ export default function AdminServiceInquiriesPage() {
     status: 'new' as ServiceInquiry['status'],
     admin_notes: '',
   });
+  const [responseModalOpen, setResponseModalOpen] = useState(false);
+  const [respondingInquiry, setRespondingInquiry] = useState<ServiceInquiry | null>(null);
+  const [responseFormData, setResponseFormData] = useState({
+    status: 'new' as ServiceInquiry['status'],
+    admin_notes: '',
+  });
+  const [isSavingResponse, setIsSavingResponse] = useState(false);
 
   useEffect(() => {
     fetchInquiries();
@@ -92,8 +108,41 @@ export default function AdminServiceInquiriesPage() {
       toast.success('Inquiry updated successfully');
       fetchInquiries();
       setEditingInquiry(null);
+      setEditFormData({ status: 'new', admin_notes: '' });
     } catch (error: any) {
       toast.error(error.message || 'Failed to update inquiry');
+    }
+  };
+
+  const handleOpenResponseModal = (inquiry: ServiceInquiry) => {
+    setRespondingInquiry(inquiry);
+    setResponseFormData({
+      status: inquiry.status,
+      admin_notes: inquiry.admin_notes || '',
+    });
+    setResponseModalOpen(true);
+  };
+
+  const handleSendResponse = async () => {
+    if (!respondingInquiry) return;
+
+    if (!responseFormData.admin_notes.trim()) {
+      toast.error('Please enter a response message');
+      return;
+    }
+
+    setIsSavingResponse(true);
+    try {
+      await apiService.updateServiceInquiry(respondingInquiry.id.toString(), responseFormData);
+      toast.success('Response sent successfully');
+      fetchInquiries();
+      setResponseModalOpen(false);
+      setRespondingInquiry(null);
+      setResponseFormData({ status: 'new', admin_notes: '' });
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send response');
+    } finally {
+      setIsSavingResponse(false);
     }
   };
 
@@ -307,6 +356,14 @@ export default function AdminServiceInquiriesPage() {
                               </Select>
                               <Button
                                 size="sm"
+                                onClick={() => handleOpenResponseModal(inquiry)}
+                                className="bg-primary hover:bg-accent"
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                Send Response
+                              </Button>
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 onClick={() => {
                                   setEditingInquiry(inquiry);
@@ -365,6 +422,86 @@ export default function AdminServiceInquiriesPage() {
         </div>
       </main>
       <Footer />
+
+      {/* Response Modal */}
+      <Dialog open={responseModalOpen} onOpenChange={setResponseModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Send Response</DialogTitle>
+            <DialogDescription>
+              Update status and send a response message to {respondingInquiry?.name}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="response-status">Status *</Label>
+              <Select
+                value={responseFormData.status}
+                onValueChange={(value) => setResponseFormData({ ...responseFormData, status: value as ServiceInquiry['status'] })}
+              >
+                <SelectTrigger className="mt-1 border-slate-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="contacted">Contacted</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="response-message">Response Message *</Label>
+              <Textarea
+                id="response-message"
+                value={responseFormData.admin_notes}
+                onChange={(e) => setResponseFormData({ ...responseFormData, admin_notes: e.target.value })}
+                placeholder="Enter your response message to the client (e.g., 'Yes, come to get our services')"
+                rows={6}
+                className="mt-1 border-slate-300"
+                required
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                This message will be saved as admin notes and can be viewed in the inquiry details.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setResponseModalOpen(false);
+                setRespondingInquiry(null);
+                setResponseFormData({ status: 'new', admin_notes: '' });
+              }}
+              disabled={isSavingResponse}
+              className="border-slate-300 hover:bg-slate-50"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendResponse}
+              disabled={isSavingResponse}
+              className="bg-primary hover:bg-accent"
+            >
+              {isSavingResponse ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Response
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

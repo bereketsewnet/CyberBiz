@@ -786,11 +786,19 @@ export const apiService = {
     return api.post(`/services/${serviceId}/inquiry`, data);
   },
 
+  async checkServiceInquiry(serviceId: string, email: string): Promise<{ exists: boolean; inquiry?: { id: number; status: string; created_at: string } }> {
+    return api.post(`/services/${serviceId}/inquiry/check`, { email });
+  },
+
+  async cancelServiceInquiry(serviceId: string, email: string): Promise<{ message: string }> {
+    return api.post(`/services/${serviceId}/inquiry/cancel`, { email });
+  },
+
   async getAdminServices(): Promise<{ data: Service[] }> {
     return api.get('/admin/services');
   },
 
-  async createService(data: {
+  async createService(data: FormData | {
     title: string;
     slug?: string;
     description: string;
@@ -802,10 +810,17 @@ export const apiService = {
     meta_title?: string;
     meta_description?: string;
   }): Promise<{ message: string; data: Service }> {
+    if (data instanceof FormData) {
+      return api.post('/admin/services', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
     return api.post('/admin/services', data);
   },
 
-  async updateService(id: string, data: {
+  async updateService(id: string, data: FormData | {
     title?: string;
     slug?: string;
     description?: string;
@@ -817,6 +832,13 @@ export const apiService = {
     meta_title?: string;
     meta_description?: string;
   }): Promise<{ message: string; data: Service }> {
+    if (data instanceof FormData) {
+      return api.post(`/admin/services/${id}/update`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
     return api.put(`/admin/services/${id}`, data);
   },
 

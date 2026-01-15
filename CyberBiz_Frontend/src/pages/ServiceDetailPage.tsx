@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mail, Phone, Building, MessageSquare, Briefcase, Code, Palette, BarChart3, Globe, Smartphone, Zap } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Building, MessageSquare, Briefcase, Code, Palette, BarChart3, Globe, Smartphone, Zap, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +27,8 @@ export default function ServiceDetailPage() {
   const [service, setService] = useState<Service | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [existingInquiry, setExistingInquiry] = useState<{ id: number; status: string; created_at: string } | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -41,6 +43,18 @@ export default function ServiceDetailPage() {
     }
   }, [idOrSlug]);
 
+  useEffect(() => {
+    // Check for existing inquiry when email is entered
+    if (formData.email && service) {
+      const timeoutId = setTimeout(() => {
+        checkExistingInquiry();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setExistingInquiry(null);
+    }
+  }, [formData.email, service]);
+
   const fetchService = async () => {
     setIsLoading(true);
     try {
@@ -54,11 +68,32 @@ export default function ServiceDetailPage() {
     }
   };
 
+  const checkExistingInquiry = async () => {
+    if (!service || !formData.email) return;
+    
+    try {
+      const response = await apiService.checkServiceInquiry(service.id.toString(), formData.email);
+      if (response.exists && response.inquiry) {
+        setExistingInquiry(response.inquiry);
+      } else {
+        setExistingInquiry(null);
+      }
+    } catch (error) {
+      // Silently fail - just don't show existing inquiry
+      setExistingInquiry(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.message) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (existingInquiry) {
+      toast.error('You have already submitted an inquiry for this service. Please wait for our response.');
       return;
     }
 
@@ -73,10 +108,37 @@ export default function ServiceDetailPage() {
         company: '',
         message: '',
       });
+      setExistingInquiry(null);
+      // Re-check to update existing inquiry state
+      setTimeout(() => checkExistingInquiry(), 1000);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to submit inquiry');
+      if (error.response?.status === 409) {
+        toast.error('You have already submitted an inquiry for this service. Please wait for our response.');
+        checkExistingInquiry();
+      } else {
+        toast.error(error.message || 'Failed to submit inquiry');
+      }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelInquiry = async () => {
+    if (!service || !formData.email || !existingInquiry) return;
+
+    if (!confirm('Are you sure you want to cancel this inquiry? You can submit a new one later if needed.')) {
+      return;
+    }
+
+    setIsCancelling(true);
+    try {
+      await apiService.cancelServiceInquiry(service.id.toString(), formData.email);
+      toast.success('Inquiry cancelled successfully');
+      setExistingInquiry(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to cancel inquiry');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -200,6 +262,44 @@ export default function ServiceDetailPage() {
                   Fill out the form below and we'll get back to you as soon as possible.
                 </p>
 
+                {/* Existing Inquiry Alert */}
+                {existingInquiry && (
+                  <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="text-sm font-semibold text-yellow-900 mb-1">
+                          You have already submitted an inquiry for this service
+                        </h3>
+                        <p className="text-sm text-yellow-700 mb-2">
+                          Status: <span className="font-medium capitalize">{existingInquiry.status.replace('_', ' ')}</span>
+                        </p>
+                        <p className="text-xs text-yellow-600">
+                          Submitted on: {new Date(existingInquiry.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCancelInquiry}
+                        disabled={isCancelling}
+                        className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        {isCancelling ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                            Cancelling...
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4 mr-2" />
+                            Cancel Inquiry
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -256,16 +356,17 @@ export default function ServiceDetailPage() {
                       rows={6}
                       className="mt-1 border-slate-300"
                       required
+                      disabled={!!existingInquiry}
                     />
                   </div>
 
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !!existingInquiry}
                     className="w-full bg-primary hover:bg-accent"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
-                    {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
+                    {isSubmitting ? 'Submitting...' : existingInquiry ? 'Inquiry Already Submitted' : 'Submit Inquiry'}
                   </Button>
                 </form>
               </motion.div>
@@ -277,4 +378,3 @@ export default function ServiceDetailPage() {
     </div>
   );
 }
-
