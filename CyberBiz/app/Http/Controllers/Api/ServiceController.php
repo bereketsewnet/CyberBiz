@@ -69,6 +69,18 @@ class ServiceController extends Controller
             ], 422);
         }
 
+        // Check for existing inquiry (same email + service, not cancelled)
+        $existingInquiry = ServiceInquiry::where('service_id', $service->id)
+            ->where('email', $request->email)
+            ->where('status', '!=', 'cancelled')
+            ->first();
+
+        if ($existingInquiry) {
+            return response()->json([
+                'message' => 'You have already submitted an inquiry for this service. Please wait for our response or contact us directly.',
+            ], 409);
+        }
+
         $inquiry = ServiceInquiry::create([
             'service_id' => $service->id,
             'name' => $request->name,
@@ -118,6 +130,7 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'content' => 'nullable|string',
             'icon' => 'nullable|string|max:255',
+            'image' => 'nullable|image|max:5120', // 5MB max
             'image_url' => 'nullable|url|max:255',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
@@ -132,7 +145,37 @@ class ServiceController extends Controller
             ], 422);
         }
 
-        $service = Service::create($validator->validated());
+        $data = $validator->validated();
+
+        // Handle slug generation if empty
+        if (empty($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['title']);
+            // Ensure uniqueness
+            $baseSlug = $data['slug'];
+            $counter = 1;
+            while (Service::where('slug', $data['slug'])->exists()) {
+                $data['slug'] = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+        }
+
+        // Handle image upload
+        $imageUrl = $data['image_url'] ?? null;
+        if ($request->hasFile('image')) {
+            $imageFile = $request->file('image');
+            $imagePath = $imageFile->storeAs(
+                'services',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $imageUrl = asset('storage/' . $pathWithoutPublic);
+        }
+
+        $data['image_url'] = $imageUrl;
+        unset($data['image']); // Remove file from data array
+
+        $service = Service::create($data);
 
         return response()->json([
             'message' => 'Service created successfully',
@@ -157,6 +200,7 @@ class ServiceController extends Controller
             'description' => 'sometimes|required|string',
             'content' => 'nullable|string',
             'icon' => 'nullable|string|max:255',
+            'image' => 'nullable|image|max:5120', // 5MB max
             'image_url' => 'nullable|url|max:255',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
@@ -171,7 +215,44 @@ class ServiceController extends Controller
             ], 422);
         }
 
-        $service->update($validator->validated());
+        $data = $validator->validated();
+
+        // Handle slug: if empty string is sent, auto-generate from title
+        if (isset($data['slug']) && $data['slug'] === '') {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['title'] ?? $service->title);
+            // Ensure uniqueness
+            $baseSlug = $data['slug'];
+            $counter = 1;
+            while (Service::where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
+                $data['slug'] = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($service->image_url) {
+                $oldImagePath = str_replace(asset('storage/'), '', $service->image_url);
+                $fullPath = storage_path('app/public/' . $oldImagePath);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+
+            $imageFile = $request->file('image');
+            $imagePath = $imageFile->storeAs(
+                'services',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $data['image_url'] = asset('storage/' . $pathWithoutPublic);
+        }
+
+        unset($data['image']); // Remove file from data array
+
+        $service->update($data);
 
         return response()->json([
             'message' => 'Service updated successfully',
@@ -288,6 +369,79 @@ class ServiceController extends Controller
 
         return response()->json([
             'message' => 'Inquiry deleted successfully',
+        ]);
+    }
+
+    /**
+     * Cancel an inquiry (public - by email verification)
+     */
+    public function cancelInquiry(Request $request, string $serviceId): JsonResponse
+    {
+        $service = Service::findOrFail($serviceId);
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $inquiry = ServiceInquiry::where('service_id', $service->id)
+            ->where('email', $request->email)
+            ->where('status', '!=', 'cancelled')
+            ->latest()
+            ->first();
+
+        if (!$inquiry) {
+            return response()->json([
+                'message' => 'No active inquiry found for this email and service.',
+            ], 404);
+        }
+
+        $inquiry->update([
+            'status' => 'cancelled',
+        ]);
+
+        return response()->json([
+            'message' => 'Inquiry cancelled successfully',
+        ]);
+    }
+
+    /**
+     * Check if user has existing inquiry for a service
+     */
+    public function checkInquiry(Request $request, string $serviceId): JsonResponse
+    {
+        $service = Service::findOrFail($serviceId);
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $inquiry = ServiceInquiry::where('service_id', $service->id)
+            ->where('email', $request->email)
+            ->where('status', '!=', 'cancelled')
+            ->latest()
+            ->first();
+
+        return response()->json([
+            'exists' => $inquiry !== null,
+            'inquiry' => $inquiry ? [
+                'id' => $inquiry->id,
+                'status' => $inquiry->status,
+                'created_at' => $inquiry->created_at,
+            ] : null,
         ]);
     }
 }

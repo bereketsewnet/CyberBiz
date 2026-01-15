@@ -21,8 +21,15 @@ class ContactController extends Controller
         ]);
 
         try {
-            // Get recipient email from .env, default to info@cyberbizafrica.com
-            $recipientEmail = env('CONTACT_EMAIL', 'bekwork65@gmail.com');
+            // Get recipient email from .env, default to config value
+            $recipientEmail = config('mail.contact_email', env('CONTACT_EMAIL', config('mail.from.address', 'info@cyberbizafrica.com')));
+
+            if (empty($recipientEmail)) {
+                Log::error('Contact form: No recipient email configured');
+                return response()->json([
+                    'message' => 'Email configuration error. Please contact the administrator.',
+                ], 500);
+            }
 
             // Send email
             Mail::to($recipientEmail)->send(
@@ -34,11 +41,14 @@ class ContactController extends Controller
                 )
             );
 
+            Log::info('Contact form email sent successfully to: ' . $recipientEmail . ' from: ' . $validated['email']);
+
             return response()->json([
                 'message' => 'Message sent successfully! We\'ll get back to you soon.',
             ], 200);
         } catch (\Exception $e) {
             Log::error('Contact form email error: ' . $e->getMessage());
+            Log::error('Contact form email stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'message' => 'Failed to send message. Please try again later or contact us directly.',

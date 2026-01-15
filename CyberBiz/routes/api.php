@@ -70,6 +70,8 @@ Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscrib
 Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/services/{id}', [ServiceController::class, 'show']);
 Route::post('/services/{serviceId}/inquiry', [ServiceController::class, 'submitInquiry']);
+Route::post('/services/{serviceId}/inquiry/cancel', [ServiceController::class, 'cancelInquiry']);
+Route::post('/services/{serviceId}/inquiry/check', [ServiceController::class, 'checkInquiry']);
 
 // Native Ads (Public)
 Route::get('/native-ads', [NativeAdController::class, 'index']);
@@ -200,6 +202,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/services', [ServiceController::class, 'adminIndex']);
         Route::post('/services', [ServiceController::class, 'store']);
         Route::put('/services/{id}', [ServiceController::class, 'update']);
+        Route::post('/services/{id}/update', [ServiceController::class, 'update']); // For FormData file uploads
         Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
         Route::get('/services/inquiries', [ServiceController::class, 'inquiries']);
         Route::put('/services/inquiries/{id}', [ServiceController::class, 'updateInquiry']);
