@@ -108,11 +108,26 @@ export default function AdminAffiliateProgramsPage() {
                         )}
                         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-3">
                           <span>
-                            Commission: {program.commission_rate}
-                            {program.type === 'percentage' ? '%' : ' ETB'} ({program.type})
+                            <strong>Commission:</strong> {program.type === 'percentage' 
+                              ? `${Number(program.commission_rate).toFixed(1)}%` 
+                              : `${Number(program.commission_rate).toFixed(2)} ETB`} ({program.type})
                           </span>
-                          <span>Cookie Duration: {program.cookie_duration} days</span>
-                          <span>Links: {program.active_links_count || 0} active / {program.links_count || 0} total</span>
+                          <span><strong>Cookie Duration:</strong> {program.cookie_duration} days</span>
+                          <span>
+                            <strong>Links:</strong> {program.active_links_count || 0} active / {program.links_count || 0} total
+                          </span>
+                          {program.total_clicks !== undefined && (
+                            <span><strong>Clicks:</strong> {program.total_clicks}</span>
+                          )}
+                          {program.total_conversions !== undefined && (
+                            <span><strong>Conversions:</strong> {program.total_conversions}</span>
+                          )}
+                          {program.total_commission !== undefined && (
+                            <span>
+                              <strong>Total Commission:</strong> {program.total_commission.toFixed(2)}
+                              {program.type === 'percentage' ? '%' : ' ETB'}
+                            </span>
+                          )}
                         </div>
                         <div className="text-sm text-slate-500">
                           <span>Target URL: </span>
@@ -149,7 +164,7 @@ export default function AdminAffiliateProgramsPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleDelete(program.id)}
-                          className="border-red-300 text-red-600 hover:bg-red-50"
+                          className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,14 @@ import { Switch } from '@/components/ui/switch';
 import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
+import type { AffiliateProgram } from '@/types';
 
-export default function AdminCreateAffiliateProgramPage() {
+export default function AdminEditAffiliateProgramPage() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [program, setProgram] = useState<AffiliateProgram | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -23,7 +28,40 @@ export default function AdminCreateAffiliateProgramPage() {
     is_active: true,
     cookie_duration: 30,
   });
-  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      fetchProgram();
+    }
+  }, [id]);
+
+  const fetchProgram = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiService.getAdminAffiliatePrograms();
+      const foundProgram = response.data.find(p => p.id.toString() === id);
+      if (foundProgram) {
+        setProgram(foundProgram);
+        setFormData({
+          name: foundProgram.name,
+          description: foundProgram.description || '',
+          type: foundProgram.type,
+          commission_rate: foundProgram.commission_rate,
+          target_url: foundProgram.target_url,
+          is_active: foundProgram.is_active,
+          cookie_duration: foundProgram.cookie_duration,
+        });
+      } else {
+        toast.error('Affiliate program not found');
+        navigate('/admin/affiliate/programs');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to load affiliate program');
+      navigate('/admin/affiliate/programs');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,15 +73,30 @@ export default function AdminCreateAffiliateProgramPage() {
 
     setIsSaving(true);
     try {
-      await apiService.createAffiliateProgram(formData);
-      toast.success('Affiliate program created successfully!');
+      await apiService.updateAffiliateProgram(id!, formData);
+      toast.success('Affiliate program updated successfully!');
       navigate('/admin/affiliate/programs');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create affiliate program');
+      toast.error(error.message || 'Failed to update affiliate program');
     } finally {
       setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <Header />
+        <main className="flex-1 bg-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading affiliate program...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -61,10 +114,10 @@ export default function AdminCreateAffiliateProgramPage() {
             </Button>
 
             <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Create Affiliate Program
+              Edit Affiliate Program
             </h1>
             <p className="text-slate-600 mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Create a new affiliate marketing program
+              Update affiliate program details
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -206,7 +259,7 @@ export default function AdminCreateAffiliateProgramPage() {
                     className="bg-primary hover:bg-accent transition-colors"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? 'Creating...' : 'Create Program'}
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </div>

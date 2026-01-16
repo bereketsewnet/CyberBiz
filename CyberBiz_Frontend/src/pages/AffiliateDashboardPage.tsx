@@ -71,9 +71,21 @@ export default function AffiliateDashboardPage() {
     },
     {
       label: 'Total Commission',
-      value: `ETB ${stats.total_commission.toFixed(2)}`,
+      value: `${stats.total_commission.toFixed(2)}`,
       icon: DollarSign,
       color: 'bg-orange-500',
+    },
+    {
+      label: 'Pending Commission',
+      value: `${stats.pending_commission.toFixed(2)}`,
+      icon: DollarSign,
+      color: 'bg-yellow-500',
+    },
+    {
+      label: 'Paid Commission',
+      value: `${stats.paid_commission.toFixed(2)}`,
+      icon: DollarSign,
+      color: 'bg-green-500',
     },
   ];
 
@@ -91,7 +103,7 @@ export default function AffiliateDashboardPage() {
             </p>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
               {statCards.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
@@ -170,13 +182,50 @@ export default function AffiliateDashboardPage() {
                             )}
                           </div>
                           <p className="text-sm text-slate-600 mb-3">
-                            Commission: {link.program?.commission_rate}
-                            {link.program?.type === 'percentage' ? '%' : ' ETB'}
+                            Commission: {link.program?.type === 'percentage' 
+                              ? `${Number(link.program?.commission_rate || 0).toFixed(1)}%` 
+                              : `${Number(link.program?.commission_rate || 0).toFixed(2)} ETB`}
                           </p>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-3">
-                            <span>Clicks: {link.clicks_count || 0}</span>
-                            <span>Conversions: {link.conversions_count || 0}</span>
-                            <span>Commission: ETB {((link as any).total_commission || 0).toFixed(2)}</span>
+                          <div className="flex flex-wrap items-center gap-4 text-sm mb-3">
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <MousePointerClick className="w-4 h-4 text-slate-400" />
+                              <span>
+                                <strong>Clicks:</strong> {link.total_clicks || link.clicks_count || 0}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <TrendingUp className="w-4 h-4 text-slate-400" />
+                              <span>
+                                <strong>Conversions:</strong> {link.total_conversions || link.conversions_count || 0}
+                              </span>
+                            </div>
+                            {link.total_commission !== undefined && link.total_commission > 0 && (
+                              <div className="flex items-center gap-2 text-slate-600">
+                                <DollarSign className="w-4 h-4 text-slate-400" />
+                                <span>
+                                  <strong>Total Commission:</strong> {link.total_commission.toFixed(2)}
+                                  {link.program?.type === 'percentage' ? '%' : ' ETB'}
+                                </span>
+                              </div>
+                            )}
+                            {link.pending_commission !== undefined && link.pending_commission > 0 && (
+                              <div className="flex items-center gap-2 text-amber-600">
+                                <DollarSign className="w-4 h-4" />
+                                <span>
+                                  <strong>Pending:</strong> {link.pending_commission.toFixed(2)}
+                                  {link.program?.type === 'percentage' ? '%' : ' ETB'}
+                                </span>
+                              </div>
+                            )}
+                            {link.paid_commission !== undefined && link.paid_commission > 0 && (
+                              <div className="flex items-center gap-2 text-green-600">
+                                <DollarSign className="w-4 h-4" />
+                                <span>
+                                  <strong>Paid:</strong> {link.paid_commission.toFixed(2)}
+                                  {link.program?.type === 'percentage' ? '%' : ' ETB'}
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="bg-slate-50 rounded-lg p-3 mb-3">
                             <p className="text-sm font-mono text-slate-700 break-all">{link.url}</p>

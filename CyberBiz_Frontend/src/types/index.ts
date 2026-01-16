@@ -306,6 +306,9 @@ export interface AffiliateProgram {
   updated_at: string;
   links_count?: number;
   active_links_count?: number;
+  total_clicks?: number;
+  total_conversions?: number;
+  total_commission?: number;
 }
 
 export interface AffiliateLink {
@@ -328,6 +331,8 @@ export interface AffiliateLink {
   total_clicks?: number;
   total_conversions?: number;
   total_commission?: number;
+  pending_commission?: number;
+  paid_commission?: number;
 }
 
 export interface AffiliateConversion {

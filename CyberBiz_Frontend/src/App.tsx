@@ -64,7 +64,11 @@ import AdminCreateSponsorshipPostPage from "./pages/admin/AdminCreateSponsorship
 import AdminEditSponsorshipPostPage from "./pages/admin/AdminEditSponsorshipPostPage";
 import AdminAffiliateProgramsPage from "./pages/admin/AdminAffiliateProgramsPage";
 import AdminCreateAffiliateProgramPage from "./pages/admin/AdminCreateAffiliateProgramPage";
+import AdminEditAffiliateProgramPage from "./pages/admin/AdminEditAffiliateProgramPage";
+import AdminAffiliateLinksPage from "./pages/admin/AdminAffiliateLinksPage";
 import AffiliateDashboardPage from "./pages/AffiliateDashboardPage";
+import AffiliateProgramsPage from "./pages/AffiliateProgramsPage";
+import AffiliateLinkRedirectPage from "./pages/AffiliateLinkRedirectPage";
 
 // Components
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -414,6 +418,22 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/affiliate/programs/:id/edit"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminEditAffiliateProgramPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/affiliate/links"
+            element={
+              <ProtectedRoute role="ADMIN">
+                <AdminAffiliateLinksPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Authenticated Routes */}
           <Route
@@ -424,6 +444,10 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+
+          {/* Public Routes - Affiliate Programs */}
+          <Route path="/affiliate/programs" element={<AffiliateProgramsPage />} />
+          <Route path="/affiliate/:code" element={<AffiliateLinkRedirectPage />} />
 
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />

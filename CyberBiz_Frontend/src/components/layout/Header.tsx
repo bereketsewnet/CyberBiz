@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, User, LogOut, Briefcase, BookOpen, LayoutDashboard, Bookmark } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Briefcase, BookOpen, LayoutDashboard, Bookmark, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
 import {
@@ -139,6 +139,19 @@ export function Header() {
                     <Bookmark className="w-4 h-4 mr-2" />
                     Saved Jobs
                   </DropdownMenuItem>
+                  {user.role !== 'ADMIN' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/affiliate/programs')}>
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Affiliate Programs
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/affiliate/dashboard')}>
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Affiliate Dashboard
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
