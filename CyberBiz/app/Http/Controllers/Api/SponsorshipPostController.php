@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SponsorshipPost;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class SponsorshipPostController extends Controller
@@ -131,9 +132,11 @@ class SponsorshipPostController extends Controller
             'slug' => 'nullable|string|max:255|unique:sponsorship_posts,slug',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:1000',
-            'featured_image_url' => 'nullable|url|max:255',
+            'featured_image_url' => 'nullable|url|max:1000',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'sponsor_name' => 'required|string|max:255',
-            'sponsor_logo_url' => 'nullable|url|max:255',
+            'sponsor_logo_url' => 'nullable|url|max:1000',
+            'sponsor_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'sponsor_website' => 'nullable|url|max:255',
             'sponsor_description' => 'nullable|string|max:2000',
             'status' => 'required|in:draft,published,archived',
@@ -152,6 +155,36 @@ class SponsorshipPostController extends Controller
         }
 
         $data = $validator->validated();
+        
+        // Handle featured image upload - Similar to BlogController
+        $featuredImageUrl = isset($data['featured_image_url']) && !empty(trim($data['featured_image_url'])) ? trim($data['featured_image_url']) : null;
+        if ($request->hasFile('featured_image')) {
+            $imageFile = $request->file('featured_image');
+            $imagePath = $imageFile->storeAs(
+                'sponsorship-posts/featured',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $featuredImageUrl = asset('storage/' . $pathWithoutPublic);
+        }
+        $data['featured_image_url'] = $featuredImageUrl;
+        unset($data['featured_image']);
+
+        // Handle sponsor logo upload - Similar to BlogController
+        $sponsorLogoUrl = isset($data['sponsor_logo_url']) && !empty(trim($data['sponsor_logo_url'])) ? trim($data['sponsor_logo_url']) : null;
+        if ($request->hasFile('sponsor_logo')) {
+            $logoFile = $request->file('sponsor_logo');
+            $logoPath = $logoFile->storeAs(
+                'sponsorship-posts/logos',
+                uniqid() . '_' . time() . '.' . $logoFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $logoPath);
+            $sponsorLogoUrl = asset('storage/' . $pathWithoutPublic);
+        }
+        $data['sponsor_logo_url'] = $sponsorLogoUrl;
+        unset($data['sponsor_logo']);
         
         // Auto-set published_at if status is published and not provided
         if ($data['status'] === 'published' && empty($data['published_at'])) {
@@ -183,9 +216,11 @@ class SponsorshipPostController extends Controller
             'slug' => 'nullable|string|max:255|unique:sponsorship_posts,slug,' . $id,
             'content' => 'sometimes|required|string',
             'excerpt' => 'nullable|string|max:1000',
-            'featured_image_url' => 'nullable|url|max:255',
+            'featured_image_url' => 'nullable|url|max:1000',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'sponsor_name' => 'sometimes|required|string|max:255',
-            'sponsor_logo_url' => 'nullable|url|max:255',
+            'sponsor_logo_url' => 'nullable|url|max:1000',
+            'sponsor_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'sponsor_website' => 'nullable|url|max:255',
             'sponsor_description' => 'nullable|string|max:2000',
             'status' => 'sometimes|required|in:draft,published,archived',
@@ -205,12 +240,67 @@ class SponsorshipPostController extends Controller
 
         $data = $validator->validated();
 
+        // Handle featured image upload - Similar to BlogController
+        if ($request->hasFile('featured_image')) {
+            // Delete old image if it's a local file
+            if ($post->featured_image_url && str_contains($post->featured_image_url, '/storage/')) {
+                $oldPath = str_replace(asset('storage/'), '', $post->featured_image_url);
+                $oldPath = 'sponsorship-posts/featured/' . basename($oldPath);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $imageFile = $request->file('featured_image');
+            $imagePath = $imageFile->storeAs(
+                'sponsorship-posts/featured',
+                uniqid() . '_' . time() . '.' . $imageFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $imagePath);
+            $data['featured_image_url'] = asset('storage/' . $pathWithoutPublic);
+        } elseif (isset($data['featured_image_url'])) {
+            // Update image URL if provided - Similar to BlogController
+            $data['featured_image_url'] = $data['featured_image_url'];
+        }
+        // If not provided, keep existing value (don't include in $data)
+        unset($data['featured_image']);
+
+        // Handle sponsor logo upload
+        if ($request->hasFile('sponsor_logo')) {
+            // Delete old logo if it's a local file
+            if ($post->sponsor_logo_url && str_contains($post->sponsor_logo_url, '/storage/')) {
+                $oldPath = str_replace(asset('storage/'), '', $post->sponsor_logo_url);
+                $oldPath = 'sponsorship-posts/logos/' . basename($oldPath);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+
+            $logoFile = $request->file('sponsor_logo');
+            $logoPath = $logoFile->storeAs(
+                'sponsorship-posts/logos',
+                uniqid() . '_' . time() . '.' . $logoFile->getClientOriginalExtension(),
+                'public'
+            );
+            $pathWithoutPublic = str_replace('public/', '', $logoPath);
+            $data['sponsor_logo_url'] = asset('storage/' . $pathWithoutPublic);
+        } elseif (isset($data['sponsor_logo_url'])) {
+            // Update logo URL if provided - Similar to BlogController
+            $data['sponsor_logo_url'] = $data['sponsor_logo_url'];
+        }
+        // If not provided, keep existing value (don't include in $data)
+        unset($data['sponsor_logo']);
+
         // Auto-set published_at if status is published and not provided
         if (isset($data['status']) && $data['status'] === 'published' && empty($data['published_at'])) {
             $data['published_at'] = now();
         }
 
         $post->update($data);
+        
+        // Refresh to get updated values
+        $post->refresh();
 
         return response()->json([
             'message' => 'Sponsorship post updated successfully',
