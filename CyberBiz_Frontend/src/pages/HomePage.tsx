@@ -86,49 +86,21 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden" style={{ backgroundColor: '#0F172A' }}>
-          {/* Animated Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-            {/* Animated gradient orbs */}
-            <div 
-              className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse"
-              style={{
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
-                animation: 'float 20s ease-in-out infinite',
-              }}
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <img 
+              src="/new-bg.jpg" 
+              alt="Background" 
+              className="w-full h-full object-cover"
+              style={{ objectPosition: 'center' }}
             />
-            <div 
-              className="absolute top-1/2 right-0 w-96 h-96 rounded-full blur-3xl opacity-20"
-              style={{
-                background: 'radial-gradient(circle, rgba(249, 115, 22, 0.3) 0%, transparent 70%)',
-                animation: 'float 15s ease-in-out infinite reverse',
-              }}
-            />
-            <div 
-              className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-25"
-              style={{
-                background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
-                animation: 'float 25s ease-in-out infinite',
-              }}
-            />
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-900/70 to-slate-900/80" />
+            {/* Subtle additional overlay for depth */}
+            <div className="absolute inset-0 bg-black/20" />
           </div>
           
-          {/* Pattern overlay */}
-          <div className="absolute inset-0 pattern-dots opacity-20" />
-          
-          {/* Animated grid pattern */}
-          <div 
-            className="absolute inset-0 opacity-10"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-              `,
-              backgroundSize: '50px 50px',
-              animation: 'gridMove 20s linear infinite',
-            }}
-          />
-          
-          {/* Add CSS animations */}
+          {/* Add CSS animations (keeping for any future use) */}
           <style>{`
             @keyframes float {
               0%, 100% { transform: translate(0, 0) scale(1); }
