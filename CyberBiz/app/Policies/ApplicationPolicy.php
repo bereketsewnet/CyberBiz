@@ -33,16 +33,18 @@ class ApplicationPolicy
      */
     public function view(User $user, Application $application): bool
     {
-        // Seeker can view their own, employer can view for their jobs, admin can view all
+        // Admin can view all
         if ($user->isAdmin()) {
             return true;
         }
         
-        if ($user->isSeeker() && $application->seeker_id === $user->id) {
+        // Allow any user to view their own applications
+        if ($application->seeker_id === $user->id) {
             return true;
         }
         
-        if ($user->isEmployer() && $application->job->employer_id === $user->id) {
+        // Allow any user to view applications for jobs they posted
+        if ($application->job->employer_id === $user->id) {
             return true;
         }
         
@@ -51,10 +53,13 @@ class ApplicationPolicy
 
     /**
      * Determine whether the user can create models.
+     * Allow any authenticated user to apply for jobs.
      */
     public function create(User $user): bool
     {
-        return $user->isSeeker();
+        // Allow any authenticated user to apply for jobs
+        // All roles (SEEKER, EMPLOYER, LEARNER, ADMIN) can create applications
+        return true;
     }
 
     /**

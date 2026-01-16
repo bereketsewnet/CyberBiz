@@ -31,10 +31,13 @@ class JobPostingPolicy
 
     /**
      * Determine whether the user can create models.
+     * Allow any authenticated user to post jobs (SEEKER, EMPLOYER, LEARNER, ADMIN).
      */
     public function create(User $user): bool
     {
-        return $user->isEmployer() || $user->isAdmin();
+        // Allow any authenticated user to post jobs
+        // All roles (SEEKER, EMPLOYER, LEARNER, ADMIN) can create job postings
+        return true;
     }
 
     /**
