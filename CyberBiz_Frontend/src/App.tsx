@@ -17,6 +17,7 @@ import SignupPage from "./pages/SignupPage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import BlogPage from "./pages/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
+import SponsorshipPostDetailPage from "./pages/SponsorshipPostDetailPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
@@ -87,6 +88,7 @@ const App = () => (
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blogs" element={<BlogPage />} />
           <Route path="/blogs/:id" element={<BlogDetailPage />} />
+          <Route path="/sponsorship-posts/:id" element={<SponsorshipPostDetailPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:idOrSlug" element={<ServiceDetailPage />} />
           <Route path="/login" element={<LoginPage />} />

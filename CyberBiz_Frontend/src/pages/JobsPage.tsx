@@ -404,17 +404,17 @@ export default function JobsPage() {
               </div>
 
               {/* Sidebar with Native Ads - Desktop */}
-              <div className="lg:col-span-1 hidden lg:block">
-                <div className="sticky top-24">
+                <div className="lg:col-span-1 hidden lg:block">
+                  <div className="sticky top-24">
                   <NativeAdDisplay position="sidebar" />
                 </div>
               </div>
             </div>
 
             {/* Bottom Native Ads - Mobile & Tablet */}
-            <div className="mt-8 lg:hidden">
+              <div className="mt-8 lg:hidden">
               <NativeAdDisplay position="sidebar" />
-            </div>
+              </div>
           </div>
         </section>
       </main>

@@ -107,7 +107,7 @@ export default function AdminCreateNativeAdPage() {
           toast.error('Validation failed. Please check the form.');
         }
       } else {
-        toast.error(error.message || 'Failed to create native ad');
+      toast.error(error.message || 'Failed to create native ad');
       }
     } finally {
       setIsSaving(false);
@@ -174,10 +174,10 @@ export default function AdminCreateNativeAdPage() {
                   )}
                 </div>
 
-                <div>
+                  <div>
                   <Label>Image (optional)</Label>
                   <FileUpload
-                    value={formData.image_url}
+                      value={formData.image_url}
                     onChange={(file, url) => {
                       setImageFile(file);
                       setFormData({ ...formData, image_url: url || '' });
@@ -202,22 +202,22 @@ export default function AdminCreateNativeAdPage() {
                   {(errors.image || errors.image_url) && (errors.image?.[0] || errors.image_url?.[0]) && (
                     <p className="text-sm text-red-500 mt-1">{errors.image?.[0] || errors.image_url?.[0]}</p>
                   )}
-                </div>
+                  </div>
 
-                <div>
-                  <Label htmlFor="link_url">Link URL *</Label>
-                  <Input
-                    id="link_url"
-                    type="url"
-                    value={formData.link_url}
+                  <div>
+                    <Label htmlFor="link_url">Link URL *</Label>
+                    <Input
+                      id="link_url"
+                      type="url"
+                      value={formData.link_url}
                     onChange={(e) => {
                       setFormData({ ...formData, link_url: e.target.value });
                       if (errors.link_url) setErrors({ ...errors, link_url: [] });
                     }}
-                    placeholder="https://example.com"
+                      placeholder="https://example.com"
                     className={`mt-1 border-slate-300 ${errors.link_url ? 'border-red-500' : ''}`}
-                    required
-                  />
+                      required
+                    />
                   {errors.link_url && errors.link_url.length > 0 && (
                     <p className="text-sm text-red-500 mt-1">{errors.link_url[0]}</p>
                   )}

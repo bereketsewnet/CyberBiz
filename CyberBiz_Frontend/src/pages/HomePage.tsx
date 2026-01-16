@@ -10,13 +10,15 @@ import { FeaturedJobCard } from '@/components/jobs/FeaturedJobCard';
 import { ProductCard } from '@/components/products/ProductCard';
 import { FeaturedProductCard } from '@/components/products/FeaturedProductCard';
 import { apiService } from '@/services/apiService';
-import type { JobPosting, Product } from '@/types';
+import { getImageUrl } from '@/lib/imageUtils';
+import type { JobPosting, Product, SponsorshipPost } from '@/types';
 import { NativeAdDisplay } from '@/components/ads/NativeAdDisplay';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredJobs, setFeaturedJobs] = useState<JobPosting[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [sponsors, setSponsors] = useState<SponsorshipPost[]>([]);
   const [stats, setStats] = useState({
     active_jobs: 0,
     companies: 0,
@@ -29,13 +31,19 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jobsRes, productsRes, statsRes] = await Promise.all([
+        const [jobsRes, productsRes, statsRes, sponsorsRes] = await Promise.all([
           apiService.getJobs({ page: 1 }),
           apiService.getProducts({ page: 1 }),
           apiService.getStats(),
+          apiService.getSponsorshipPosts({ per_page: 10 }).catch(() => {
+            return { data: [], meta: { total: 0 } };
+          }),
         ]);
+        
         setFeaturedJobs(jobsRes.data.slice(0, 4));
         setFeaturedProducts(productsRes.data.slice(0, 3));
+        const sponsorsData = sponsorsRes.data || [];
+        setSponsors(sponsorsData);
         setStats(statsRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -44,6 +52,20 @@ export default function HomePage() {
       }
     };
     fetchData();
+  }, []);
+
+  // Add CSS for hiding scrollbar in webkit browsers
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .sponsor-scroll-container::-webkit-scrollbar {
+        display: none;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -387,6 +409,108 @@ export default function HomePage() {
             )}
           </div>
         </section>
+
+        {/* Sponsors Horizontal Scroll Section */}
+        {sponsors.length > 0 && (
+          <section className="py-12 bg-slate-50 border-y border-slate-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Our Sponsors
+                </h2>
+                <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Featured sponsorship partners
+                </p>
+              </div>
+              
+              <div className="overflow-x-auto pb-4 sponsor-scroll-container" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <div className="flex gap-6" style={{ minWidth: 'max-content' }}>
+                  {sponsors.map((sponsor, index) => (
+                    <motion.div
+                      key={sponsor.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => navigate(`/sponsorship-posts/${sponsor.slug || sponsor.id}`)}
+                      className="flex-shrink-0 w-80 cursor-pointer group"
+                    >
+                      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
+                        {/* Show logo prominently if available, otherwise show featured image */}
+                        {sponsor.sponsor_logo_url ? (
+                          <div className="h-48 flex items-center justify-center bg-slate-50 p-8">
+                            <img
+                              src={getImageUrl(sponsor.sponsor_logo_url)}
+                              alt={sponsor.sponsor_name || sponsor.title}
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                // Fallback to featured image if logo fails
+                                if (sponsor.featured_image_url) {
+                                  const img = e.target as HTMLImageElement;
+                                  img.className = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300';
+                                  img.src = getImageUrl(sponsor.featured_image_url);
+                                  img.alt = sponsor.title;
+                                  img.parentElement!.className = 'h-48 overflow-hidden';
+                                } else {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }
+                              }}
+                            />
+                          </div>
+                        ) : sponsor.featured_image_url ? (
+                          <div className="h-48 overflow-hidden">
+                            <img
+                              src={getImageUrl(sponsor.featured_image_url)}
+                              alt={sponsor.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-48 flex items-center justify-center bg-slate-100">
+                            <p className="text-slate-400 text-sm">No image available</p>
+                          </div>
+                        )}
+                        <div className="p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            {sponsor.sponsor_logo_url && (
+                              <img
+                                src={getImageUrl(sponsor.sponsor_logo_url)}
+                                alt={sponsor.sponsor_name}
+                                className="w-12 h-12 rounded-full object-cover border-2 border-slate-200"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <div>
+                              <h3 className="font-semibold text-slate-900 group-hover:text-primary transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}>
+                                {sponsor.sponsor_name}
+                              </h3>
+                            </div>
+                          </div>
+                          <h4 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors line-clamp-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {sponsor.title}
+                          </h4>
+                          {sponsor.excerpt && (
+                            <p className="text-sm text-slate-600 line-clamp-3 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                              {sponsor.excerpt}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                            Read More
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Our Services Section */}
         <section className="py-16 md:py-24" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>

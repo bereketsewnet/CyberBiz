@@ -63,7 +63,7 @@ export function NativeAdDisplay({ position, className = '', limit = 1 }: NativeA
 
   // For footer position, display ads in a grid
   const isFooterPosition = position === 'footer';
-  
+
   return (
     <div className={`native-ad-container ${isFooterPosition ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'} ${className}`}>
       {ads.map((ad) => (

@@ -121,7 +121,7 @@ export function FileUpload({
         if (isImageUrl(stringValue) || accept?.includes('image')) {
           setFileType('image');
         } else {
-          setFileType(null);
+        setFileType(null);
         }
       } else if (stringValue && stringValue.startsWith('blob:')) {
         // Blob URL - only update if preview is different

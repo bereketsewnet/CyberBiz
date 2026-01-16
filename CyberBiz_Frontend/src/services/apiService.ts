@@ -926,7 +926,7 @@ export const apiService = {
       if (data.priority !== undefined) formData.append('priority', data.priority.toString());
       return api.post('/admin/native-ads', formData);
     } else {
-      return api.post('/admin/native-ads', data);
+    return api.post('/admin/native-ads', data);
     }
   },
 
@@ -961,7 +961,7 @@ export const apiService = {
       if (data.priority !== undefined) formData.append('priority', data.priority.toString());
       return api.put(`/admin/native-ads/${id}`, formData);
     } else {
-      return api.put(`/admin/native-ads/${id}`, data);
+    return api.put(`/admin/native-ads/${id}`, data);
     }
   },
 
@@ -1005,8 +1005,10 @@ export const apiService = {
     content: string;
     excerpt?: string;
     featured_image_url?: string;
+    featured_image?: File;
     sponsor_name: string;
     sponsor_logo_url?: string;
+    sponsor_logo?: File;
     sponsor_website?: string;
     sponsor_description?: string;
     status: 'draft' | 'published' | 'archived';
@@ -1016,7 +1018,29 @@ export const apiService = {
     meta_title?: string;
     meta_description?: string;
   }): Promise<{ message: string; data: SponsorshipPost }> {
+    if (data.featured_image || data.sponsor_logo) {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('content', data.content);
+      formData.append('sponsor_name', data.sponsor_name);
+      formData.append('status', data.status);
+      if (data.slug) formData.append('slug', data.slug);
+      if (data.excerpt !== undefined) formData.append('excerpt', data.excerpt || '');
+      if (data.featured_image) formData.append('featured_image', data.featured_image);
+      if (data.featured_image_url !== undefined) formData.append('featured_image_url', data.featured_image_url || '');
+      if (data.sponsor_logo) formData.append('sponsor_logo', data.sponsor_logo);
+      if (data.sponsor_logo_url !== undefined) formData.append('sponsor_logo_url', data.sponsor_logo_url || '');
+      if (data.sponsor_website !== undefined) formData.append('sponsor_website', data.sponsor_website || '');
+      if (data.sponsor_description !== undefined) formData.append('sponsor_description', data.sponsor_description || '');
+      if (data.published_at) formData.append('published_at', data.published_at);
+      if (data.expires_at) formData.append('expires_at', data.expires_at);
+      if (data.priority !== undefined) formData.append('priority', data.priority.toString());
+      if (data.meta_title !== undefined) formData.append('meta_title', data.meta_title || '');
+      if (data.meta_description !== undefined) formData.append('meta_description', data.meta_description || '');
+      return api.post('/admin/sponsorship-posts', formData);
+    } else {
     return api.post('/admin/sponsorship-posts', data);
+    }
   },
 
   async updateSponsorshipPost(id: string, data: {
@@ -1025,8 +1049,10 @@ export const apiService = {
     content?: string;
     excerpt?: string;
     featured_image_url?: string;
+    featured_image?: File;
     sponsor_name?: string;
     sponsor_logo_url?: string;
+    sponsor_logo?: File;
     sponsor_website?: string;
     sponsor_description?: string;
     status?: 'draft' | 'published' | 'archived';
@@ -1036,7 +1062,29 @@ export const apiService = {
     meta_title?: string;
     meta_description?: string;
   }): Promise<{ message: string; data: SponsorshipPost }> {
+    if (data.featured_image || data.sponsor_logo) {
+      const formData = new FormData();
+      if (data.title !== undefined) formData.append('title', data.title);
+      if (data.content !== undefined) formData.append('content', data.content);
+      if (data.sponsor_name !== undefined) formData.append('sponsor_name', data.sponsor_name);
+      if (data.status !== undefined) formData.append('status', data.status);
+      if (data.slug !== undefined) formData.append('slug', data.slug || '');
+      if (data.excerpt !== undefined) formData.append('excerpt', data.excerpt || '');
+      if (data.featured_image) formData.append('featured_image', data.featured_image);
+      if (data.featured_image_url !== undefined) formData.append('featured_image_url', data.featured_image_url || '');
+      if (data.sponsor_logo) formData.append('sponsor_logo', data.sponsor_logo);
+      if (data.sponsor_logo_url !== undefined) formData.append('sponsor_logo_url', data.sponsor_logo_url || '');
+      if (data.sponsor_website !== undefined) formData.append('sponsor_website', data.sponsor_website || '');
+      if (data.sponsor_description !== undefined) formData.append('sponsor_description', data.sponsor_description || '');
+      if (data.published_at !== undefined) formData.append('published_at', data.published_at || '');
+      if (data.expires_at !== undefined) formData.append('expires_at', data.expires_at || '');
+      if (data.priority !== undefined) formData.append('priority', data.priority.toString());
+      if (data.meta_title !== undefined) formData.append('meta_title', data.meta_title || '');
+      if (data.meta_description !== undefined) formData.append('meta_description', data.meta_description || '');
+      return api.put(`/admin/sponsorship-posts/${id}`, formData);
+    } else {
     return api.put(`/admin/sponsorship-posts/${id}`, data);
+    }
   },
 
   async deleteSponsorshipPost(id: string): Promise<{ message: string }> {
