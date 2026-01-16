@@ -68,12 +68,13 @@ export default function ProductDetailPage() {
       return;
     }
 
-    // Only LEARNER or SEEKER (JOB_SEEKER) can purchase products
-    if (user?.role !== 'LEARNER' && user?.role !== 'SEEKER') {
-      toast.error('Only learners and job seekers can purchase products. Please register with a learner or job seeker account.');
-      navigate('/signup?role=LEARNER');
-      return;
+    // Allow any authenticated user to purchase products (except admin)
+    // Admin has different access, but regular users (SEEKER, EMPLOYER, LEARNER) can all buy courses
+    if (user?.role === 'ADMIN') {
+      // Admins typically don't purchase products, but if needed they can
+      // For now, just allow it - admin can do everything
     }
+    // All other roles (SEEKER, EMPLOYER, LEARNER) can purchase products
 
     // If product is free, claim it directly
     if (product?.is_free) {

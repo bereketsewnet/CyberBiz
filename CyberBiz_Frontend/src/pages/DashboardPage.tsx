@@ -9,64 +9,35 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
 
   const getRoleSpecificContent = () => {
-    switch (user?.role) {
-      case 'ADMIN':
-        return {
-          title: 'Admin Dashboard',
-          description: 'Manage the platform, users, and payments',
-          actions: [
-            { label: 'Admin Panel', href: '/admin', icon: Users },
-            { label: 'Manage Payments', href: '/admin/payments', icon: Briefcase },
-            { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
-          ],
-        };
-      case 'SEEKER':
-        return {
-          title: 'Job Seeker Dashboard',
-          description: 'Track your applications and find new opportunities',
-          actions: [
-            { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
-            { label: 'My Applications', href: '/my-applications', icon: Users },
-            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
-            { label: 'My Library', href: '/my-library', icon: BookOpen },
-            { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
-          ],
-        };
-      case 'EMPLOYER':
-        return {
-          title: 'Employer Dashboard',
-          description: 'Manage your job postings and review applications',
-          actions: [
-            { label: 'My Jobs', href: '/my-jobs', icon: Briefcase },
-            { label: 'Post New Job', href: '/my-jobs/create', icon: Users },
-            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
-            { label: 'Browse Courses', href: '/courses', icon: BookOpen },
-            { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
-          ],
-        };
-      case 'LEARNER':
-        return {
-          title: 'Learner Dashboard',
-          description: 'Access your courses and track progress',
-          actions: [
-            { label: 'My Library', href: '/my-library', icon: BookOpen },
-            { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
-            { label: 'Browse Courses', href: '/courses', icon: BookOpen },
-            { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
-            { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
-          ],
-        };
-      default:
-        return {
-          title: 'Dashboard',
-          description: 'Welcome to CyberBiz Africa',
-          actions: [
-            { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
-            { label: 'Browse Courses', href: '/courses', icon: BookOpen },
-            { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
-          ],
-        };
+    // Admin has special dashboard
+    if (user?.role === 'ADMIN') {
+      return {
+        title: 'Admin Dashboard',
+        description: 'Manage the platform, users, and payments',
+        actions: [
+          { label: 'Admin Panel', href: '/admin', icon: Users },
+          { label: 'Manage Payments', href: '/admin/payments', icon: Briefcase },
+          { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
+        ],
+      };
     }
+
+    // All other users (SEEKER, EMPLOYER, LEARNER) can do everything
+    // They can post jobs, buy courses, apply for jobs, etc.
+    return {
+      title: `${user?.role === 'SEEKER' ? 'Job Seeker' : user?.role === 'EMPLOYER' ? 'Employer' : user?.role === 'LEARNER' ? 'Learner' : 'User'} Dashboard`,
+      description: 'Manage jobs, courses, applications, and more',
+      actions: [
+        { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
+        { label: 'My Applications', href: '/my-applications', icon: Users },
+        { label: 'My Jobs', href: '/my-jobs', icon: Briefcase },
+        { label: 'Post New Job', href: '/my-jobs/create', icon: Briefcase },
+        { label: 'My Library', href: '/my-library', icon: BookOpen },
+        { label: 'Browse Courses', href: '/courses', icon: BookOpen },
+        { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
+        { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
+      ],
+    };
   };
 
   const content = getRoleSpecificContent();
@@ -102,9 +73,10 @@ export default function DashboardPage() {
                   Welcome back, {user?.full_name?.split(' ')[0]}!
                 </h2>
                 <p className="text-slate-300" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  {user?.role === 'SEEKER' && "You're doing great! Keep applying to find your dream job."}
-                  {user?.role === 'EMPLOYER' && "Ready to find your next star employee?"}
-                  {user?.role === 'LEARNER' && "Continue learning and building your skills."}
+                  {user?.role === 'SEEKER' && "Post jobs, apply for positions, and learn new skills!"}
+                  {user?.role === 'EMPLOYER' && "Post jobs, hire talent, and expand your knowledge!"}
+                  {user?.role === 'LEARNER' && "Buy courses, apply for jobs, and grow your career!"}
+                  {user?.role !== 'SEEKER' && user?.role !== 'EMPLOYER' && user?.role !== 'LEARNER' && "Explore jobs, courses, and opportunities!"}
                 </p>
               </div>
               <div className="flex items-center gap-4">

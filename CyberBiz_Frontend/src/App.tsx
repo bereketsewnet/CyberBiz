@@ -125,11 +125,11 @@ const App = () => (
             }
           />
 
-          {/* Seeker Routes */}
+          {/* User Routes - All authenticated users (except admin) can access these */}
           <Route
             path="/my-applications"
             element={
-              <ProtectedRoute allowedRoles={['SEEKER', 'LEARNER']}>
+              <ProtectedRoute>
                 <MyApplicationsPage />
               </ProtectedRoute>
             }
@@ -137,17 +137,15 @@ const App = () => (
           <Route
             path="/my-library"
             element={
-              <ProtectedRoute allowedRoles={['SEEKER', 'LEARNER']}>
+              <ProtectedRoute>
                 <MyLibraryPage />
               </ProtectedRoute>
             }
           />
-
-          {/* Employer Routes */}
           <Route
             path="/my-jobs"
             element={
-              <ProtectedRoute role="EMPLOYER">
+              <ProtectedRoute>
                 <MyJobsPage />
               </ProtectedRoute>
             }
@@ -155,7 +153,7 @@ const App = () => (
           <Route
             path="/my-jobs/create"
             element={
-              <ProtectedRoute role="EMPLOYER">
+              <ProtectedRoute>
                 <CreateJobPage />
               </ProtectedRoute>
             }
@@ -163,7 +161,7 @@ const App = () => (
           <Route
             path="/my-jobs/:id/edit"
             element={
-              <ProtectedRoute role="EMPLOYER">
+              <ProtectedRoute>
                 <EditJobPage />
               </ProtectedRoute>
             }
@@ -171,7 +169,7 @@ const App = () => (
           <Route
             path="/my-jobs/:id/applications"
             element={
-              <ProtectedRoute role="EMPLOYER">
+              <ProtectedRoute>
                 <JobApplicationsPage />
               </ProtectedRoute>
             }
