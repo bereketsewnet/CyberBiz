@@ -137,20 +137,32 @@ class AffiliateController extends Controller
 
         $links = AffiliateLink::where('affiliate_id', $user->id)
             ->with(['program', 'clicks', 'conversions'])
+            ->withCount(['clicks', 'conversions'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
+        // Calculate statistics for each link
+        $linksData = $links->map(function ($link) {
+            $link->total_clicks = $link->clicks_count;
+            $link->total_conversions = $link->conversions->where('status', '!=', 'rejected')->count();
+            $link->total_commission = $link->conversions->where('status', '!=', 'rejected')->sum('commission');
+            $link->pending_commission = $link->conversions->where('status', 'pending')->sum('commission');
+            $link->paid_commission = $link->conversions->where('status', 'paid')->sum('commission');
+            return $link;
+        });
+
         $stats = [
-            'total_links' => $links->count(),
-            'total_clicks' => $links->sum(fn($link) => $link->clicks->count()),
-            'total_conversions' => $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->count()),
-            'total_commission' => $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->sum('commission')),
-            'pending_commission' => $links->sum(fn($link) => $link->conversions->where('status', 'pending')->sum('commission')),
-            'paid_commission' => $links->sum(fn($link) => $link->conversions->where('status', 'paid')->sum('commission')),
+            'total_links' => $linksData->count(),
+            'total_clicks' => $linksData->sum('total_clicks'),
+            'total_conversions' => $linksData->sum('total_conversions'),
+            'total_commission' => $linksData->sum('total_commission'),
+            'pending_commission' => $linksData->sum('pending_commission'),
+            'paid_commission' => $linksData->sum('paid_commission'),
         ];
 
         return response()->json([
             'data' => [
-                'links' => $links,
+                'links' => $linksData->values(),
                 'stats' => $stats,
             ],
         ]);
@@ -215,11 +227,26 @@ class AffiliateController extends Controller
         $programs = AffiliateProgram::withCount(['links', 'links as active_links_count' => function ($query) {
             $query->where('is_active', true);
         }])
+            ->with(['links.clicks', 'links.conversions'])
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Calculate total statistics for each program
+        $programsData = $programs->map(function ($program) {
+            $links = $program->links;
+            $totalClicks = $links->sum(fn($link) => $link->clicks->count());
+            $totalConversions = $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->count());
+            $totalCommission = $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->sum('commission'));
+            
+            $program->total_clicks = $totalClicks;
+            $program->total_conversions = $totalConversions;
+            $program->total_commission = $totalCommission;
+            
+            return $program;
+        });
+
         return response()->json([
-            'data' => $programs,
+            'data' => $programsData->toArray(),
         ]);
     }
 
@@ -249,7 +276,20 @@ class AffiliateController extends Controller
             ], 422);
         }
 
-        $program = AffiliateProgram::create($validator->validated());
+        $validated = $validator->validated();
+        
+        // Round commission_rate to appropriate precision based on type
+        if (isset($validated['commission_rate'])) {
+            if ($validated['type'] === 'percentage') {
+                // Round to 1 decimal place for percentage
+                $validated['commission_rate'] = round($validated['commission_rate'], 1);
+            } else {
+                // Round to 2 decimal places for fixed amount
+                $validated['commission_rate'] = round($validated['commission_rate'], 2);
+            }
+        }
+
+        $program = AffiliateProgram::create($validated);
 
         return response()->json([
             'message' => 'Affiliate program created successfully',
@@ -285,7 +325,21 @@ class AffiliateController extends Controller
             ], 422);
         }
 
-        $program->update($validator->validated());
+        $validated = $validator->validated();
+        
+        // Round commission_rate to appropriate precision based on type
+        if (isset($validated['commission_rate'])) {
+            $type = $validated['type'] ?? $program->type;
+            if ($type === 'percentage') {
+                // Round to 1 decimal place for percentage
+                $validated['commission_rate'] = round($validated['commission_rate'], 1);
+            } else {
+                // Round to 2 decimal places for fixed amount
+                $validated['commission_rate'] = round($validated['commission_rate'], 2);
+            }
+        }
+
+        $program->update($validated);
 
         return response()->json([
             'message' => 'Affiliate program updated successfully',
@@ -319,7 +373,7 @@ class AffiliateController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $query = AffiliateLink::with(['program', 'affiliate']);
+        $query = AffiliateLink::with(['program', 'affiliate', 'conversions']);
 
         if ($request->has('program_id')) {
             $query->where('program_id', $request->program_id);
@@ -333,8 +387,16 @@ class AffiliateController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
+        // Calculate total commission for each link
+        $linksData = collect($links->items())->map(function ($link) {
+            $link->total_commission = $link->conversions
+                ->where('status', '!=', 'rejected')
+                ->sum('commission');
+            return $link;
+        });
+
         return response()->json([
-            'data' => $links->items(),
+            'data' => $linksData->toArray(),
             'meta' => [
                 'current_page' => $links->currentPage(),
                 'last_page' => $links->lastPage(),

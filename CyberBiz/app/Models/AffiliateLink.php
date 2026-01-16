@@ -60,7 +60,7 @@ class AffiliateLink extends Model
      */
     public function generateUrl(): string
     {
-        $baseUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        $baseUrl = env('FRONTEND_URL', 'http://localhost:8080');
         return $baseUrl . '/affiliate/' . $this->code;
     }
 
