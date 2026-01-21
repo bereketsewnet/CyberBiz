@@ -12,6 +12,7 @@ use App\Models\AffiliateConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
@@ -125,6 +126,49 @@ class PaymentController extends Controller
         return response()->json([
             'message' => 'Payment rejected',
             'data' => new TransactionResource($transaction->load(['user', 'product'])),
+        ]);
+    }
+
+    public function destroy(Request $request, string $transactionId): JsonResponse
+    {
+        // Check authorization
+        if (!$request->user() || !$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $transaction = Transaction::findOrFail($transactionId);
+
+        // Delete related affiliate conversion if exists
+        AffiliateConversion::where('transaction_id', (string) $transaction->id)->delete();
+
+        // Delete user library entry if exists
+        if ($transaction->product_id) {
+            UserLibrary::where('user_id', $transaction->user_id)
+                ->where('product_id', $transaction->product_id)
+                ->delete();
+        }
+
+        // Delete payment proof file if exists
+        if ($transaction->gateway_ref) {
+            try {
+                $proofPath = 'proofs/' . $transaction->gateway_ref;
+                if (Storage::disk('private')->exists($proofPath)) {
+                    Storage::disk('private')->delete($proofPath);
+                }
+            } catch (\Exception $e) {
+                // Log error but continue with deletion
+                \Log::warning('Failed to delete payment proof file', [
+                    'transaction_id' => $transaction->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Delete the transaction
+        $transaction->delete();
+
+        return response()->json([
+            'message' => 'Transaction deleted successfully',
         ]);
     }
 }

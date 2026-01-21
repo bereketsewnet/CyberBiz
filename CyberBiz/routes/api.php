@@ -144,6 +144,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/payments/pending', [AdminPaymentController::class, 'pending']);
         Route::post('/payments/{transactionId}/approve', [AdminPaymentController::class, 'approve']);
         Route::post('/payments/{transactionId}/reject', [AdminPaymentController::class, 'reject']);
+        Route::delete('/payments/{transactionId}', [AdminPaymentController::class, 'destroy']);
         Route::get('/files/proof/{transactionId}', [FileController::class, 'downloadProof']);
 
         // Ad Slots Management
