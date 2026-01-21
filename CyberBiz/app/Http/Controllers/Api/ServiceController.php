@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Service;
+use App\Models\AffiliateLink;
+use App\Models\AffiliateClick;
+use App\Models\AffiliateConversion;
 use App\Models\ServiceInquiry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -90,6 +93,8 @@ class ServiceController extends Controller
             'message' => $request->message,
             'status' => 'new',
         ]);
+
+        // (Optional) Affiliate tracking for service inquiries could be added here in the future
 
         return response()->json([
             'message' => 'Inquiry submitted successfully. We will contact you soon.',

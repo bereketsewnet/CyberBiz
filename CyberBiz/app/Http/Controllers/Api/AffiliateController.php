@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AffiliateProgram;
 use App\Models\AffiliateLink;
 use App\Models\AffiliateClick;
+use App\Models\AffiliateImpression;
 use App\Models\AffiliateConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,34 @@ use Illuminate\Support\Facades\DB;
 
 class AffiliateController extends Controller
 {
+    /**
+     * Track impression for affiliate link (public)
+     */
+    public function trackImpression(Request $request, string $code): JsonResponse
+    {
+        $link = AffiliateLink::where('code', $code)
+            ->where('is_active', true)
+            ->with('program')
+            ->first();
+
+        if (!$link || !$link->program->is_active) {
+            return response()->json(['message' => 'Invalid affiliate link'], 404);
+        }
+
+        AffiliateImpression::create([
+            'link_id' => $link->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'referer' => $request->header('Referer'),
+            'country' => $this->getCountryFromIp($request->ip()),
+            'viewed_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Impression tracked',
+        ]);
+    }
+
     /**
      * Track click on affiliate link (public)
      */
@@ -136,16 +165,37 @@ class AffiliateController extends Controller
         }
 
         $links = AffiliateLink::where('affiliate_id', $user->id)
-            ->with(['program', 'clicks', 'conversions'])
-            ->withCount(['clicks', 'conversions'])
+            ->with(['program', 'clicks', 'conversions', 'impressions'])
+            ->withCount(['clicks', 'conversions', 'impressions'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Calculate statistics for each link
+        // Calculate statistics for each link (clicks, impressions, conversions, commission)
         $linksData = $links->map(function ($link) {
-            $link->total_clicks = $link->clicks_count;
+            $program = $link->program;
+
+            $clicksCount = $link->clicks_count ?? $link->clicks->count();
+            $impressionsCount = $link->impressions_count ?? $link->impressions->count();
+
+            $purchaseCommission = $link->conversions
+                ->where('status', '!=', 'rejected')
+                ->sum('commission');
+
+            $impressionCommission = $program
+                ? $program->calculateImpressionCommission($impressionsCount)
+                : 0.0;
+
+            $clickCommission = $program
+                ? $program->calculateClickCommission($clicksCount)
+                : 0.0;
+
+            $link->total_clicks = $clicksCount;
+            $link->total_impressions = $impressionsCount;
             $link->total_conversions = $link->conversions->where('status', '!=', 'rejected')->count();
-            $link->total_commission = $link->conversions->where('status', '!=', 'rejected')->sum('commission');
+            $link->purchase_commission = $purchaseCommission;
+            $link->impression_commission = $impressionCommission;
+            $link->click_commission = $clickCommission;
+            $link->total_commission = $purchaseCommission + $impressionCommission + $clickCommission;
             $link->pending_commission = $link->conversions->where('status', 'pending')->sum('commission');
             $link->paid_commission = $link->conversions->where('status', 'paid')->sum('commission');
             return $link;
@@ -224,23 +274,38 @@ class AffiliateController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $programs = AffiliateProgram::withCount(['links', 'links as active_links_count' => function ($query) {
-            $query->where('is_active', true);
-        }])
-            ->with(['links.clicks', 'links.conversions'])
+        $programs = AffiliateProgram::withCount([
+                'links',
+                'links as active_links_count' => function ($query) {
+                    $query->where('is_active', true);
+                },
+            ])
+            ->with(['links.clicks', 'links.conversions', 'links.impressions'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Calculate total statistics for each program
         $programsData = $programs->map(function ($program) {
             $links = $program->links;
+
             $totalClicks = $links->sum(fn($link) => $link->clicks->count());
+            $totalImpressions = $links->sum(fn($link) => $link->impressions->count());
             $totalConversions = $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->count());
-            $totalCommission = $links->sum(fn($link) => $link->conversions->where('status', '!=', 'rejected')->sum('commission'));
-            
+
+            $purchaseCommission = $links->sum(fn($link) =>
+                $link->conversions->where('status', '!=', 'rejected')->sum('commission')
+            );
+
+            $impressionCommission = $program->calculateImpressionCommission($totalImpressions);
+            $clickCommission = $program->calculateClickCommission($totalClicks);
+
             $program->total_clicks = $totalClicks;
+            $program->total_impressions = $totalImpressions;
             $program->total_conversions = $totalConversions;
-            $program->total_commission = $totalCommission;
+            $program->purchase_commission = $purchaseCommission;
+            $program->impression_commission = $impressionCommission;
+            $program->click_commission = $clickCommission;
+            $program->total_commission = $purchaseCommission + $impressionCommission + $clickCommission;
             
             return $program;
         });
@@ -264,6 +329,10 @@ class AffiliateController extends Controller
             'description' => 'nullable|string',
             'type' => 'required|in:percentage,fixed',
             'commission_rate' => 'required|numeric|min:0',
+            'impression_rate' => 'nullable|numeric|min:0',
+            'impression_unit' => 'nullable|integer|min:1',
+            'click_rate' => 'nullable|numeric|min:0',
+            'click_unit' => 'nullable|integer|min:1',
             'target_url' => 'required|url|max:255',
             'is_active' => 'nullable|boolean',
             'cookie_duration' => 'nullable|integer|min:1|max:365',
@@ -278,15 +347,17 @@ class AffiliateController extends Controller
 
         $validated = $validator->validated();
         
-        // Round commission_rate to appropriate precision based on type
+        // Round commission_rate to 2 decimal places
         if (isset($validated['commission_rate'])) {
-            if ($validated['type'] === 'percentage') {
-                // Round to 1 decimal place for percentage
-                $validated['commission_rate'] = round($validated['commission_rate'], 1);
-            } else {
-                // Round to 2 decimal places for fixed amount
-                $validated['commission_rate'] = round($validated['commission_rate'], 2);
-            }
+            $validated['commission_rate'] = round($validated['commission_rate'], 2);
+        }
+
+        if (isset($validated['impression_rate'])) {
+            $validated['impression_rate'] = round($validated['impression_rate'], 2);
+        }
+
+        if (isset($validated['click_rate'])) {
+            $validated['click_rate'] = round($validated['click_rate'], 2);
         }
 
         $program = AffiliateProgram::create($validated);
@@ -313,6 +384,10 @@ class AffiliateController extends Controller
             'description' => 'nullable|string',
             'type' => 'sometimes|required|in:percentage,fixed',
             'commission_rate' => 'sometimes|required|numeric|min:0',
+            'impression_rate' => 'nullable|numeric|min:0',
+            'impression_unit' => 'nullable|integer|min:1',
+            'click_rate' => 'nullable|numeric|min:0',
+            'click_unit' => 'nullable|integer|min:1',
             'target_url' => 'sometimes|required|url|max:255',
             'is_active' => 'nullable|boolean',
             'cookie_duration' => 'nullable|integer|min:1|max:365',
@@ -329,14 +404,15 @@ class AffiliateController extends Controller
         
         // Round commission_rate to appropriate precision based on type
         if (isset($validated['commission_rate'])) {
-            $type = $validated['type'] ?? $program->type;
-            if ($type === 'percentage') {
-                // Round to 1 decimal place for percentage
-                $validated['commission_rate'] = round($validated['commission_rate'], 1);
-            } else {
-                // Round to 2 decimal places for fixed amount
-                $validated['commission_rate'] = round($validated['commission_rate'], 2);
-            }
+            $validated['commission_rate'] = round($validated['commission_rate'], 2);
+        }
+
+        if (isset($validated['impression_rate'])) {
+            $validated['impression_rate'] = round($validated['impression_rate'], 2);
+        }
+
+        if (isset($validated['click_rate'])) {
+            $validated['click_rate'] = round($validated['click_rate'], 2);
         }
 
         $program->update($validated);

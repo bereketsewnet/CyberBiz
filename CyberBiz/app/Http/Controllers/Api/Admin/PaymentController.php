@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\RejectPaymentRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use App\Models\UserLibrary;
+use App\Models\AffiliateConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +73,17 @@ class PaymentController extends Controller
                     'product_id' => $transaction->product_id,
                 ], [
                     'access_granted_at' => now(),
+                ]);
+            }
+
+            // If there is an affiliate conversion for this transaction, mark it as approved
+            $conversion = AffiliateConversion::where('transaction_id', (string) $transaction->id)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($conversion) {
+                $conversion->update([
+                    'status' => 'approved',
                 ]);
             }
         });

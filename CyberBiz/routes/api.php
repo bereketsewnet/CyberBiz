@@ -83,6 +83,7 @@ Route::get('/sponsorship-posts/{id}', [SponsorshipPostController::class, 'show']
 
 // Affiliate (Public)
 Route::get('/affiliate/programs', [AffiliateController::class, 'programs']);
+Route::post('/affiliate/impression/{code}', [AffiliateController::class, 'trackImpression']);
 Route::get('/affiliate/click/{code}', [AffiliateController::class, 'trackClick']);
 Route::post('/affiliate/conversion', [AffiliateController::class, 'trackConversion']);
 

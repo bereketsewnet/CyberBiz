@@ -50,6 +50,11 @@ class AffiliateLink extends Model
         return $this->hasMany(AffiliateClick::class, 'link_id');
     }
 
+    public function impressions(): HasMany
+    {
+        return $this->hasMany(AffiliateImpression::class, 'link_id');
+    }
+
     public function conversions(): HasMany
     {
         return $this->hasMany(AffiliateConversion::class, 'link_id');

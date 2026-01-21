@@ -8,6 +8,9 @@ use App\Http\Requests\Payment\UploadProofRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\AffiliateLink;
+use App\Models\AffiliateClick;
+use App\Models\AffiliateConversion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +35,45 @@ class PaymentController extends Controller
             'amount' => $request->amount,
             'status' => 'PENDING',
         ]);
+
+        // ===== Affiliate tracking: create pending conversion if user came via affiliate link =====
+        try {
+            $code = $request->cookie('affiliate_code');
+
+            if ($code) {
+                $link = AffiliateLink::where('code', $code)->with('program')->first();
+
+                if ($link && $link->is_active && $link->program && $link->program->is_active) {
+                    // Avoid duplicate conversions for this transaction
+                    $existingConversion = AffiliateConversion::where('transaction_id', $transaction->id)->first();
+
+                    if (!$existingConversion) {
+                        $commission = $link->program->calculateCommission($transaction->amount);
+
+                        // Get the most recent click within cookie duration
+                        $click = AffiliateClick::where('link_id', $link->id)
+                            ->where('clicked_at', '>=', now()->subDays($link->program->cookie_duration ?? 30))
+                            ->orderBy('clicked_at', 'desc')
+                            ->first();
+
+                        AffiliateConversion::create([
+                            'link_id' => $link->id,
+                            'click_id' => $click?->id,
+                            'transaction_id' => (string) $transaction->id,
+                            'amount' => $transaction->amount,
+                            'commission' => $commission,
+                            'status' => 'pending',
+                            'converted_at' => now(),
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Affiliate conversion tracking failed during manualInitiate', [
+                'transaction_id' => $transaction->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'message' => 'Transaction created. Please upload payment proof.',
