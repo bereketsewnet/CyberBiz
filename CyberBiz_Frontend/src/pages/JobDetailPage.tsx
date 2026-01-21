@@ -32,27 +32,35 @@ export default function JobDetailPage() {
   const [coverLetter, setCoverLetter] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [isCheckingApplication, setIsCheckingApplication] = useState(true);
+  const [isDeletingApplication, setIsDeletingApplication] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
       if (!id) return;
       try {
-        const [jobResponse, favoriteResponse] = await Promise.all([
+        const [jobResponse, favoriteResponse, myApplication] = await Promise.all([
           apiService.getJob(id),
           isAuthenticated ? apiService.checkJobFavorite(id).catch(() => ({ is_favorite: false })) : Promise.resolve({ is_favorite: false }),
+          isAuthenticated && (user?.role === 'SEEKER' || user?.role === 'LEARNER')
+            ? apiService.getMyApplicationForJob(id).catch(() => ({ has_applied: false, data: null }))
+            : Promise.resolve({ has_applied: false, data: null }),
         ]);
         setJob(jobResponse.data);
         setIsFavorite(favoriteResponse.is_favorite);
+        setHasApplied((myApplication as any).has_applied || false);
       } catch (error) {
         console.error('Error fetching job:', error);
         toast.error('Job not found');
         navigate('/jobs');
       } finally {
         setIsLoading(false);
+        setIsCheckingApplication(false);
       }
     };
     fetchJob();
-  }, [id, navigate, isAuthenticated]);
+  }, [id, navigate, isAuthenticated, user]);
 
   const handleApplyClick = () => {
     if (!isAuthenticated) {
@@ -61,8 +69,8 @@ export default function JobDetailPage() {
       return;
     }
 
-    if (user?.role !== 'SEEKER') {
-      toast.error('Only job seekers can apply for jobs');
+    if (user?.role !== 'SEEKER' && user?.role !== 'LEARNER') {
+      toast.error('Only job seekers and learners can apply for jobs');
       return;
     }
 
@@ -82,10 +90,35 @@ export default function JobDetailPage() {
       setShowApplyModal(false);
       setCvFile(null);
       setCoverLetter('');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to submit application');
+      setHasApplied(true);
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        toast.error(error.response.data?.message || 'You have already applied for this job');
+        setShowApplyModal(false);
+        setHasApplied(true);
+      } else {
+        toast.error(error instanceof Error ? error.message : 'Failed to submit application');
+      }
     } finally {
       setIsApplying(false);
+    }
+  };
+
+  const handleDeleteApplication = async () => {
+    if (!id) return;
+    if (!confirm('Are you sure you want to delete your application and CV for this job?')) {
+      return;
+    }
+
+    setIsDeletingApplication(true);
+    try {
+      await apiService.deleteMyApplicationForJob(id);
+      toast.success('Your application has been deleted. You can apply again if you wish.');
+      setHasApplied(false);
+    } catch (error: any) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete application');
+    } finally {
+      setIsDeletingApplication(false);
     }
   };
 
@@ -208,13 +241,47 @@ export default function JobDetailPage() {
                 >
                   <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </Button>
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-accent transition-colors"
-                  onClick={handleApplyClick}
-                >
-                  Apply Now
-                </Button>
+                {(user?.role === 'SEEKER' || user?.role === 'LEARNER') && (
+                  hasApplied ? (
+                    <div className="flex items-center gap-3">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        disabled
+                        className="border-green-500 text-green-700 bg-green-50"
+                      >
+                        Application Submitted
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDeleteApplication}
+                        disabled={isDeletingApplication}
+                        className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        {isDeletingApplication ? 'Removing...' : 'Remove Application'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="lg"
+                      className="bg-primary hover:bg-accent transition-colors"
+                      onClick={handleApplyClick}
+                      disabled={isCheckingApplication}
+                    >
+                      Apply Now
+                    </Button>
+                  )
+                )}
+                {(!user || (user?.role !== 'SEEKER' && user?.role !== 'LEARNER')) && (
+                  <Button
+                    size="lg"
+                    className="bg-primary hover:bg-accent transition-colors"
+                    onClick={handleApplyClick}
+                  >
+                    Apply Now
+                  </Button>
+                )}
               </div>
             </motion.div>
           </div>

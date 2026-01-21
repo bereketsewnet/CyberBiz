@@ -95,17 +95,35 @@ export function Header() {
                     <User className="w-4 h-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </DropdownMenuItem>
+                  {user.role !== 'ADMIN' && (
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                  )}
                   {user.role === 'ADMIN' && (
                     <>
                       <DropdownMenuItem onClick={() => navigate('/admin')}>
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Admin Panel
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/admin/payments')}>
+                      <DropdownMenuItem onClick={() => navigate('/admin/newsletters')}>
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Manage Newsletters
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/admin/newsletters/subscribers')}>
+                        <User className="w-4 h-4 mr-2" />
+                        Manage Subscribers
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/admin/jobs')}>
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Manage Jobs
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/admin/applications')}>
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        Service Inquiries
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/admin/billing')}>
                         <Briefcase className="w-4 h-4 mr-2" />
                         Manage Payments
                       </DropdownMenuItem>

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Briefcase, BookOpen, Users, ArrowRight, Bookmark, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,14 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
+
+  // Admin users should not see this dashboard - redirect them to the admin panel
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, navigate]);
 
   const getRoleSpecificContent = () => {
     // Admin has special dashboard
@@ -22,21 +31,38 @@ export default function DashboardPage() {
       };
     }
 
-    // All other users (SEEKER, EMPLOYER, LEARNER) can do everything
-    // They can post jobs, buy courses, apply for jobs, etc.
+    const titlePrefix =
+      user?.role === 'SEEKER'
+        ? 'Job Seeker'
+        : user?.role === 'EMPLOYER'
+        ? 'Employer'
+        : user?.role === 'LEARNER'
+        ? 'Learner'
+        : 'User';
+
+    const baseActions = [
+      { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
+      { label: 'My Applications', href: '/my-applications', icon: Users },
+      { label: 'My Jobs', href: '/my-jobs', icon: Briefcase },
+      { label: 'Post New Job', href: '/my-jobs/create', icon: Briefcase },
+      { label: 'My Library', href: '/my-library', icon: BookOpen },
+      { label: 'Browse Courses', href: '/courses', icon: BookOpen },
+      { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
+      { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
+    ];
+
+    // For job seekers and learners, hide employer-only actions (My Jobs, Post New Job)
+    const actions =
+      user?.role === 'SEEKER' || user?.role === 'LEARNER'
+        ? baseActions.filter(
+            (action) => action.href !== '/my-jobs' && action.href !== '/my-jobs/create'
+          )
+        : baseActions;
+
     return {
-      title: `${user?.role === 'SEEKER' ? 'Job Seeker' : user?.role === 'EMPLOYER' ? 'Employer' : user?.role === 'LEARNER' ? 'Learner' : 'User'} Dashboard`,
+      title: `${titlePrefix} Dashboard`,
       description: 'Manage jobs, courses, applications, and more',
-      actions: [
-        { label: 'Browse Jobs', href: '/jobs', icon: Briefcase },
-        { label: 'My Applications', href: '/my-applications', icon: Users },
-        { label: 'My Jobs', href: '/my-jobs', icon: Briefcase },
-        { label: 'Post New Job', href: '/my-jobs/create', icon: Briefcase },
-        { label: 'My Library', href: '/my-library', icon: BookOpen },
-        { label: 'Browse Courses', href: '/courses', icon: BookOpen },
-        { label: 'Saved Jobs', href: '/my-favorites', icon: Bookmark },
-        { label: 'Affiliate Programs', href: '/affiliate/programs', icon: TrendingUp },
-      ],
+      actions,
     };
   };
 
@@ -73,7 +99,7 @@ export default function DashboardPage() {
                   Welcome back, {user?.full_name?.split(' ')[0]}!
                 </h2>
                 <p className="text-slate-300" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  {user?.role === 'SEEKER' && "Post jobs, apply for positions, and learn new skills!"}
+                  {user?.role === 'SEEKER' && "Apply for positions, track your applications, and learn new skills!"}
                   {user?.role === 'EMPLOYER' && "Post jobs, hire talent, and expand your knowledge!"}
                   {user?.role === 'LEARNER' && "Buy courses, apply for jobs, and grow your career!"}
                   {user?.role !== 'SEEKER' && user?.role !== 'EMPLOYER' && user?.role !== 'LEARNER' && "Explore jobs, courses, and opportunities!"}

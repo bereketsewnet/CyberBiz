@@ -10,6 +10,7 @@ import { Header, Footer } from '@/components/layout';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Service } from '@/types';
+import { useAuthStore } from '@/store/authStore';
 
 const iconMap: Record<string, any> = {
   'briefcase': Briefcase,
@@ -24,6 +25,7 @@ const iconMap: Record<string, any> = {
 export default function ServiceDetailPage() {
   const { idOrSlug } = useParams<{ idOrSlug: string }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthStore();
   const [service, setService] = useState<Service | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,9 +88,22 @@ export default function ServiceDetailPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Require login before submitting inquiry (like blog/course/product pages)
+    if (!isAuthenticated) {
+      toast.error('Please sign in to request this service');
+      navigate('/login', { state: { from: `/services/${idOrSlug}` } });
+      return;
+    }
+
     if (!formData.name || !formData.email || !formData.message) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Match backend validation: message must be at least 10 characters
+    if (formData.message.trim().length < 10) {
+      toast.error('Message must be at least 10 characters long');
       return;
     }
 

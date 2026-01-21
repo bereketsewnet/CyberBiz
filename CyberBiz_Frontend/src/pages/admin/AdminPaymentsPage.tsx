@@ -29,7 +29,7 @@ export default function AdminPaymentsPage() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await apiService.getPendingPayments();
+        const response = await apiService.getPendingPayments(undefined, 'ALL');
         setPayments(response.data);
       } catch (error) {
         console.error('Error fetching payments:', error);
@@ -43,8 +43,10 @@ export default function AdminPaymentsPage() {
 
   const handleApprove = async (transactionId: string) => {
     try {
-      await apiService.approvePayment(transactionId);
-      setPayments(payments.filter(p => p.id !== transactionId));
+      const response = await apiService.approvePayment(transactionId);
+      setPayments(prev =>
+        prev.map(p => (p.id === transactionId ? response.data : p))
+      );
       toast.success('Payment approved successfully');
     } catch (error) {
       toast.error('Failed to approve payment');
@@ -54,8 +56,10 @@ export default function AdminPaymentsPage() {
   const handleReject = async (transactionId: string) => {
     const reason = prompt('Enter rejection reason (optional):');
     try {
-      await apiService.rejectPayment(transactionId, reason || undefined);
-      setPayments(payments.filter(p => p.id !== transactionId));
+      const response = await apiService.rejectPayment(transactionId, reason || undefined);
+      setPayments(prev =>
+        prev.map(p => (p.id === transactionId ? response.data : p))
+      );
       toast.success('Payment rejected');
     } catch (error) {
       toast.error('Failed to reject payment');
@@ -63,17 +67,32 @@ export default function AdminPaymentsPage() {
   };
 
   const handleViewProof = async (transaction: Transaction) => {
+    // If there is no stored proof path, avoid calling the API
+    if (!transaction.gateway_ref) {
+      toast.error('No payment proof uploaded for this transaction');
+      return;
+    }
+
     try {
       const response = await fetch(`${api.baseUrl}/admin/files/proof/${transaction.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to load proof');
+        if (response.status === 404) {
+          toast.error('Payment proof file not found on the server');
+        } else if (response.status === 500) {
+          toast.error('Server error while loading payment proof');
+        } else if (response.status === 403) {
+          toast.error('You are not authorized to view this proof');
+        } else {
+          toast.error('Failed to load proof');
+        }
+        return;
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       setProofImageUrl(url);
@@ -109,7 +128,7 @@ export default function AdminPaymentsPage() {
         <div className="container mx-auto px-4 lg:px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Payment Management</h1>
-            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Review and approve pending payment submissions</p>
+            <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Review all manual payment submissions and their status</p>
           </motion.div>
 
           <div className="mb-6">
@@ -127,8 +146,8 @@ export default function AdminPaymentsPage() {
             p.product?.title?.toLowerCase().includes(searchQuery.toLowerCase())
           ).length === 0 ? (
             <div className="text-center py-20 bg-white rounded-xl border border-slate-200" style={{ fontFamily: 'Inter, sans-serif' }}>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No pending payments</h3>
-              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>All payment submissions have been processed</p>
+              <h3 className="text-xl font-semibold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>No payments found</h3>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>Try adjusting your search</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -151,9 +170,36 @@ export default function AdminPaymentsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewProof(payment)} className="border-slate-300"><Eye className="w-4 h-4 mr-2" />View Proof</Button>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 transition-colors" onClick={() => handleApprove(payment.id)}><Check className="w-4 h-4 mr-2" />Approve</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleReject(payment.id)}><X className="w-4 h-4 mr-2" />Reject</Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewProof(payment)}
+                        className="border-slate-300"
+                        disabled={!payment.gateway_ref}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        {payment.gateway_ref ? 'View Proof' : 'No Proof'}
+                      </Button>
+                      {payment.status === 'PENDING_APPROVAL' && (
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 transition-colors"
+                            onClick={() => handleApprove(payment.id)}
+                          >
+                            <Check className="w-4 h-4 mr-2" />
+                            Approve
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleReject(payment.id)}
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Reject
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -166,42 +212,47 @@ export default function AdminPaymentsPage() {
 
       {/* Payment Proof View Modal */}
       <Dialog open={viewProofModal.open} onOpenChange={(open) => !open && closeProofModal()}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Payment Proof</DialogTitle>
             {viewProofModal.transaction && (
-              <DialogDescription className="space-y-2">
-                <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-muted rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Customer</p>
-                    <p className="font-semibold">{viewProofModal.transaction.user?.full_name || 'Unknown User'}</p>
-                    <p className="text-sm text-muted-foreground">{viewProofModal.transaction.user?.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Product</p>
-                    <p className="font-semibold">{viewProofModal.transaction.product?.title || 'Unknown Product'}</p>
-                    <p className="text-sm text-muted-foreground">{viewProofModal.transaction.product?.type}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                    <p className="font-semibold">{formatPrice(viewProofModal.transaction.amount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Purchase Date</p>
-                    <p className="font-semibold">{new Date(viewProofModal.transaction.created_at).toLocaleString()}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">Transaction ID: {viewProofModal.transaction.id}</p>
+              <DialogDescription>
+                Transaction ID: {viewProofModal.transaction.id}
               </DialogDescription>
             )}
           </DialogHeader>
+          {viewProofModal.transaction && (
+            <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-muted rounded-lg">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Customer</p>
+                <p className="font-semibold">{viewProofModal.transaction.user?.full_name || 'Unknown User'}</p>
+                <p className="text-sm text-muted-foreground">{viewProofModal.transaction.user?.email}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Product</p>
+                <p className="font-semibold">{viewProofModal.transaction.product?.title || 'Unknown Product'}</p>
+                <p className="text-sm text-muted-foreground">{viewProofModal.transaction.product?.type}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Amount</p>
+                <p className="font-semibold">{formatPrice(viewProofModal.transaction.amount)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Purchase Date</p>
+                <p className="font-semibold">{new Date(viewProofModal.transaction.created_at).toLocaleString()}</p>
+              </div>
+            </div>
+          )}
           {proofImageUrl && (
-            <div className="max-h-[80vh] overflow-auto">
-              <img
-                src={proofImageUrl}
-                alt="Payment proof"
-                className="w-full h-auto rounded-lg border border-border"
-              />
+            <div className="flex items-center justify-center">
+              {/* Fixed rectangle viewport for all proofs */}
+              <div className="w-[420px] h-[320px] max-w-full max-h-[60vh] bg-slate-100 rounded-lg border border-border overflow-hidden flex items-center justify-center">
+                <img
+                  src={proofImageUrl}
+                  alt="Payment proof"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           )}
         </DialogContent>

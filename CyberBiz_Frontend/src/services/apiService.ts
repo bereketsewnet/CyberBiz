@@ -131,6 +131,14 @@ export const apiService = {
     return api.get<PaginatedResponse<Application>>('/user/applications', { page });
   },
 
+   async getMyApplicationForJob(jobId: string): Promise<{ has_applied: boolean; data: Application | null }> {
+     return api.get<{ has_applied: boolean; data: Application | null }>(`/jobs/${jobId}/my-application`);
+   },
+
+   async deleteMyApplicationForJob(jobId: string): Promise<{ message: string }> {
+     return api.delete<{ message: string }>(`/jobs/${jobId}/my-application`);
+   },
+
   // ========== JOB FAVORITES ==========
   async toggleJobFavorite(jobId: string): Promise<{ message: string; is_favorite: boolean }> {
     return api.post<{ message: string; is_favorite: boolean }>(`/jobs/${jobId}/favorite`);
@@ -201,8 +209,8 @@ export const apiService = {
   },
 
   // ========== ADMIN - PAYMENTS ==========
-  async getPendingPayments(page?: number): Promise<PaginatedResponse<Transaction>> {
-    return api.get<PaginatedResponse<Transaction>>('/admin/payments/pending', { page });
+  async getPendingPayments(page?: number, status: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ALL' = 'ALL'): Promise<PaginatedResponse<Transaction>> {
+    return api.get<PaginatedResponse<Transaction>>('/admin/payments/pending', { page, status });
   },
 
   async approvePayment(transactionId: string): Promise<{ message: string; data: Transaction }> {

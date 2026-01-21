@@ -28,7 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const from = (location.state as { from?: string })?.from || '/dashboard';
+  const fromState = (location.state as { from?: string })?.from;
 
   // Check for OAuth error in query params
   useEffect(() => {
@@ -56,7 +56,16 @@ export default function LoginPage() {
       const response = await apiService.login(data.email, data.password);
       login(response.user, response.token);
       toast.success('Welcome back!');
-      navigate(from, { replace: true });
+
+      // If we have an explicit "from" route, always respect it
+      if (fromState) {
+        navigate(fromState, { replace: true });
+        return;
+      }
+
+      // Otherwise, send admins directly to the admin panel, others to dashboard
+      const defaultRoute = response.user.role === 'ADMIN' ? '/admin' : '/dashboard';
+      navigate(defaultRoute, { replace: true });
     } catch (error: any) {
       // Extract error message from response
       let errorMessage = 'Invalid email or password';
