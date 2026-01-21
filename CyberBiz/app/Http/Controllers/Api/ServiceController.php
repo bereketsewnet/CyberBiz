@@ -11,6 +11,7 @@ use App\Models\ServiceInquiry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
@@ -236,12 +237,17 @@ class ServiceController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
+            // Delete old image if exists and was stored locally
             if ($service->image_url) {
-                $oldImagePath = str_replace(asset('storage/'), '', $service->image_url);
-                $fullPath = storage_path('app/public/' . $oldImagePath);
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
+                // Extract the path from the URL (handles both absolute and relative URLs)
+                $oldImageUrl = $service->image_url;
+                // Remove any domain and /storage/ prefix
+                $oldImagePath = preg_replace('/^https?:\/\/[^\/]+/', '', $oldImageUrl);
+                $oldImagePath = str_replace('/storage/', '', $oldImagePath);
+                
+                // Try to delete from public storage
+                if (Storage::disk('public')->exists($oldImagePath)) {
+                    Storage::disk('public')->delete($oldImagePath);
                 }
             }
 
@@ -253,6 +259,9 @@ class ServiceController extends Controller
             );
             $pathWithoutPublic = str_replace('public/', '', $imagePath);
             $data['image_url'] = asset('storage/' . $pathWithoutPublic);
+        } elseif (isset($data['image_url']) && $data['image_url'] === '') {
+            // If empty string is sent for image_url, set it to null (don't update)
+            unset($data['image_url']);
         }
 
         unset($data['image']); // Remove file from data array
