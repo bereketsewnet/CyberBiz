@@ -182,11 +182,36 @@ export default function AffiliateDashboardPage() {
                             )}
                           </div>
                           <p className="text-sm text-slate-600 mb-3">
-                            Commission: {link.program?.type === 'percentage' 
-                              ? `${Number(link.program?.commission_rate || 0).toFixed(1)}%` 
+                            Purchase Commission:{' '}
+                            {link.program?.type === 'percentage' 
+                              ? `${Number(link.program?.commission_rate || 0).toFixed(2)}%` 
                               : `${Number(link.program?.commission_rate || 0).toFixed(2)} ETB`}
                           </p>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-3">
+                            {link.program?.impression_rate !== undefined &&
+                              link.program?.impression_rate !== null &&
+                              link.program?.impression_unit && (
+                                <span>
+                                  Impressions: {Number(link.program.impression_rate).toFixed(2)} ETB per{' '}
+                                  {link.program.impression_unit.toLocaleString()}
+                                </span>
+                              )}
+                            {link.program?.click_rate !== undefined &&
+                              link.program?.click_rate !== null &&
+                              link.program?.click_unit && (
+                                <span>
+                                  Clicks: {Number(link.program.click_rate).toFixed(2)} ETB per{' '}
+                                  {link.program.click_unit.toLocaleString()}
+                                </span>
+                              )}
+                          </div>
                           <div className="flex flex-wrap items-center gap-4 text-sm mb-3">
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <MousePointerClick className="w-4 h-4 text-slate-400" />
+                              <span>
+                                <strong>Impressions:</strong> {link.total_impressions || 0}
+                              </span>
+                            </div>
                             <div className="flex items-center gap-2 text-slate-600">
                               <MousePointerClick className="w-4 h-4 text-slate-400" />
                               <span>
@@ -199,12 +224,35 @@ export default function AffiliateDashboardPage() {
                                 <strong>Conversions:</strong> {link.total_conversions || link.conversions_count || 0}
                               </span>
                             </div>
+                            {link.impression_commission !== undefined && link.impression_commission > 0 && (
+                              <div className="flex items-center gap-2 text-slate-600">
+                                <DollarSign className="w-4 h-4 text-slate-400" />
+                                <span>
+                                  <strong>Impressions:</strong> {link.impression_commission.toFixed(2)} ETB
+                                </span>
+                              </div>
+                            )}
+                            {link.click_commission !== undefined && link.click_commission > 0 && (
+                              <div className="flex items-center gap-2 text-slate-600">
+                                <DollarSign className="w-4 h-4 text-slate-400" />
+                                <span>
+                                  <strong>Clicks:</strong> {link.click_commission.toFixed(2)} ETB
+                                </span>
+                              </div>
+                            )}
+                            {link.purchase_commission !== undefined && link.purchase_commission > 0 && (
+                              <div className="flex items-center gap-2 text-slate-600">
+                                <DollarSign className="w-4 h-4 text-slate-400" />
+                                <span>
+                                  <strong>Purchases:</strong> {link.purchase_commission.toFixed(2)} ETB
+                                </span>
+                              </div>
+                            )}
                             {link.total_commission !== undefined && link.total_commission > 0 && (
                               <div className="flex items-center gap-2 text-slate-600">
                                 <DollarSign className="w-4 h-4 text-slate-400" />
                                 <span>
-                                  <strong>Total Commission:</strong> {link.total_commission.toFixed(2)}
-                                  {link.program?.type === 'percentage' ? '%' : ' ETB'}
+                                  <strong>Total Commission:</strong> {link.total_commission.toFixed(2)} ETB
                                 </span>
                               </div>
                             )}

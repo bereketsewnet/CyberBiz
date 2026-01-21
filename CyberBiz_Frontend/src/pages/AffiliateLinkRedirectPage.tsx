@@ -23,7 +23,7 @@ export default function AffiliateLinkRedirectPage() {
   };
 
   useEffect(() => {
-    const trackClickAndRedirect = async () => {
+    const trackImpressionAndClick = async () => {
       if (!code) {
         setError('Invalid affiliate link code');
         setIsRedirecting(false);
@@ -31,6 +31,11 @@ export default function AffiliateLinkRedirectPage() {
       }
 
       try {
+        // Fire-and-forget impression tracking (don't block redirect if it fails)
+        apiService.trackAffiliateImpression(code).catch(() => {
+          // ignore impression errors
+        });
+
         // Track the click
         const response = await apiService.trackAffiliateClick(code);
         
@@ -70,7 +75,7 @@ export default function AffiliateLinkRedirectPage() {
       }
     };
 
-    trackClickAndRedirect();
+    trackImpressionAndClick();
   }, [code, navigate]);
 
   if (error) {

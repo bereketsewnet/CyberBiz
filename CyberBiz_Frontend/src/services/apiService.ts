@@ -1104,6 +1104,10 @@ export const apiService = {
     return api.get('/affiliate/programs');
   },
 
+  async trackAffiliateImpression(code: string): Promise<{ message: string }> {
+    return api.post(`/affiliate/impression/${code}`);
+  },
+
   async trackAffiliateClick(code: string): Promise<{ message: string; redirect_url: string; link_id: number }> {
     return api.get(`/affiliate/click/${code}`);
   },

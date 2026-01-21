@@ -108,24 +108,49 @@ export default function AdminAffiliateProgramsPage() {
                         )}
                         <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-3">
                           <span>
-                            <strong>Commission:</strong> {program.type === 'percentage' 
-                              ? `${Number(program.commission_rate).toFixed(1)}%` 
+                            <strong>Purchase Commission:</strong>{' '}
+                            {program.type === 'percentage' 
+                              ? `${Number(program.commission_rate).toFixed(2)}%` 
                               : `${Number(program.commission_rate).toFixed(2)} ETB`} ({program.type})
                           </span>
+                          {program.impression_rate !== undefined && program.impression_rate !== null && program.impression_unit && (
+                            <span>
+                              <strong>Impressions:</strong> {Number(program.impression_rate).toFixed(2)} ETB per{' '}
+                              {program.impression_unit.toLocaleString()} impressions
+                            </span>
+                          )}
+                          {program.click_rate !== undefined && program.click_rate !== null && program.click_unit && (
+                            <span>
+                              <strong>Clicks:</strong> {Number(program.click_rate).toFixed(2)} ETB per{' '}
+                              {program.click_unit.toLocaleString()} clicks
+                            </span>
+                          )}
                           <span><strong>Cookie Duration:</strong> {program.cookie_duration} days</span>
                           <span>
                             <strong>Links:</strong> {program.active_links_count || 0} active / {program.links_count || 0} total
                           </span>
+                          {program.total_impressions !== undefined && (
+                            <span><strong>Impressions:</strong> {program.total_impressions}</span>
+                          )}
                           {program.total_clicks !== undefined && (
                             <span><strong>Clicks:</strong> {program.total_clicks}</span>
                           )}
                           {program.total_conversions !== undefined && (
                             <span><strong>Conversions:</strong> {program.total_conversions}</span>
                           )}
+                          {program.impression_commission !== undefined && program.impression_commission > 0 && (
+                            <span>
+                              <strong>Impression Commission:</strong> {program.impression_commission.toFixed(2)} ETB
+                            </span>
+                          )}
+                          {program.click_commission !== undefined && program.click_commission > 0 && (
+                            <span>
+                              <strong>Click Commission:</strong> {program.click_commission.toFixed(2)} ETB
+                            </span>
+                          )}
                           {program.total_commission !== undefined && (
                             <span>
-                              <strong>Total Commission:</strong> {program.total_commission.toFixed(2)}
-                              {program.type === 'percentage' ? '%' : ' ETB'}
+                              <strong>Total Commission:</strong> {program.total_commission.toFixed(2)} ETB
                             </span>
                           )}
                         </div>

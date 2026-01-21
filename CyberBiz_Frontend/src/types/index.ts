@@ -299,6 +299,10 @@ export interface AffiliateProgram {
   description?: string;
   type: 'percentage' | 'fixed';
   commission_rate: number;
+  impression_rate?: number;
+  impression_unit?: number;
+  click_rate?: number;
+  click_unit?: number;
   target_url: string;
   is_active: boolean;
   cookie_duration: number;
@@ -307,7 +311,11 @@ export interface AffiliateProgram {
   links_count?: number;
   active_links_count?: number;
   total_clicks?: number;
+  total_impressions?: number;
   total_conversions?: number;
+  impression_commission?: number;
+  click_commission?: number;
+  purchase_commission?: number;
   total_commission?: number;
 }
 
@@ -330,6 +338,9 @@ export interface AffiliateLink {
   conversions_count?: number;
   total_clicks?: number;
   total_conversions?: number;
+  impression_commission?: number;
+  click_commission?: number;
+  purchase_commission?: number;
   total_commission?: number;
   pending_commission?: number;
   paid_commission?: number;
