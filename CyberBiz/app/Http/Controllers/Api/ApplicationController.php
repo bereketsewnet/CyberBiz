@@ -113,4 +113,58 @@ class ApplicationController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Get the current user's application for a specific job (if any)
+     */
+    public function myJobApplication(Request $request, string $jobId): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $application = Application::where('job_id', $jobId)
+            ->where('seeker_id', $user->id)
+            ->first();
+
+        return response()->json([
+            'has_applied' => (bool) $application,
+            'data' => $application ? new ApplicationResource($application->load(['job', 'seeker'])) : null,
+        ]);
+    }
+
+    /**
+     * Delete the current user's application for a specific job
+     */
+    public function deleteMyApplication(Request $request, string $jobId): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $application = Application::where('job_id', $jobId)
+            ->where('seeker_id', $user->id)
+            ->first();
+
+        if (!$application) {
+            return response()->json([
+                'message' => 'No application found for this job',
+            ], 404);
+        }
+
+        // Delete stored CV file if it exists
+        if ($application->cv_path && Storage::disk('private')->exists($application->cv_path)) {
+            Storage::disk('private')->delete($application->cv_path);
+        }
+
+        $application->delete();
+
+        return response()->json([
+            'message' => 'Application deleted successfully',
+        ]);
+    }
 }

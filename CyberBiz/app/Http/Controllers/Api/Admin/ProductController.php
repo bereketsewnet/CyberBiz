@@ -68,7 +68,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'description_html' => 'required|string',
+            'description_html' => 'nullable|string',
             'type' => 'required|in:COURSE,EBOOK',
             'price_etb' => 'nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|string|max:1000',
@@ -121,7 +121,7 @@ class ProductController extends Controller
             $thumbnailUrl = asset('storage/' . $pathWithoutPublic);
         }
 
-        // Handle description_html - use provided HTML or generate from plain text
+        // Handle description_html - use provided HTML or generate from plain text or default template
         $descriptionHtml = $validated['description_html'] ?? null;
         if (!$descriptionHtml && !empty($validated['description'])) {
             $descriptionHtml = \App\Helpers\ProductDescriptionHelper::generateFromPlainText($validated['description']);
@@ -160,7 +160,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
-            'description_html' => 'sometimes|required|string',
+            'description_html' => 'sometimes|nullable|string',
             'type' => 'sometimes|required|in:COURSE,EBOOK',
             'price_etb' => 'sometimes|nullable|numeric|min:0',
             'thumbnail_url' => 'nullable|string|max:1000',

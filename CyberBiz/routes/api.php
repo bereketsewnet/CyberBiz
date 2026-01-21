@@ -113,6 +113,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/jobs/{jobId}/apply', [ApplicationController::class, 'apply']);
     Route::get('/jobs/{jobId}/applications', [ApplicationController::class, 'index']);
     Route::get('/user/applications', [ApplicationController::class, 'myApplications']);
+    Route::get('/jobs/{jobId}/my-application', [ApplicationController::class, 'myJobApplication']);
+    Route::delete('/jobs/{jobId}/my-application', [ApplicationController::class, 'deleteMyApplication']);
 
     // Job Favorites
     Route::post('/jobs/{jobId}/favorite', [JobFavoriteController::class, 'toggle']);

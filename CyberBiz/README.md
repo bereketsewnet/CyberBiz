@@ -214,3 +214,6 @@ Proprietary - CyberBiz Africa
 ## Support
 
 For issues and questions, contact the development team.
+
+
+tail -100 storage/logs/sponsorship-debug.log

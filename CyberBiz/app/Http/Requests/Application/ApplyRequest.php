@@ -8,7 +8,8 @@ class ApplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isSeeker();
+        // Allow any authenticated user (SEEKER, LEARNER, EMPLOYER, ADMIN) to apply
+        return $this->user() !== null;
     }
 
     public function rules(): array

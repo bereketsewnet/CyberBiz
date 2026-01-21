@@ -23,13 +23,18 @@ class PaymentController extends Controller
     {
         // Check authorization
         if (!$request->user() || !$request->user()->isAdmin()) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-        $transactions = Transaction::where('status', 'PENDING_APPROVAL')
-            ->with(['user', 'product'])
-            ->latest()
-            ->paginate(15);
+        // Allow optional status filter; if not provided or set to ALL, return full history
+        $query = Transaction::with(['user', 'product'])->latest();
+
+        $status = $request->get('status');
+        if ($status && $status !== 'ALL') {
+            $query->where('status', $status);
+        }
+
+        $transactions = $query->paginate(15);
 
         return response()->json([
             'data' => TransactionResource::collection($transactions),
