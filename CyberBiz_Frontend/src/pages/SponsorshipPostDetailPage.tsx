@@ -207,42 +207,20 @@ export default function SponsorshipPostDetailPage() {
           </div>
         </section>
 
-        {/* Sponsor Logo or Featured Image */}
-        {(post.sponsor_logo_url || post.featured_image_url) && (
+        {/* Featured Image */}
+        {post.featured_image_url && (
           <section className="border-b border-slate-200">
             <div className="container mx-auto px-4 lg:px-8 py-8">
-              {post.sponsor_logo_url ? (
-                <div className="max-w-4xl mx-auto flex justify-center">
-                  <img
-                    src={getImageUrl(post.sponsor_logo_url)}
-                    alt={post.sponsor_name || post.title}
-                    className="max-w-full max-h-96 object-contain rounded-xl"
-                    onError={(e) => {
-                      // Fallback to featured image if logo fails
-                      if (post.featured_image_url) {
-                        const img = e.target as HTMLImageElement;
-                        img.src = getImageUrl(post.featured_image_url);
-                        img.alt = post.title;
-                      } else {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }
-                    }}
-                  />
-                </div>
-              ) : post.featured_image_url ? (
+              <div className="max-w-4xl mx-auto">
                 <img
                   src={getImageUrl(post.featured_image_url)}
                   alt={post.title}
-                  className="w-full max-w-4xl mx-auto rounded-xl"
+                  className="w-full rounded-xl shadow-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-              ) : (
-                <div className="max-w-4xl mx-auto text-center py-8">
-                  <p className="text-slate-400">No image available</p>
-                </div>
-              )}
+              </div>
             </div>
           </section>
         )}

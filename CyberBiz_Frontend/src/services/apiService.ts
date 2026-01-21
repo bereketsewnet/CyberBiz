@@ -221,6 +221,10 @@ export const apiService = {
     return api.post<{ message: string; data: Transaction }>(`/admin/payments/${transactionId}/reject`, { reason });
   },
 
+  async deletePayment(transactionId: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/admin/payments/${transactionId}`);
+  },
+
   async downloadPaymentProof(transactionId: string): Promise<void> {
     const token = useAuthStore.getState().token;
     const response = await fetch(`${api.baseUrl}/admin/files/proof/${transactionId}`, {

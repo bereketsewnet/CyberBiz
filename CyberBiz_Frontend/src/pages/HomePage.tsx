@@ -407,28 +407,8 @@ export default function HomePage() {
                       className="flex-shrink-0 w-80 cursor-pointer group"
                     >
                       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
-                        {/* Show logo prominently if available, otherwise show featured image */}
-                        {sponsor.sponsor_logo_url ? (
-                          <div className="h-48 flex items-center justify-center bg-slate-50 p-8">
-                            <img
-                              src={getImageUrl(sponsor.sponsor_logo_url)}
-                              alt={sponsor.sponsor_name || sponsor.title}
-                              className="max-w-full max-h-full object-contain"
-                              onError={(e) => {
-                                // Fallback to featured image if logo fails
-                                if (sponsor.featured_image_url) {
-                                  const img = e.target as HTMLImageElement;
-                                  img.className = 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300';
-                                  img.src = getImageUrl(sponsor.featured_image_url);
-                                  img.alt = sponsor.title;
-                                  img.parentElement!.className = 'h-48 overflow-hidden';
-                                } else {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                }
-                              }}
-                            />
-                          </div>
-                        ) : sponsor.featured_image_url ? (
+                        {/* Show featured image on top */}
+                        {sponsor.featured_image_url ? (
                           <div className="h-48 overflow-hidden">
                             <img
                               src={getImageUrl(sponsor.featured_image_url)}
@@ -441,7 +421,7 @@ export default function HomePage() {
                           </div>
                         ) : (
                           <div className="h-48 flex items-center justify-center bg-slate-100">
-                            <p className="text-slate-400 text-sm">No image available</p>
+                            <p className="text-slate-400 text-sm">No featured image</p>
                           </div>
                         )}
                         <div className="p-6">

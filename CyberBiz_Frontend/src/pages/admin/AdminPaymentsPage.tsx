@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Eye, Search } from 'lucide-react';
+import { Check, X, Eye, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -63,6 +63,20 @@ export default function AdminPaymentsPage() {
       toast.success('Payment rejected');
     } catch (error) {
       toast.error('Failed to reject payment');
+    }
+  };
+
+  const handleDelete = async (transactionId: string) => {
+    if (!confirm('Are you sure you want to delete this transaction? This action cannot be undone and will also delete the payment proof file if it exists.')) {
+      return;
+    }
+
+    try {
+      await apiService.deletePayment(transactionId);
+      setPayments(prev => prev.filter(p => p.id !== transactionId));
+      toast.success('Transaction deleted successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete transaction');
     }
   };
 
@@ -200,6 +214,15 @@ export default function AdminPaymentsPage() {
                           </Button>
                         </>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(payment.id)}
+                        className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </motion.div>

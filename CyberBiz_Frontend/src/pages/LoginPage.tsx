@@ -198,18 +198,18 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Social Login Divider */}
-          <div className="relative my-6">
+          {/* Social Login Divider - Hidden */}
+          {/* <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
             </div>
-          </div>
+          </div> */}
 
-          {/* Social Login Buttons */}
-          <div className="space-y-3">
+          {/* Social Login Buttons - Hidden */}
+          {/* <div className="space-y-3">
             <SocialLoginButton
               provider="google"
               onClick={() => {
@@ -224,7 +224,7 @@ export default function LoginPage() {
               }}
               disabled={isLoading}
             />
-          </div>
+          </div> */}
 
           <p className="text-center text-muted-foreground mt-8">
             Don't have an account?{' '}
