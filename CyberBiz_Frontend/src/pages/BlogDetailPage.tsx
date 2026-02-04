@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, FileText, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, FileText, Share2, Facebook, Twitter, Send, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Header, Footer } from '@/components/layout';
 import { CommentsSection } from '@/components/blog/CommentsSection';
@@ -10,6 +10,12 @@ import { apiService } from '@/services/apiService';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
 import type { Blog } from '@/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function BlogDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +23,8 @@ export default function BlogDetailPage() {
   const { user } = useAuthStore();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -50,49 +58,65 @@ export default function BlogDetailPage() {
     fetchBlog();
   }, [id, user]);
 
-  const handleShare = async () => {
-    if (!blog) return;
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
-    const url = window.location.href;
+  const handleNativeShare = async () => {
+    if (!blog || !navigator.share) return;
     const shareData = {
       title: blog.title,
       text: blog.excerpt || blog.title,
-      url: url,
+      url: currentUrl,
     };
-
-    // Use Web Share API if available (mobile devices)
-    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        toast.success('Shared successfully!');
-      } catch (error: any) {
-        // User cancelled or error occurred
-        if (error.name !== 'AbortError') {
-          console.error('Error sharing:', error);
-        }
-      }
-    } else {
-      // Fallback: Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(url);
-        toast.success('Link copied to clipboard!');
-      } catch (error) {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = url;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          toast.success('Link copied to clipboard!');
-        } catch (err) {
-          toast.error('Failed to copy link');
-        }
-        document.body.removeChild(textArea);
-      }
+    if (navigator.canShare && !navigator.canShare(shareData)) {
+      toast.error('Sharing is not supported on this device');
+      return;
     }
+    try {
+      setIsSharing(true);
+      await navigator.share(shareData);
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        toast.error('Unable to share right now');
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!currentUrl) return;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      toast.success('Link copied to clipboard!');
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = currentUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast.success('Link copied to clipboard!');
+      } catch {
+        toast.error('Failed to copy link');
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const openShareWindow = (url: string) => {
+    const w = 600;
+    const h = 600;
+    const left = window.screenX + (window.innerWidth - w) / 2;
+    const top = window.screenY + (window.innerHeight - h) / 2;
+    window.open(url, '_blank', `noopener,noreferrer,width=${w},height=${h},left=${left},top=${top}`);
+  };
+
+  const handleShareClick = () => {
+    setShareOpen(true);
   };
 
   if (isLoading) {
@@ -185,7 +209,7 @@ export default function BlogDetailPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleShare}
+                  onClick={handleShareClick}
                   className="text-slate-400 hover:text-white"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
@@ -251,6 +275,122 @@ export default function BlogDetailPage() {
         </section>
       </main>
       <Footer />
+
+      {/* Share dialog */}
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share this article</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+            {navigator.share && (
+              <Button
+                type="button"
+                className="w-full bg-primary hover:bg-accent justify-center"
+                onClick={handleNativeShare}
+                disabled={isSharing}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {isSharing ? 'Sharing…' : 'Share via device'}
+              </Button>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Facebook className="w-4 h-4 text-blue-600" />
+                </div>
+                <span>Facebook</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      blog?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Twitter className="w-4 h-4 text-sky-500" />
+                </div>
+                <span>Twitter</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      blog?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-sky-600" />
+                </div>
+                <span>Telegram</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://wa.me/?text=${encodeURIComponent((blog?.title || '') + ' ' + currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span>WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
+                      currentUrl
+                    )}&title=${encodeURIComponent(blog?.title || '')}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4 text-sky-700" />
+                </div>
+                <span>LinkedIn</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={handleCopyLink}
+              >
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                  <LinkIcon className="w-4 h-4 text-slate-700" />
+                </div>
+                <span>Copy link</span>
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

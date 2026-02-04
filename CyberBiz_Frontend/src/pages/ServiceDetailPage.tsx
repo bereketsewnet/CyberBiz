@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mail, Phone, Building, MessageSquare, Briefcase, Code, Palette, BarChart3, Globe, Smartphone, Zap, X } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Building, MessageSquare, Briefcase, Code, Palette, BarChart3, Globe, Smartphone, Zap, X, Share2, Facebook, Twitter, Send, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,12 @@ import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 import type { Service } from '@/types';
 import { useAuthStore } from '@/store/authStore';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const iconMap: Record<string, any> = {
   'briefcase': Briefcase,
@@ -38,6 +44,8 @@ export default function ServiceDetailPage() {
     company: '',
     message: '',
   });
+  const [shareOpen, setShareOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     if (idOrSlug) {
@@ -162,6 +170,62 @@ export default function ServiceDetailPage() {
     return iconMap[iconName.toLowerCase()] || Briefcase;
   };
 
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleNativeShare = async () => {
+    if (!service || !navigator.share) return;
+    const shareData = {
+      title: service.title,
+      text: service.description || service.title,
+      url: currentUrl,
+    };
+    if (navigator.canShare && !navigator.canShare(shareData)) {
+      toast.error('Sharing is not supported on this device');
+      return;
+    }
+    try {
+      setIsSharing(true);
+      await navigator.share(shareData);
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        toast.error('Unable to share right now');
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!currentUrl) return;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      toast.success('Link copied to clipboard!');
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = currentUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast.success('Link copied to clipboard!');
+      } catch {
+        toast.error('Failed to copy link');
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const openShareWindow = (url: string) => {
+    const w = 600;
+    const h = 600;
+    const left = window.screenX + (window.innerWidth - w) / 2;
+    const top = window.screenY + (window.innerHeight - h) / 2;
+    window.open(url, '_blank', `noopener,noreferrer,width=${w},height=${h},left=${left},top=${top}`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -204,14 +268,24 @@ export default function ServiceDetailPage() {
         {/* Header Section */}
         <section className="border-b" style={{ backgroundColor: '#0F172A', borderColor: 'rgb(30 41 59)', fontFamily: 'Inter, sans-serif' }}>
           <div className="container mx-auto px-4 lg:px-8 py-8">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/services')}
-              className="mb-6 text-slate-400 hover:text-white"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Services
-            </Button>
+            <div className="flex items-center justify-between mb-6">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/services')}
+                className="text-slate-400 hover:text-white"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Services
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShareOpen(true)}
+                className="border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800 hover:text-white"
+              >
+                <Share2 className="w-4 h-4" />
+              </Button>
+            </div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -390,6 +464,105 @@ export default function ServiceDetailPage() {
         </section>
       </main>
       <Footer />
+
+      {/* Share dialog */}
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share this service</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+            {navigator.share && (
+              <Button
+                type="button"
+                className="w-full bg-primary hover:bg-accent justify-center"
+                onClick={handleNativeShare}
+                disabled={isSharing}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {isSharing ? 'Sharing…' : 'Share via device'}
+              </Button>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Facebook className="w-4 h-4 text-blue-600" />
+                </div>
+                <span>Facebook</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      service?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Twitter className="w-4 h-4 text-sky-500" />
+                </div>
+                <span>Twitter</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      service?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-sky-600" />
+                </div>
+                <span>Telegram</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://wa.me/?text=${encodeURIComponent((service?.title || '') + ' ' + currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span>WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={handleCopyLink}
+              >
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                  <LinkIcon className="w-4 h-4 text-slate-700" />
+                </div>
+                <span>Copy link</span>
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

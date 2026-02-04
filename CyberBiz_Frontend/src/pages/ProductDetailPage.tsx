@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, FileText, ShoppingCart, Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, BookOpen, FileText, ShoppingCart, Upload, CheckCircle, AlertCircle, Share2, Facebook, Twitter, Send, MessageCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -31,6 +31,8 @@ export default function ProductDetailPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [transaction, setTransaction] = useState<any>(null);
   const [hasAccess, setHasAccess] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -143,6 +145,62 @@ export default function ProductDetailPage() {
 
   const ProductIcon = product?.type === 'COURSE' ? BookOpen : FileText;
 
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  const handleNativeShare = async () => {
+    if (!product || !navigator.share) return;
+    const shareData = {
+      title: product.title,
+      text: product.description || product.title,
+      url: currentUrl,
+    };
+    if (navigator.canShare && !navigator.canShare(shareData)) {
+      toast.error('Sharing is not supported on this device');
+      return;
+    }
+    try {
+      setIsSharing(true);
+      await navigator.share(shareData);
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        toast.error('Unable to share right now');
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!currentUrl) return;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      toast.success('Link copied to clipboard!');
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = currentUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        toast.success('Link copied to clipboard!');
+      } catch {
+        toast.error('Failed to copy link');
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const openShareWindow = (url: string) => {
+    const w = 600;
+    const h = 600;
+    const left = window.screenX + (window.innerWidth - w) / 2;
+    const top = window.screenY + (window.innerHeight - h) / 2;
+    window.open(url, '_blank', `noopener,noreferrer,width=${w},height=${h},left=${left},top=${top}`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -196,7 +254,8 @@ export default function ProductDetailPage() {
 
               {/* Product Info */}
               <div className="space-y-6">
-                <div>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Badge variant={product.type === 'COURSE' ? 'default' : 'secondary'}>
                       {product.type}
@@ -207,12 +266,21 @@ export default function ProductDetailPage() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    {product.title}
-                  </h1>
-                  <div className="text-4xl font-bold mb-6" style={{ color: '#F97316', fontFamily: 'Inter, sans-serif' }}>
-                    {product.is_free ? 'Free' : formatPrice(product.price_etb)}
+                    <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      {product.title}
+                    </h1>
+                    <div className="text-4xl font-bold mb-6" style={{ color: '#F97316', fontFamily: 'Inter, sans-serif' }}>
+                      {product.is_free ? 'Free' : formatPrice(product.price_etb)}
+                    </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShareOpen(true)}
+                    className="mt-1 border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800 hover:text-white"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </Button>
                 </div>
 
                 <div className="space-y-4">
@@ -330,6 +398,105 @@ export default function ProductDetailPage() {
             >
               {isProcessing ? 'Uploading...' : 'Upload Proof'}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share dialog */}
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share this {product?.type === 'COURSE' ? 'course' : 'product'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+            {navigator.share && (
+              <Button
+                type="button"
+                className="w-full bg-primary hover:bg-accent justify-center"
+                onClick={handleNativeShare}
+                disabled={isSharing}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {isSharing ? 'Sharing…' : 'Share via device'}
+              </Button>
+            )}
+
+            <div className="grid grid-cols-3 gap-3 text-sm">
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Facebook className="w-4 h-4 text-blue-600" />
+                </div>
+                <span>Facebook</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      product?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Twitter className="w-4 h-4 text-sky-500" />
+                </div>
+                <span>Twitter</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(
+                      product?.title || ''
+                    )}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-sky-50 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-sky-600" />
+                </div>
+                <span>Telegram</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={() =>
+                  openShareWindow(
+                    `https://wa.me/?text=${encodeURIComponent((product?.title || '') + ' ' + currentUrl)}`
+                  )
+                }
+              >
+                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                </div>
+                <span>WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+                onClick={handleCopyLink}
+              >
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                  <LinkIcon className="w-4 h-4 text-slate-700" />
+                </div>
+                <span>Copy link</span>
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
