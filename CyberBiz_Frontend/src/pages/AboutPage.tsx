@@ -1,6 +1,14 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Header, Footer } from '@/components/layout';
-import { Users, Target, Globe, Award, Briefcase, BookOpen, FileText } from 'lucide-react';
+import { Users, Target, Globe, Award, Briefcase, BookOpen, FileText, HelpCircle, ChevronDown, ShieldCheck, DollarSign, School, ArrowRight } from 'lucide-react';
+import { apiService } from '@/services/apiService';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const values = [
   {
@@ -44,6 +52,28 @@ const services = [
 ];
 
 export default function AboutPage() {
+  const [settings, setSettings] = useState<{
+    faq_q1?: string;
+    faq_a1?: string;
+    faq_q2?: string;
+    faq_a2?: string;
+    faq_q3?: string;
+    faq_a3?: string;
+    privacy_policy?: string;
+  }>({});
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await apiService.getPublicSiteSettings();
+        setSettings(response.data);
+      } catch (error) {
+        console.error('Error fetching site settings for About page:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
   return (
     <div className="min-h-screen flex flex-col bg-background" style={{ fontFamily: 'Inter, sans-serif' }}>
       <Header />
@@ -202,9 +232,189 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* FAQ Section (shared with Home page content) */}
+        <section className="py-20" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-3xl mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl font-bold text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Frequently Asked Questions
+              </h2>
+              <p className="mt-2 text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Get answers to common questions about our platform
+              </p>
+            </motion.div>
+
+            <div className="space-y-4">
+              {/* Question 1 */}
+              <div
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
+              >
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <HelpCircle className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {settings.faq_q1 || 'How can I access content of the site?'}
+                      </span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {settings.faq_a1 ||
+                      'You can browse jobs and courses for free. Some premium content may require registration or purchase.'}
+                  </p>
+                </details>
+              </div>
+
+              {/* Question 2 */}
+              <div
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
+              >
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {settings.faq_q2 || 'Is the job board free to access?'}
+                      </span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {settings.faq_a2 ||
+                      'Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.'}
+                  </p>
+                </details>
+              </div>
+
+              {/* Question 3 */}
+              <div
+                className="border rounded-xl overflow-hidden transition-colors"
+                style={{
+                  borderColor: 'rgb(51 65 85)',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgb(51 65 85)';
+                }}
+              >
+                <details className="group p-6 cursor-pointer" style={{ backgroundColor: '#1E293B' }}>
+                  <summary className="flex items-center justify-between font-medium text-white list-none">
+                    <div className="flex items-center gap-3">
+                      <School className="text-secondary" style={{ color: '#2563EB' }} />
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {settings.faq_q3 || 'How can I access the cybercoach service?'}
+                      </span>
+                    </div>
+                    <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
+                  </summary>
+                  <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {settings.faq_a3 ||
+                      'Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.'}
+                  </p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Privacy Policy Section */}
+        <section className="py-20 bg-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <div className="container mx-auto px-4 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="max-w-4xl mx-auto"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  Privacy Policy
+                </h2>
+              </div>
+              {settings.privacy_policy ? (
+                <>
+                  <p
+                    className="text-slate-700 leading-relaxed whitespace-pre-line line-clamp-6"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    {settings.privacy_policy}
+                  </p>
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-base font-semibold text-primary hover:text-accent transition-colors"
+                      onClick={() => setPrivacyOpen(true)}
+                    >
+                      <span>See more</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-slate-500 leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  The privacy policy will be published here once it is configured in the admin settings.
+                </p>
+              )}
+            </motion.div>
+          </div>
+        </section>
       </main>
 
       <Footer />
+
+      {/* Full Privacy Policy Dialog */}
+      <Dialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Privacy Policy</DialogTitle>
+          </DialogHeader>
+          {settings.privacy_policy ? (
+            <p
+              className="mt-2 text-slate-700 leading-relaxed whitespace-pre-line"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            >
+              {settings.privacy_policy}
+            </p>
+          ) : (
+            <p className="mt-2 text-slate-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+              The privacy policy will be published here once it is configured in the admin settings.
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

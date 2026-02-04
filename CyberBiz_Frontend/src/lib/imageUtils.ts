@@ -3,6 +3,7 @@
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 // Storage is served from the API origin (api.cyberbizafrica.com or localhost:8000)
 // Remove /api from pathname but keep the hostname as-is (preserves api. subdomain)
 const STORAGE_ORIGIN = (() => {

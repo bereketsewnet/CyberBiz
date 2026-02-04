@@ -345,6 +345,13 @@ export const apiService = {
       linkedin_url?: string;
       instagram_url?: string;
       youtube_url?: string;
+      faq_q1?: string;
+      faq_a1?: string;
+      faq_q2?: string;
+      faq_a2?: string;
+      faq_q3?: string;
+      faq_a3?: string;
+      privacy_policy?: string;
       created_at: string;
       updated_at: string;
     };
@@ -571,6 +578,13 @@ export const apiService = {
       linkedin_url?: string;
       instagram_url?: string;
       youtube_url?: string;
+      faq_q1?: string;
+      faq_a1?: string;
+      faq_q2?: string;
+      faq_a2?: string;
+      faq_q3?: string;
+      faq_a3?: string;
+      privacy_policy?: string;
       created_at: string;
       updated_at: string;
     };
@@ -587,6 +601,13 @@ export const apiService = {
     linkedin_url?: string;
     instagram_url?: string;
     youtube_url?: string;
+    faq_q1?: string;
+    faq_a1?: string;
+    faq_q2?: string;
+    faq_a2?: string;
+    faq_q3?: string;
+    faq_a3?: string;
+    privacy_policy?: string;
   }): Promise<{
     message: string;
     data: {
@@ -599,6 +620,13 @@ export const apiService = {
       linkedin_url?: string;
       instagram_url?: string;
       youtube_url?: string;
+      faq_q1?: string;
+      faq_a1?: string;
+      faq_q2?: string;
+      faq_a2?: string;
+      faq_q3?: string;
+      faq_a3?: string;
+      privacy_policy?: string;
       created_at: string;
       updated_at: string;
     };
@@ -745,6 +773,14 @@ export const apiService = {
     per_page?: number;
   }): Promise<PaginatedResponse<Newsletter>> {
     return api.get('/admin/newsletters', params);
+  },
+
+  // Public read-only newsletters feed for News page
+  async getPublicNewsletters(params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Newsletter>> {
+    return api.get('/newsletters/public', params);
   },
 
   async createNewsletter(data: {

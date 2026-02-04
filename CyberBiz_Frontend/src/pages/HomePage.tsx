@@ -26,6 +26,14 @@ export default function HomePage() {
     success_rate: 85,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [faq, setFaq] = useState<{
+    faq_q1?: string;
+    faq_a1?: string;
+    faq_q2?: string;
+    faq_a2?: string;
+    faq_q3?: string;
+    faq_a3?: string;
+  }>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +60,26 @@ export default function HomePage() {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchFaq = async () => {
+      try {
+        const response = await apiService.getPublicSiteSettings();
+        const data = response.data;
+        setFaq({
+          faq_q1: data.faq_q1,
+          faq_a1: data.faq_a1,
+          faq_q2: data.faq_q2,
+          faq_a2: data.faq_a2,
+          faq_q3: data.faq_q3,
+          faq_a3: data.faq_a3,
+        });
+      } catch (error) {
+        console.error('Error fetching FAQ settings:', error);
+      }
+    };
+    fetchFaq();
   }, []);
 
   // Add CSS for hiding scrollbar in webkit browsers
@@ -632,6 +660,175 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Quick Links by User Type */}
+        <section className="py-16 bg-slate-50" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Get Started Faster
+              </h2>
+              <p className="text-slate-600" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Quick links for each type of user to reach the most important pages in one click.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {/* For Employers */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                    <Briefcase className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">For Employers</h3>
+                    <p className="text-xs text-slate-500">Hire talent & promote your opportunities</p>
+                  </div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link
+                      to="/signup?role=EMPLOYER"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Employers</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/signup?role=EMPLOYER"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Post a Job</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/pricing"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Pricing Plans</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/employer-faq"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Employer FAQ</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* For Job Seekers */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">For Job Seekers</h3>
+                    <p className="text-xs text-slate-500">Find and apply for your next opportunity</p>
+                  </div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link
+                      to="/jobs"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Browse Jobs</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/signup?role=SEEKER"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Create Seeker Account</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/my-applications"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>My Applications</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/my-favorites"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Saved Jobs</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* For Learners */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">For Learners</h3>
+                    <p className="text-xs text-slate-500">Grow your skills with courses & e‑books</p>
+                  </div>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Link
+                      to="/courses"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Browse Courses & E‑Books</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/signup?role=LEARNER"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Create Learner Account</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/my-library"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>My Library</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/affiliate/programs"
+                      className="inline-flex items-center gap-1 text-primary hover:text-accent transition-colors"
+                    >
+                      <span>Affiliate Programs</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ Section */}
         <section className="py-16 md:py-24" style={{ backgroundColor: '#0F172A', fontFamily: 'Inter, sans-serif' }}>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -661,12 +858,14 @@ export default function HomePage() {
                   <summary className="flex items-center justify-between font-medium text-white list-none">
                     <div className="flex items-center gap-3">
                       <HelpCircle className="text-secondary" style={{ color: '#2563EB' }} />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>How can I access content of the site?</span>
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {faq.faq_q1 || 'How can I access content of the site?'}
+                      </span>
                     </div>
                     <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
                   </summary>
                   <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    You can browse jobs and courses for free. Some premium content may require registration or purchase.
+                    {faq.faq_a1 || 'You can browse jobs and courses for free. Some premium content may require registration or purchase.'}
                   </p>
                 </details>
               </div>
@@ -688,12 +887,14 @@ export default function HomePage() {
                   <summary className="flex items-center justify-between font-medium text-white list-none">
                     <div className="flex items-center gap-3">
                       <DollarSign className="text-secondary" style={{ color: '#2563EB' }} />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>Is the job board free to access?</span>
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {faq.faq_q2 || 'Is the job board free to access?'}
+                      </span>
                     </div>
                     <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
                   </summary>
                   <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.
+                    {faq.faq_a2 || 'Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost.'}
                   </p>
                 </details>
               </div>
@@ -715,12 +916,14 @@ export default function HomePage() {
                   <summary className="flex items-center justify-between font-medium text-white list-none">
                     <div className="flex items-center gap-3">
                       <School className="text-secondary" style={{ color: '#2563EB' }} />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>How can I access the cybercoach service?</span>
+                      <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {faq.faq_q3 || 'How can I access the cybercoach service?'}
+                      </span>
                     </div>
                     <ChevronDown className="transition-transform group-open:rotate-180 text-slate-400" />
                   </summary>
                   <p className="text-slate-400 mt-4 ml-9 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.
+                    {faq.faq_a3 || 'Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs.'}
                   </p>
                 </details>
               </div>

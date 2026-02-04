@@ -21,6 +21,9 @@ import SponsorshipPostDetailPage from "./pages/SponsorshipPostDetailPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import NewsPage from "./pages/NewsPage";
+import PricingPage from "./pages/PricingPage";
+import EmployerFAQPage from "./pages/EmployerFAQPage";
 
 // Seeker Pages
 import MyApplicationsPage from "./pages/seeker/MyApplicationsPage";
@@ -89,7 +92,10 @@ const App = () => (
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/employer-faq" element={<EmployerFAQPage />} />
           <Route path="/blogs" element={<BlogPage />} />
           <Route path="/blogs/:id" element={<BlogDetailPage />} />
           <Route path="/sponsorship-posts/:id" element={<SponsorshipPostDetailPage />} />

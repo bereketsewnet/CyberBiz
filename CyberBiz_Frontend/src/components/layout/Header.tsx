@@ -64,6 +64,9 @@ export function Header() {
             <Link to="/about" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               About
             </Link>
+            <Link to="/news" className="text-muted-foreground hover:text-accent transition-colors link-underline">
+              News
+            </Link>
             <Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors link-underline">
               Contact
             </Link>
@@ -242,6 +245,13 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   About
+                </Link>
+                <Link
+                  to="/news"
+                  className="block py-2 text-foreground"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  News
                 </Link>
                 <Link
                   to="/contact"

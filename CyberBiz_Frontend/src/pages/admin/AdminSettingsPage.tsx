@@ -19,6 +19,13 @@ interface SiteSettings {
   linkedin_url?: string;
   instagram_url?: string;
   youtube_url?: string;
+   faq_q1?: string;
+   faq_a1?: string;
+   faq_q2?: string;
+   faq_a2?: string;
+   faq_q3?: string;
+   faq_a3?: string;
+   privacy_policy?: string;
 }
 
 export default function AdminSettingsPage() {
@@ -32,6 +39,13 @@ export default function AdminSettingsPage() {
     linkedin_url: '',
     instagram_url: '',
     youtube_url: '',
+    faq_q1: '',
+    faq_a1: '',
+    faq_q2: '',
+    faq_a2: '',
+    faq_q3: '',
+    faq_a3: '',
+    privacy_policy: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -72,6 +86,13 @@ export default function AdminSettingsPage() {
         linkedin_url: nullIfEmpty(settings.linkedin_url),
         instagram_url: nullIfEmpty(settings.instagram_url),
         youtube_url: nullIfEmpty(settings.youtube_url),
+        faq_q1: nullIfEmpty(settings.faq_q1),
+        faq_a1: nullIfEmpty(settings.faq_a1),
+        faq_q2: nullIfEmpty(settings.faq_q2),
+        faq_a2: nullIfEmpty(settings.faq_a2),
+        faq_q3: nullIfEmpty(settings.faq_q3),
+        faq_a3: nullIfEmpty(settings.faq_a3),
+        privacy_policy: nullIfEmpty(settings.privacy_policy),
       });
 
       setSettings(response.data);
@@ -264,6 +285,98 @@ export default function AdminSettingsPage() {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* FAQ Section */}
+                <div className="border-t border-slate-200 pt-6">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Frequently Asked Questions (FAQ)
+                  </h2>
+                  <p className="text-sm text-slate-600 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    These questions and answers are used on both the Home page and the About page. Update them here whenever you want to change the public FAQ content.
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="faq_q1">Question 1</Label>
+                      <Input
+                        id="faq_q1"
+                        type="text"
+                        value={settings.faq_q1 || ''}
+                        onChange={(e) => handleChange('faq_q1', e.target.value)}
+                        placeholder="How can I access content of the site?"
+                        className="mt-1"
+                      />
+                      <Label htmlFor="faq_a1" className="mt-2 block">Answer 1</Label>
+                      <Textarea
+                        id="faq_a1"
+                        value={settings.faq_a1 || ''}
+                        onChange={(e) => handleChange('faq_a1', e.target.value)}
+                        placeholder="You can browse jobs and courses for free. Some premium content may require registration or purchase."
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="faq_q2">Question 2</Label>
+                      <Input
+                        id="faq_q2"
+                        type="text"
+                        value={settings.faq_q2 || ''}
+                        onChange={(e) => handleChange('faq_q2', e.target.value)}
+                        placeholder="Is the job board free to access?"
+                        className="mt-1"
+                      />
+                      <Label htmlFor="faq_a2" className="mt-2 block">Answer 2</Label>
+                      <Textarea
+                        id="faq_a2"
+                        value={settings.faq_a2 || ''}
+                        onChange={(e) => handleChange('faq_a2', e.target.value)}
+                        placeholder="Yes, browsing and searching for jobs is completely free. You can view job listings and apply without any cost."
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="faq_q3">Question 3</Label>
+                      <Input
+                        id="faq_q3"
+                        type="text"
+                        value={settings.faq_q3 || ''}
+                        onChange={(e) => handleChange('faq_q3', e.target.value)}
+                        placeholder="How can I access the cybercoach service?"
+                        className="mt-1"
+                      />
+                      <Label htmlFor="faq_a3" className="mt-2 block">Answer 3</Label>
+                      <Textarea
+                        id="faq_a3"
+                        value={settings.faq_a3 || ''}
+                        onChange={(e) => handleChange('faq_a3', e.target.value)}
+                        placeholder="Our virtual coaching services on program lifecycle management and leadership skills are available through our courses section. Browse our catalog to find relevant training programs."
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Privacy Policy Section */}
+                <div className="border-t border-slate-200 pt-6">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    Privacy Policy
+                  </h2>
+                  <p className="text-sm text-slate-600 mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    This text will be displayed on the About page under a separate Privacy Policy section. Paste or write your full privacy policy here.
+                  </p>
+                  <Textarea
+                    id="privacy_policy"
+                    value={settings.privacy_policy || ''}
+                    onChange={(e) => handleChange('privacy_policy', e.target.value)}
+                    placeholder="Enter your privacy policy..."
+                    rows={8}
+                    className="mt-1"
+                  />
                 </div>
 
                 {/* Submit Button */}
