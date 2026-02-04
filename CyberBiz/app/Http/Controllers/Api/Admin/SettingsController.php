@@ -52,6 +52,13 @@ class SettingsController extends Controller
             'linkedin_url' => 'nullable|url|max:255',
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
+            'faq_q1' => 'nullable|string',
+            'faq_a1' => 'nullable|string',
+            'faq_q2' => 'nullable|string',
+            'faq_a2' => 'nullable|string',
+            'faq_q3' => 'nullable|string',
+            'faq_a3' => 'nullable|string',
+            'privacy_policy' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {

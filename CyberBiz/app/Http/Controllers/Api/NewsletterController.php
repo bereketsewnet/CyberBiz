@@ -174,6 +174,28 @@ class NewsletterController extends Controller
     }
 
     /**
+     * Get newsletters for public News page (read-only)
+     */
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $perPage = (int) $request->get('per_page', 10);
+
+        $newsletters = Newsletter::query()
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'data' => $newsletters->items(),
+            'meta' => [
+                'current_page' => $newsletters->currentPage(),
+                'last_page' => $newsletters->lastPage(),
+                'per_page' => $newsletters->perPage(),
+                'total' => $newsletters->total(),
+            ],
+        ]);
+    }
+
+    /**
      * Create a newsletter (admin only)
      */
     public function store(Request $request): JsonResponse

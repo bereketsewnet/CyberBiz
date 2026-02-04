@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Newsletter (Public subscribe/unsubscribe, Admin management)
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe']);
 Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe']);
+Route::get('/newsletters/public', [NewsletterController::class, 'publicIndex']);
 
 // Services (Public)
 Route::get('/services', [ServiceController::class, 'index']);
